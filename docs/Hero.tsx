@@ -1,23 +1,23 @@
 import cx from 'classnames'
 import Link from 'next/link'
+import { forwardRef } from 'react'
 import styles from './Hero.module.css'
 
 const subtitle = 'Accessible, Delightful, and Performant'
-
-const HeroLink: React.FC<{ href?: string }> = ({ href, children }) => (
-  <a href={href} className="bg">
-    {children}
-  </a>
-)
+const linkClassNames = ''
 
 const Links = () => (
   <>
-    <Link href="/docs" passHref>
-      <HeroLink>Get Started</HeroLink>
+    <Link href="/docs">
+      <a className={linkClassNames}>Get Started</a>
     </Link>
-    <HeroLink href="https://github.com/stipsan/react-spring-bottom-sheet">
+    <a
+      className={linkClassNames}
+      href="https://github.com/stipsan/react-spring-bottom-sheet"
+      target="_blank"
+    >
       GitHub
-    </HeroLink>
+    </a>
   </>
 )
 
