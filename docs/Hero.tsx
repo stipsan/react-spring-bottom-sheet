@@ -1,7 +1,13 @@
 import cx from 'classnames'
 import NextLink from 'next/link'
-import { forwardRef, useEffect, useState } from 'react'
-import { animated, useSpring, config } from 'react-spring'
+import { forwardRef, useEffect, useRef, useState } from 'react'
+import {
+  animated,
+  config,
+  useChain,
+  useSpring,
+  useTransition,
+} from 'react-spring'
 import styles from './Hero.module.css'
 
 const subtitle = 'Accessible, Delightful, and Performant'
@@ -52,12 +58,18 @@ const SvgText: React.FC<{ x?: string; y?: string; className?: string }> = ({
   </text>
 )
 
-const from = { transform: 'translate3d(0,208px,0)' }
-const to = { transform: 'translate3d(0,0,0)' }
+const data = [
+  { text: 'React', y: '128' },
+  { text: 'Spring', y: '174' },
+  { text: 'Bottom', y: '220' },
+  { text: 'Sheet', y: '266' },
+]
 
 export default function Hero() {
   const [open, setOpen] = useState(false)
+  const springRef = useRef()
   const { transform, opacity } = useSpring<any>({
+    ref: springRef,
     config: config.stiff,
     from: { transform: 'translate3d(0,208px,0)', opacity: 0 },
     to: {
@@ -65,17 +77,31 @@ export default function Hero() {
       opacity: open ? 1 : 0,
     },
   })
-  console.log({ transform })
+
+  const transRef = useRef()
+  const transitions = useTransition(open ? data : [], (item) => item.text, {
+    ref: transRef,
+    unique: true,
+    reset: true,
+    trail: 300 / data.length,
+    from: { opacity: 0 /*transform: 'translate3d(0,20px,0)'*/ },
+    enter: { opacity: 1 /*transform: 'translate3d(0,0,0)'*/ },
+    leave: { opacity: 0 /*transform: 'translate3d(0,20px,0)'*/ },
+  })
+
+  useChain(
+    open ? [springRef, transRef] : [transRef, springRef],
+    open ? [0, 0.1] : [0.5, 0]
+  )
 
   useEffect(() => {
-    // set(open ? from : to)
     setOpen(true)
   }, [])
 
   return (
     <>
       <div className={cx(styles.wrapper, 'flex justify-center')}>
-        <div className="container inline-flex items-end">
+        <div className="inline-flex items-end">
           <svg
             onPointerDown={() => setOpen((open) => !open)}
             className={cx(styles.svg, 'flex-shrink-0 transform-gpu')}
@@ -118,13 +144,29 @@ export default function Hero() {
                 rx="1"
                 fill="hsl(328deg 44% 24% / 50%)"
               />
-              <SvgText y="128">React</SvgText>
-              <SvgText y="174">Spring</SvgText>
-              <SvgText y="220">Bottom</SvgText>
-              <SvgText y="266">Sheet</SvgText>
+              {transitions.map(({ item, key, props }) => (
+                <animated.text
+                  key={key}
+                  x="23"
+                  y={item.y}
+                  style={props}
+                  className={cx(
+                    styles.text,
+                    'text-hero fill-current font-display font-black select-none transform-gpu'
+                  )}
+                >
+                  {item.text}
+                </animated.text>
+              ))}
+              <g style={{ display: 'none' }}>
+                <SvgText y="128">React</SvgText>
+                <SvgText y="174">Spring</SvgText>
+                <SvgText y="220">Bottom</SvgText>
+                <SvgText y="266">Sheet</SvgText>
+              </g>
             </animated.g>
           </svg>
-          <div className="font-display ml-10 mb-10 text-hero">
+          <div className="font-display ml-10 mb-10 text-hero hidden md:block">
             <p
               className={cx(styles.subtitle, 'pb-4')}
               style={{ maxWidth: '500px' }}
