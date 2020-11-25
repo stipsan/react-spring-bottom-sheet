@@ -6,15 +6,28 @@
     "build": "next build",
     "start": "next start"
   },
-  "dependencies": {
-    "next": "latest",
-    "react": "^16.13.1",
-    "react-dom": "^16.13.1"
-  },
+  "dependencies": {},
   "devDependencies": {
     "autoprefixer": "10.0.2",
     "postcss": "8.1.7",
-    "tailwindcss": "^2.0.1"
+    "tailwindcss": "^2.0.1",
+    "next": "latest",
+    "react-spring": "^9.0.0-rc.3",
+    "react": "^16.13.1",
+    "react-dom": "^16.13.1"
   },
-  "license": "MIT"
+  "license": "MIT",
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  },
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx,md,html,css,yml,json}": "prettier --write",
+    "package.json": "prettier-package-json --write"
+  },
+  "prettier": {
+    "semi": false,
+    "singleQuote": true
+  }
 }
