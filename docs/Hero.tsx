@@ -33,9 +33,20 @@ const Links = () => (
 const SvgText: React.FC<{ x?: string; y?: string; className?: string }> = ({
   children,
   className,
+  x = '23',
+  y,
   ...props
 }) => (
-  <text {...props} className={cx(className, styles.text, 'text-hero')}>
+  <text
+    x={x}
+    y={y}
+    {...props}
+    className={cx(
+      className,
+      styles.text,
+      'text-hero fill-current font-display font-black'
+    )}
+  >
     {children}
   </text>
 )
@@ -82,9 +93,10 @@ export default function Hero() {
               rx="1"
               fill="hsl(328deg 44% 24% / 50%)"
             />
-            <SvgText x="65" y="55">
-              React
-            </SvgText>
+            <SvgText y="128">React</SvgText>
+            <SvgText y="174">Spring</SvgText>
+            <SvgText y="220">Bottom</SvgText>
+            <SvgText y="266">Sheet</SvgText>
           </svg>
           <div className="font-display ml-10 mb-10 text-hero">
             <p
