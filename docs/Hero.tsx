@@ -1,7 +1,7 @@
 import cx from 'classnames'
 import NextLink from 'next/link'
 import { forwardRef, useEffect, useState } from 'react'
-import { animated, useSpring } from 'react-spring'
+import { animated, useSpring, config } from 'react-spring'
 import styles from './Hero.module.css'
 
 const subtitle = 'Accessible, Delightful, and Performant'
@@ -57,18 +57,27 @@ const to = { transform: 'translate3d(0,0,0)' }
 
 export default function Hero() {
   const [open, setOpen] = useState(false)
-  const [{ transform }, set] = useSpring(() => from)
+  const { transform, opacity } = useSpring<any>({
+    config: config.stiff,
+    from: { transform: 'translate3d(0,208px,0)', opacity: 0 },
+    to: {
+      transform: open ? 'translate3d(0,0,0)' : 'translate3d(0,208px,0)',
+      opacity: open ? 1 : 0,
+    },
+  })
+  console.log({ transform })
 
   useEffect(() => {
-    set(open ? from : to)
-  }, [open])
+    // set(open ? from : to)
+    setOpen(true)
+  }, [])
 
   return (
     <>
       <div className={cx(styles.wrapper, 'flex justify-center')}>
         <div className="container inline-flex items-end">
           <svg
-            onClick={() => setOpen((open) => !open)}
+            onPointerDown={() => setOpen((open) => !open)}
             className={cx(styles.svg, 'flex-shrink-0 transform-gpu')}
             width="200"
             height="286"
@@ -84,6 +93,13 @@ export default function Hero() {
               fill="#592340"
             />
             <path
+              fillRule="evenodd"
+              clipRule="evenodd"
+              d="M49.2421 13.2667C49.2421 17.8967 52.6614 23.5577 60.5289 23.5577H138.892C146.759 23.5577 150.179 17.8967 150.179 13.4275C150.179 11.1996 150.179 9.08594 153.887 9.08594H169.527C182.598 9.08594 190.489 16.9546 190.489 29.9897V379.564C190.489 392.599 182.598 400.468 169.527 400.468H30.0545C16.9836 400.468 9.09331 392.599 9.09331 379.564V29.9897C9.09331 16.9546 16.9836 9.08594 30.0545 9.08594H45.5336C49.2421 9.08594 49.2421 11.1996 49.2421 13.2667Z"
+              fill="#fed7e6"
+            />
+            <animated.path
+              style={{ opacity }}
               fillRule="evenodd"
               clipRule="evenodd"
               d="M49.2421 13.2667C49.2421 17.8967 52.6614 23.5577 60.5289 23.5577H138.892C146.759 23.5577 150.179 17.8967 150.179 13.4275C150.179 11.1996 150.179 9.08594 153.887 9.08594H169.527C182.598 9.08594 190.489 16.9546 190.489 29.9897V379.564C190.489 392.599 182.598 400.468 169.527 400.468H30.0545C16.9836 400.468 9.09331 392.599 9.09331 379.564V29.9897C9.09331 16.9546 16.9836 9.08594 30.0545 9.08594H45.5336C49.2421 9.08594 49.2421 11.1996 49.2421 13.2667Z"
