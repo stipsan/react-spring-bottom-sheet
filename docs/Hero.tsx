@@ -52,7 +52,7 @@ const SvgText: React.FC<{ x?: string; y?: string; className?: string }> = ({
   </text>
 )
 
-const from = { transform: 'translate3d(0,20px,0)' }
+const from = { transform: 'translate3d(0,208px,0)' }
 const to = { transform: 'translate3d(0,0,0)' }
 
 export default function Hero() {
@@ -69,7 +69,7 @@ export default function Hero() {
         <div className="container inline-flex items-end">
           <svg
             onClick={() => setOpen((open) => !open)}
-            className={cx(styles.svg, 'flex-shrink-0')}
+            className={cx(styles.svg, 'flex-shrink-0 transform-gpu')}
             width="200"
             height="286"
             viewBox="0 0 200 286"
@@ -89,22 +89,24 @@ export default function Hero() {
               d="M49.2421 13.2667C49.2421 17.8967 52.6614 23.5577 60.5289 23.5577H138.892C146.759 23.5577 150.179 17.8967 150.179 13.4275C150.179 11.1996 150.179 9.08594 153.887 9.08594H169.527C182.598 9.08594 190.489 16.9546 190.489 29.9897V379.564C190.489 392.599 182.598 400.468 169.527 400.468H30.0545C16.9836 400.468 9.09331 392.599 9.09331 379.564V29.9897C9.09331 16.9546 16.9836 9.08594 30.0545 9.08594H45.5336C49.2421 9.08594 49.2421 11.1996 49.2421 13.2667Z"
               fill="#FC9EC2"
             />
-            <path
-              d="M9 99.75C9 93.4642 9 90.3213 9.92713 87.8082C11.4459 83.6913 14.6913 80.4459 18.8082 78.9271C21.3213 78 24.4642 78 30.75 78H169.25C175.536 78 178.679 78 181.192 78.9271C185.309 80.4459 188.554 83.6913 190.073 87.8082C191 90.3213 191 93.4642 191 99.75V372C191 380.381 191 384.572 189.764 387.922C187.739 393.412 183.412 397.739 177.922 399.764C174.572 401 170.381 401 162 401H38C29.619 401 25.4285 401 22.0777 399.764C16.5884 397.739 12.2613 393.412 10.2362 387.922C9 384.572 9 380.381 9 372V99.75Z"
-              fill="white"
-            />
-            <rect
-              x="89"
-              y="85"
-              width="22"
-              height="2"
-              rx="1"
-              fill="hsl(328deg 44% 24% / 50%)"
-            />
-            <SvgText y="128">React</SvgText>
-            <SvgText y="174">Spring</SvgText>
-            <SvgText y="220">Bottom</SvgText>
-            <SvgText y="266">Sheet</SvgText>
+            <animated.g style={{ transform }}>
+              <path
+                d="M9 99.75C9 93.4642 9 90.3213 9.92713 87.8082C11.4459 83.6913 14.6913 80.4459 18.8082 78.9271C21.3213 78 24.4642 78 30.75 78H169.25C175.536 78 178.679 78 181.192 78.9271C185.309 80.4459 188.554 83.6913 190.073 87.8082C191 90.3213 191 93.4642 191 99.75V372C191 380.381 191 384.572 189.764 387.922C187.739 393.412 183.412 397.739 177.922 399.764C174.572 401 170.381 401 162 401H38C29.619 401 25.4285 401 22.0777 399.764C16.5884 397.739 12.2613 393.412 10.2362 387.922C9 384.572 9 380.381 9 372V99.75Z"
+                fill="white"
+              />
+              <rect
+                x="89"
+                y="85"
+                width="22"
+                height="2"
+                rx="1"
+                fill="hsl(328deg 44% 24% / 50%)"
+              />
+              <SvgText y="128">React</SvgText>
+              <SvgText y="174">Spring</SvgText>
+              <SvgText y="220">Bottom</SvgText>
+              <SvgText y="266">Sheet</SvgText>
+            </animated.g>
           </svg>
           <div className="font-display ml-10 mb-10 text-hero">
             <p

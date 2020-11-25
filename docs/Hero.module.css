@@ -14,6 +14,7 @@
   bottom: 0;
   height: 1px;
   background: rgba(89, 35, 64, 0.4);
+  z-index: 1;
 }
 .subtitle,
 .text {
