@@ -1,4 +1,4 @@
-import Nav from '../components/nav'
+import Nav from '../docs/nav'
 
 export default function IndexPage() {
   return (
