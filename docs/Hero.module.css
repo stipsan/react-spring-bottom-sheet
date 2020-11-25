@@ -22,6 +22,30 @@
   line-height: 46px;
 }
 
+.text.text.text {
+  --tw-translate-y: calc(20px - calc(20px * var(--test, 0)));
+  opacity: var(--test);
+  transition-duration: calc(2s * var(--test, 0));
+  transition-timing-function: ease-out;
+}
+
+.open .text {
+  --tw-translate-y: 0px;
+}
+
+.text {
+  transition-delay: calc(600ms + calc(var(--delay, 100ms) * var(--index, 1)));
+}
+.text + .text {
+  --index: 2;
+}
+.text + .text + .text {
+  --index: 3;
+}
+.text + .text + .text + .text {
+  --index: 4;
+}
+
 .svg {
   /* TODO */
 }
