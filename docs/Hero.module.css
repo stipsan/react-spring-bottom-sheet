@@ -2,4 +2,20 @@
   background: linear-gradient(171.09deg, #f1c7a7 0.47%, #ff8fcb 96.54%), #c4c4c4;
   height: 336px;
   width: 100%;
+
+  position: relative;
+}
+.wrapper:before {
+  content: '';
+  display: block;
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 1px;
+  background: rgba(89, 35, 64, 0.4);
+}
+
+.svg {
+  /* TODO */
 }

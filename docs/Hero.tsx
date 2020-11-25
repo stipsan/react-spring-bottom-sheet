@@ -4,8 +4,9 @@ import styles from './Hero.module.css'
 export default function Hero() {
   return (
     <div className={cx(styles.wrapper, 'flex justify-center')}>
-      <div className="container">
+      <div className="container inline-flex items-end">
         <svg
+          className={cx(styles.svg)}
           width="200"
           height="286"
           viewBox="0 0 200 286"
