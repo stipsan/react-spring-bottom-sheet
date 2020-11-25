@@ -1,6 +1,7 @@
 import cx from 'classnames'
 import NextLink from 'next/link'
-import { forwardRef } from 'react'
+import { forwardRef, useEffect, useState } from 'react'
+import { animated, useSpring } from 'react-spring'
 import styles from './Hero.module.css'
 
 const subtitle = 'Accessible, Delightful, and Performant'
@@ -51,12 +52,23 @@ const SvgText: React.FC<{ x?: string; y?: string; className?: string }> = ({
   </text>
 )
 
+const from = { transform: 'translate3d(0,20px,0)' }
+const to = { transform: 'translate3d(0,0,0)' }
+
 export default function Hero() {
+  const [open, setOpen] = useState(false)
+  const [{ transform }, set] = useSpring(() => from)
+
+  useEffect(() => {
+    set(open ? from : to)
+  }, [open])
+
   return (
     <>
       <div className={cx(styles.wrapper, 'flex justify-center')}>
         <div className="container inline-flex items-end">
           <svg
+            onClick={() => setOpen((open) => !open)}
             className={cx(styles.svg, 'flex-shrink-0')}
             width="200"
             height="286"
