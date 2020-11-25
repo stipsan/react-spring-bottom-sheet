@@ -1,6 +1,5 @@
 import cx from 'classnames'
 import Link from 'next/link'
-import { forwardRef } from 'react'
 import styles from './Hero.module.css'
 
 const subtitle = 'Accessible, Delightful, and Performant'
@@ -12,7 +11,7 @@ const Links = () => (
       <a className={linkClassNames}>Get Started</a>
     </Link>
     <a
-      className={linkClassNames}
+      className=" bg-clip-text bg-current rounded-full px-4 py-2"
       href="https://github.com/stipsan/react-spring-bottom-sheet"
       target="_blank"
     >
@@ -63,8 +62,8 @@ export default function Hero() {
               fill="hsl(328deg 44% 24% / 50%)"
             />
           </svg>
-          <div className="">
-            <p>{subtitle}</p>
+          <div className="font-display ml-10 mb-10 text-hero">
+            <p className="text-4xl leading-6">{subtitle}</p>
             <div>
               <Links />
             </div>

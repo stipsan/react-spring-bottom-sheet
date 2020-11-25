@@ -7,8 +7,14 @@ module.exports = {
       display: ['Montserrat', 'sans-serif'],
       body: ['Source Sans Pro', 'sans-serif'],
     },
-
-    extend: {},
+    extend: {
+      colors: {
+        hero: {
+          DEFAULT: '#592340',
+          lighter: '#FC9CC3',
+        },
+      },
+    },
   },
   variants: {
     extend: {},
