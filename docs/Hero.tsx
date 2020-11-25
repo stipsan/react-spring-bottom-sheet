@@ -15,7 +15,9 @@ const Links = () => (
     <Link href="/docs" passHref>
       <HeroLink>Get Started</HeroLink>
     </Link>
-    <HeroLink href="">GitHub</HeroLink>
+    <HeroLink href="https://github.com/stipsan/react-spring-bottom-sheet">
+      GitHub
+    </HeroLink>
   </>
 )
 
