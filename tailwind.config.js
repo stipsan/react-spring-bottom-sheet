@@ -14,10 +14,13 @@ module.exports = {
           lighter: '#FC9CC3',
         },
       },
+      transitionDuration: {
+        0: '0ms',
+      },
     },
   },
   variants: {
-    extend: {},
+    extend: { transitionDuration: ['focus'] },
   },
   plugins: [],
 }

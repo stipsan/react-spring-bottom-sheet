@@ -15,6 +15,11 @@
   height: 1px;
   background: rgba(89, 35, 64, 0.4);
 }
+.subtitle,
+.text {
+  font-size: 32px;
+  line-height: 46px;
+}
 
 .svg {
   /* TODO */

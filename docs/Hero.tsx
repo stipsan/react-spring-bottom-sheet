@@ -1,23 +1,43 @@
 import cx from 'classnames'
-import Link from 'next/link'
+import NextLink from 'next/link'
+import { forwardRef } from 'react'
 import styles from './Hero.module.css'
 
 const subtitle = 'Accessible, Delightful, and Performant'
-const linkClassNames = ''
+
+const Link: React.FC<{ href?: string; target?: string }> = forwardRef(
+  ({ children, href }, ref: React.Ref<HTMLAnchorElement>) => (
+    <a
+      className="bg-hero rounded-full px-4 py-2 text-hero-lighter mr-2 text-xl hover:text-hero hover:bg-hero-lighter focus:outline-none focus:bg-hero-lighter focus:text-hero focus:ring-2 focus:ring-hero transition-colors duration-150 focus:duration-0"
+      href={href}
+      ref={ref}
+    >
+      {children}
+    </a>
+  )
+)
 
 const Links = () => (
   <>
-    <Link href="/docs">
-      <a className={linkClassNames}>Get Started</a>
-    </Link>
-    <a
-      className=" bg-clip-text bg-current rounded-full px-4 py-2"
+    <NextLink href="/docs" passHref>
+      <Link>Get Started</Link>
+    </NextLink>
+    <Link
       href="https://github.com/stipsan/react-spring-bottom-sheet"
       target="_blank"
     >
       GitHub
-    </a>
+    </Link>
   </>
+)
+const SvgText: React.FC<{ x?: string; y?: string; className?: string }> = ({
+  children,
+  className,
+  ...props
+}) => (
+  <text {...props} className={cx(className, styles.text, 'text-hero')}>
+    {children}
+  </text>
 )
 
 export default function Hero() {
@@ -26,12 +46,13 @@ export default function Hero() {
       <div className={cx(styles.wrapper, 'flex justify-center')}>
         <div className="container inline-flex items-end">
           <svg
-            className={cx(styles.svg)}
+            className={cx(styles.svg, 'flex-shrink-0')}
             width="200"
             height="286"
             viewBox="0 0 200 286"
             fill="none"
             xmlns="http://www.w3.org/2000/svg"
+            aria-label="Phone illustration of a bottom sheet containing the text: React Spring Bottom Sheet"
           >
             <path
               fillRule="evenodd"
@@ -61,10 +82,18 @@ export default function Hero() {
               rx="1"
               fill="hsl(328deg 44% 24% / 50%)"
             />
+            <SvgText x="65" y="55">
+              React
+            </SvgText>
           </svg>
           <div className="font-display ml-10 mb-10 text-hero">
-            <p className="text-4xl leading-6">{subtitle}</p>
-            <div>
+            <p
+              className={cx(styles.subtitle, 'pb-4')}
+              style={{ maxWidth: '500px' }}
+            >
+              {subtitle}
+            </p>
+            <div className="mt-4">
               <Links />
             </div>
           </div>
