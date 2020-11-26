@@ -1,14 +1,7 @@
 import cx from 'classnames'
-import { request } from 'https'
 import NextLink from 'next/link'
 import { forwardRef, useEffect, useRef, useState } from 'react'
-import {
-  animated,
-  config,
-  useChain,
-  useSpring,
-  useTransition,
-} from 'react-spring'
+import { animated, config, useSpring } from 'react-spring'
 import styles from './Hero.module.css'
 
 const subtitle = 'Accessible, Delightful, and Performant'
@@ -35,7 +28,7 @@ const Link: React.FC<{
 const Links = ({ className }: { className?: string }) => (
   <>
     <NextLink href="/docs" passHref>
-      <Link className={className}>Get Started</Link>
+      <Link className={className}>Get started</Link>
     </NextLink>
     <Link
       className={className}
@@ -115,7 +108,7 @@ export default function Hero() {
             <path
               fillRule="evenodd"
               clipRule="evenodd"
-              d="M33.3585 0.251801C10.1965 0.251801 -0.231995 10.723 -0.231995 33.7092V377.291C-0.231995 400.277 10.1965 410.748 33.3585 410.748H166.59C188.949 410.748 200.181 399.467 200.181 377.291V33.7092C200.181 10.723 189.752 0.251801 166.59 0.251801H33.3585Z"
+              d="M33.1779 0C10.0158 0 3.8147e-05 10.4712 3.8147e-05 33.4574V377.457C3.8147e-05 400.443 10.0158 410.496 33.1779 410.496H166.41C188.769 410.496 200 399.634 200 377.457C200 377.457 200 56.4435 200 33.4574C200 10.4712 189.34 0 166.178 0H33.1779Z"
               fill="#592340"
             />
             <animated.path
@@ -124,7 +117,7 @@ export default function Hero() {
               }}
               fillRule="evenodd"
               clipRule="evenodd"
-              d="M49.2421 13.2667C49.2421 17.8967 52.6614 23.5577 60.5289 23.5577H138.892C146.759 23.5577 150.179 17.8967 150.179 13.4275C150.179 11.1996 150.179 9.08594 153.887 9.08594H169.527C182.598 9.08594 190.489 16.9546 190.489 29.9897V379.564C190.489 392.599 182.598 400.468 169.527 400.468H30.0545C16.9836 400.468 9.09331 392.599 9.09331 379.564V29.9897C9.09331 16.9546 16.9836 9.08594 30.0545 9.08594H45.5336C49.2421 9.08594 49.2421 11.1996 49.2421 13.2667Z"
+              d="M49 13.5C49.5 18 52.6325 23 60.5 23H139C146.868 23 149.5 18 150 13.5C150.282 10.9661 151.291 9 155 9L169.527 9.08597C182.598 9.08597 191 16.9649 191 30V379.5C191 392.535 182.598 400.468 169.527 400.468H30.0545C16.9836 400.468 9 392.585 9 379.55V30C9 16.9649 16.929 9 30 9H45C48.7085 9 48.7791 11.5122 49 13.5Z"
               fill="#fed7e6"
             />
             <animated.g
