@@ -36,21 +36,15 @@
   opacity: 1;
 }
 
-.open {
-  & .text {
-    transition-delay: calc(150ms + calc(var(--delay, 80ms) * var(--index, 0)));
-  }
-  & .text + .text {
-    --index: 1;
-  }
-  & .text + .text + .text {
-    --index: 2;
-  }
-  & .text + .text + .text + .text {
-    --index: 3;
-  }
+.open .text {
+  transition-delay: calc(150ms + 80ms * var(--index, 0));
 }
-
-.svg {
-  /* TODO */
+.text + .text {
+  --index: 1;
+  & + .text {
+    --index: 2;
+    & + .text {
+      --index: 3;
+    }
+  }
 }

@@ -46,6 +46,7 @@ const Links = ({ className }: { className?: string }) => (
     </Link>
   </>
 )
+// The wrapping in <g> is because of Safari 🙄 https://bug-149617-attachments.webkit.org/attachment.cgi?id=262048
 const SvgText: React.FC<{ x?: string; y?: string; className?: string }> = ({
   children,
   className,
@@ -53,18 +54,18 @@ const SvgText: React.FC<{ x?: string; y?: string; className?: string }> = ({
   y,
   ...props
 }) => (
-  <text
-    x={x}
-    y={y}
+  <g
     {...props}
     className={cx(
       className,
       styles.text,
-      'text-hero fill-current font-display font-black transform-gpu transition-all select-none'
+      'text-hero fill-current font-display font-black transform-gpu transition-all select-none pointer-events-none'
     )}
   >
-    {children}
-  </text>
+    <text x={x} y={y}>
+      {children}
+    </text>
+  </g>
 )
 
 export default function Hero() {
