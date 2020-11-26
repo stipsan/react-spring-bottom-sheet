@@ -22,28 +22,33 @@
   line-height: 46px;
 }
 
-.text.text.text {
-  --tw-translate-y: calc(20px - calc(20px * var(--test, 0)));
-  opacity: var(--test);
-  transition-duration: calc(2s * var(--test, 0));
-  transition-timing-function: ease-out;
+.text.text {
+  transition-duration: 0s;
+  --tw-translate-y: 40px;
+  opacity: 0;
 }
 
-.open .text {
+.open .text.text {
+  transition-duration: 300ms;
+  transition-property: transform, opacity;
+  transition-timing-function: ease-out, ease-in;
   --tw-translate-y: 0px;
+  opacity: 1;
 }
 
-.text {
-  transition-delay: calc(600ms + calc(var(--delay, 100ms) * var(--index, 1)));
-}
-.text + .text {
-  --index: 2;
-}
-.text + .text + .text {
-  --index: 3;
-}
-.text + .text + .text + .text {
-  --index: 4;
+.open {
+  & .text {
+    transition-delay: calc(150ms + calc(var(--delay, 80ms) * var(--index, 0)));
+  }
+  & .text + .text {
+    --index: 1;
+  }
+  & .text + .text + .text {
+    --index: 2;
+  }
+  & .text + .text + .text + .text {
+    --index: 3;
+  }
 }
 
 .svg {
