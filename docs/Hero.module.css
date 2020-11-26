@@ -22,20 +22,20 @@
   line-height: 46px;
 }
 
+.text {
+  transition-property: transform, opacity;
+  transition-timing-function: ease-out, ease-in;
+}
 .text.text {
-  transition-duration: 0s;
   --tw-translate-y: 40px;
   opacity: 0;
 }
-
-.open .text.text {
+.open .text {
   transition-duration: 300ms;
-  transition-property: transform, opacity;
-  transition-timing-function: ease-out, ease-in;
   --tw-translate-y: 0px;
   opacity: 1;
 }
-
+/* Only set delay while open to avoid weird artifacts with fast toggling */
 .open .text {
   transition-delay: calc(150ms + 80ms * var(--index, 0));
 }

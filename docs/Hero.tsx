@@ -56,13 +56,13 @@ const SvgText: React.FC<{ x?: string; y?: string; className?: string }> = ({
 }) => (
   <g
     {...props}
-    className={cx(
-      className,
-      styles.text,
-      'text-hero fill-current font-display font-black transform-gpu transition-all select-none pointer-events-none'
-    )}
+    className={cx(className, styles.text, 'transform-gpu duration-0 opacity-0')}
   >
-    <text x={x} y={y}>
+    <text
+      x={x}
+      y={y}
+      className="text-hero fill-current font-display font-black select-none pointer-events-none"
+    >
       {children}
     </text>
   </g>
@@ -71,23 +71,23 @@ const SvgText: React.FC<{ x?: string; y?: string; className?: string }> = ({
 export default function Hero() {
   const [open, setOpen] = useState(false)
   const openClassRef = useRef(false)
-  const gRef = useRef(null)
-  const { transform, opacity } = useSpring<any>({
+  const classNameRef = useRef(null)
+  const { y, state } = useSpring<any>({
     config: config.stiff,
-    from: { transform: 'translate3d(0,208px,0)', opacity: 0 },
+    from: { y: '208px', state: 0 },
     to: {
-      transform: open ? 'translate3d(0,0,0)' : 'translate3d(0,208px,0)',
-      opacity: open ? 1 : 0,
+      y: open ? '0px' : '208px',
+      state: open ? 1 : 0,
     },
-    onFrame: ({ opacity }) => {
-      if (opacity > 0) {
+    onFrame: ({ state }) => {
+      if (state > 0) {
         if (!openClassRef.current) {
-          gRef.current.classList.add(styles.open)
+          classNameRef.current.classList.add(styles.open)
           openClassRef.current = true
         }
       } else {
         if (openClassRef.current) {
-          gRef.current.classList.remove(styles.open)
+          classNameRef.current.classList.remove(styles.open)
           openClassRef.current = false
         }
       }
@@ -104,7 +104,7 @@ export default function Hero() {
         <div className="inline-flex items-end">
           <svg
             onPointerDown={() => setOpen((open) => !open)}
-            className={cx(styles.svg, 'flex-shrink-0 transform-gpu')}
+            className={cx(styles.svg, 'flex-shrink-0')}
             width="200"
             height="286"
             viewBox="0 0 200 286"
@@ -120,17 +120,7 @@ export default function Hero() {
             />
             <animated.path
               style={{
-                //opacity
-                opacity: 0,
-              }}
-              fillRule="evenodd"
-              clipRule="evenodd"
-              d="M49.2421 13.2667C49.2421 17.8967 52.6614 23.5577 60.5289 23.5577H138.892C146.759 23.5577 150.179 17.8967 150.179 13.4275C150.179 11.1996 150.179 9.08594 153.887 9.08594H169.527C182.598 9.08594 190.489 16.9546 190.489 29.9897V379.564C190.489 392.599 182.598 400.468 169.527 400.468H30.0545C16.9836 400.468 9.09331 392.599 9.09331 379.564V29.9897C9.09331 16.9546 16.9836 9.08594 30.0545 9.08594H45.5336C49.2421 9.08594 49.2421 11.1996 49.2421 13.2667Z"
-              fill="#FC9EC2"
-            />
-            <animated.path
-              style={{
-                fill: opacity.interpolate({
+                fill: state.interpolate({
                   range: [0, 1],
                   output: ['#fed7e6', '#FC9EC2'],
                 }),
@@ -140,8 +130,11 @@ export default function Hero() {
               d="M49.2421 13.2667C49.2421 17.8967 52.6614 23.5577 60.5289 23.5577H138.892C146.759 23.5577 150.179 17.8967 150.179 13.4275C150.179 11.1996 150.179 9.08594 153.887 9.08594H169.527C182.598 9.08594 190.489 16.9546 190.489 29.9897V379.564C190.489 392.599 182.598 400.468 169.527 400.468H30.0545C16.9836 400.468 9.09331 392.599 9.09331 379.564V29.9897C9.09331 16.9546 16.9836 9.08594 30.0545 9.08594H45.5336C49.2421 9.08594 49.2421 11.1996 49.2421 13.2667Z"
               fill="#fed7e6"
             />
-
-            <animated.g ref={gRef} style={{ transform }}>
+            <animated.g
+              ref={classNameRef}
+              className="transform-gpu"
+              style={{ ['--tw-translate-y' as any]: y }}
+            >
               <path
                 d="M9 99.75C9 93.4642 9 90.3213 9.92713 87.8082C11.4459 83.6913 14.6913 80.4459 18.8082 78.9271C21.3213 78 24.4642 78 30.75 78H169.25C175.536 78 178.679 78 181.192 78.9271C185.309 80.4459 188.554 83.6913 190.073 87.8082C191 90.3213 191 93.4642 191 99.75V372C191 380.381 191 384.572 189.764 387.922C187.739 393.412 183.412 397.739 177.922 399.764C174.572 401 170.381 401 162 401H38C29.619 401 25.4285 401 22.0777 399.764C16.5884 397.739 12.2613 393.412 10.2362 387.922C9 384.572 9 380.381 9 372V99.75Z"
                 fill="white"
