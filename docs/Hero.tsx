@@ -154,12 +154,7 @@ export default function Hero() {
             </animated.g>
           </svg>
           <div className="font-display ml-10 mb-10 text-hero hidden md:block">
-            <p
-              className={cx(styles.subtitle, 'pb-4')}
-              style={{ maxWidth: '400px' }}
-            >
-              {subtitle}
-            </p>
+            <h1 className={cx(styles.subtitle, 'pb-4 max-w-sm')}>{subtitle}</h1>
             <div className="mt-4">
               <Links className="text-hero-lighter hover:bg-hero-lighter focus:bg-hero-lighter" />
             </div>
@@ -167,7 +162,7 @@ export default function Hero() {
         </div>
       </div>
       <div className="md:hidden font-display text-hero px-8 py-4">
-        <p className={cx(styles.subtitle, 'pb-4')}>{subtitle}</p>
+        <h1 className={cx(styles.subtitle, 'pb-4')}>{subtitle}</h1>
         <div className="mt-4">
           <Links className="text-white hover:bg-white focus:bg-white" />
         </div>
