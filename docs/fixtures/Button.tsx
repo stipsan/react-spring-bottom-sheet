@@ -1,20 +1,16 @@
 import cx from 'classnames'
 import { forwardRef } from 'react'
+import styles from './Button.module.css'
 
 type Props = {
   children: React.ReactNode
-  /*onClick?: (e: React.MouseEvent<HTMLButtonElement>) => void;*/
-} & Omit<
-  React.PropsWithoutRef<JSX.IntrinsicElements['button']>,
-  // omit children here, because we don't want children to be optional
-  'children'
-  //'children' | 'onClick'
->
+} & Omit<React.PropsWithoutRef<JSX.IntrinsicElements['button']>, 'children'>
 
 const Button = forwardRef<HTMLButtonElement, Props>(
   ({ className, ...props }, ref) => (
     <button
       className={cx(
+        styles.rounded,
         'text-xl px-7 py-3 rounded-2xl border-solid border-gray-300 border-2',
         'transition-colors duration-150 focus:duration-0',
         'bg-gray-100 text-gray-900 hover:bg-gray-300 focus:bg-gray-300',

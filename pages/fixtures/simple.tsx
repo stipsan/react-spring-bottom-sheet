@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import Button from '../../docs/fixtures/Button'
 import Container from '../../docs/fixtures/Container'
+import SheetContent from '../../docs/fixtures/SheetContent'
 import { BottomSheet } from '../../src'
 
 export default function SimpleFixturePage() {
@@ -18,7 +19,11 @@ export default function SimpleFixturePage() {
         onDismiss={() => setOpen(false)}
         snapPoints={({ maxHeight }) => [maxHeight]}
       >
-        <div className="pb-20 px-4 pt-4">Yay! Dismiss button</div>
+        <SheetContent>
+          <p>Yay!</p>
+          Test
+          <Button className="w-full">Dismiss</Button>
+        </SheetContent>
       </BottomSheet>
     </Container>
   )
