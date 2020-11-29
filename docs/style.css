@@ -8,13 +8,13 @@ body {
 }
 
 .is-window {
-  --bottom-sheet-max-width: 480px;
-  --bottom-sheet-margin-left: auto;
-  --bottom-sheet-margin-right: auto;
+  --rsbs-max-w: 480px;
+  --rsbs-ml: auto;
+  --rsbs-mr: auto;
 }
 .is-iframe {
-  --bottom-sheet-margin-left: 12px;
-  --bottom-sheet-margin-right: 12px;
+  --rsbs-ml: 12px;
+  --rsbs-mr: 12px;
 }
 
 @tailwind components;

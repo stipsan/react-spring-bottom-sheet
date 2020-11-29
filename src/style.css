@@ -1,19 +1,11 @@
-.bottom-sheet-v2__root {
-  --bottom-sheet-max-width: auto;
-  --bottom-sheet-margin-left: env(safe-area-inset-left);
-  --bottom-sheet-margin-right: env(safe-area-inset-right);
-  --bottom-sheet-background-color: var(--troika-milk, #fff);
-}
 .bottom-sheet-v2 {
-  --border-radius: 16px;
-  --y: 0px;
-  border-top-left-radius: var(--border-radius);
-  border-top-right-radius: var(--border-radius);
+  border-top-left-radius: var(--rsbs-rounded);
+  border-top-right-radius: var(--rsbs-rounded);
   display: flex;
-  background: var(--bottom-sheet-background-color);
+  background: var(--rsbs-bg);
   flex-direction: column;
-  transform: translate3d(0, var(--y), 0);
-  will-change: --border-radius, --y, height;
+  transform: translate3d(0, var(--rsbs-y), 0);
+  will-change: --rsbs-rounded, --rsbs-y, height;
 }
 .bottom-sheet-v2:focus {
   outline: none;
@@ -24,9 +16,9 @@
 }
 .bottom-sheet-v2,
 .bottom-sheet-v2__filler {
-  max-width: var(--bottom-sheet-max-width);
-  margin-left: var(--bottom-sheet-margin-left);
-  margin-right: var(--bottom-sheet-margin-right);
+  max-width: var(--rsbs-max-w);
+  margin-left: var(--rsbs-ml);
+  margin-right: var(--rsbs-mr);
 }
 .bottom-sheet-v2,
 .bottom-sheet-v2__backdrop,
@@ -53,7 +45,7 @@
 }
 .bottom-sheet-v2__filler {
   pointer-events: none;
-  background: var(--bottom-sheet-background-color);
+  background: var(--rsbs-bg);
   height: 1px;
   transform-origin: bottom;
   will-change: transform;
@@ -115,8 +107,7 @@
   padding-bottom: env(safe-area-inset-bottom);
 }
 .bottom-sheet-v2__footer {
-  box-shadow: 0 -1px 0 rgba(46, 59, 66, 0.125),
-    0 2px 0 var(--bottom-sheet-background-color);
+  box-shadow: 0 -1px 0 rgba(46, 59, 66, 0.125), 0 2px 0 var(--rsbs-bg);
   overflow: hidden;
   z-index: 1;
 }
