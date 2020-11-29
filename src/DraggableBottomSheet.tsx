@@ -579,8 +579,8 @@ export const DraggableBottomSheet = React.forwardRef(
           }}
           style={{
             height: interpolateHeight,
-            ['--y' as any]: interpolateY,
-            ['--border-radius' as any]: interpolateBorderRadius,
+            ['--rsbs-y' as any]: interpolateY,
+            ['--rsbs-rounded' as any]: interpolateBorderRadius,
           }}
           onKeyDown={(event) => {
             if (event.key === 'Escape') {

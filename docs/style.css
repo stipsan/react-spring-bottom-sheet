@@ -8,13 +8,13 @@ body {
 }
 
 .is-window {
-  --rsbs-max-w: 480px;
+  --rsbs-max-w: 400px;
   --rsbs-ml: auto;
   --rsbs-mr: auto;
 }
 .is-iframe {
-  --rsbs-ml: 12px;
-  --rsbs-mr: 12px;
+  --rsbs-ml: 0px;
+  --rsbs-mr: 0px;
 }
 
 @tailwind components;
