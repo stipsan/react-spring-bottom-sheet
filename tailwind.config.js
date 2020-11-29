@@ -1,3 +1,5 @@
+const colors = require('tailwindcss/colors')
+
 module.exports = {
   purge: ['./docs/**/*.{js,ts,jsx,tsx}', './pages/**/*.{js,ts,jsx,tsx}'],
   darkMode: 'media', // 'media' or 'class'
@@ -9,6 +11,7 @@ module.exports = {
     },
     extend: {
       colors: {
+        gray: colors.blueGray,
         hero: {
           DEFAULT: '#592340',
           lighter: '#FC9CC3',

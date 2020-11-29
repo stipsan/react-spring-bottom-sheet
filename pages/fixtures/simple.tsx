@@ -1,7 +1,10 @@
+import Button from '../../docs/fixtures/Button'
+import Container from '../../docs/fixtures/Container'
+
 export default function SimpleFixturePage() {
   return (
-    <main className="grid place-items-center min-h-screen">
-      <button>Hi! Open Sheet!!</button>
-    </main>
+    <Container>
+      <Button>Open</Button>
+    </Container>
   )
 }
