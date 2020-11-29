@@ -18,7 +18,7 @@ export default function SimpleFixturePage() {
         onDismiss={() => setOpen(false)}
         snapPoints={({ maxHeight }) => [maxHeight]}
       >
-        <div className="pb-20 px-4 pt-4">Yay!</div>
+        <div className="pb-20 px-4 pt-4">Yay! Dismiss button</div>
       </BottomSheet>
     </Container>
   )
