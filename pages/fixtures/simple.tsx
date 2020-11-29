@@ -13,8 +13,12 @@ export default function SimpleFixturePage() {
   return (
     <Container>
       <Button onClick={() => setOpen(true)}>Open</Button>
-      <BottomSheet isOpen={open} onDismiss={() => setOpen(false)}>
-        Yay!
+      <BottomSheet
+        isOpen={open}
+        onDismiss={() => setOpen(false)}
+        snapPoints={({ maxHeight }) => [maxHeight]}
+      >
+        <div className="pb-20 px-4 pt-4">Yay!</div>
       </BottomSheet>
     </Container>
   )
