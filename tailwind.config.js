@@ -23,7 +23,16 @@ module.exports = {
     },
   },
   variants: {
-    extend: { transitionDuration: ['focus'] },
+    extend: {
+      backgroundColor: ['active'],
+      textColor: ['active'],
+      transitionDuration: ['focus'],
+      ringColor: ['group-focus'],
+      ringOffsetColor: ['group-focus'],
+      ringOffsetWidth: ['group-focus'],
+      ringOpacity: ['group-focus'],
+      ringWidth: ['group-focus'],
+    },
   },
   plugins: [],
 }

@@ -26,18 +26,8 @@
     left: 0;
     right: 0;
     bottom: 0;
-    z-index: 1;
+    z-index: 20;
     pointer-events: none;
-  }
-  &:after {
-    display: block;
-    position: absolute;
-    left: 0;
-    right: 0;
-    bottom: 15%;
-    text-align: center;
-    content: 'Loading...';
-    z-index: -1;
   }
 }
 
@@ -55,4 +45,10 @@
   }
 }
 
-/* do a @supports trick to cover the notch maybe? with pointer-events: none */
+.loader {
+  border-radius: 10.8% / 4.6%;
+  height: 91.6%;
+  left: 6.5%;
+  top: 2.8%;
+  width: 86.6%;
+}
