@@ -4,19 +4,32 @@
   background-repeat: no-repeat;
   overflow: hidden;
   height: 0;
-  max-width: 428px;
   position: relative;
   padding-top: calc(350 / 171 * 100%);
 
   & iframe {
     border: 0;
     height: 91.6%;
-    left: 6.6%;
+    left: 6.5%;
     top: 2.8%;
-    width: 86.4%;
+    width: 86.6%;
     position: absolute;
     background: transparent;
-    border-radius: 11.2% / 4.6%;
+    border-radius: 10.8% / 4.6%;
+  }
+}
+
+/* Have to apply max-width and max-height on a container to prevent fuckups to aspect-ratio behavior */
+.example {
+  max-width: 574px;
+  min-height: 380px;
+  aspect-ratio: 171 / 350;
+}
+@supports (aspect-ratio: 16 / 9) {
+  @media (min-width: 640px) {
+    .example {
+      max-height: calc(100vh - 2.5rem);
+    }
   }
 }
 
