@@ -1,7 +1,7 @@
 import type { AppProps } from 'next/app'
 import Head from 'next/head'
 
-import '../styles/index.css'
+import '../docs/style.css'
 import '../src/style.css'
 
 function _AppPage({ Component, pageProps }: AppProps) {

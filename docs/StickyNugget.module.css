@@ -17,7 +17,7 @@
 
   &:before {
     content: '';
-    background-image: url('/frame.svg');
+    background-image: svg-load('StickyNugget.frame.svg');
     background-size: contain;
     background-repeat: no-repeat;
     display: block;
