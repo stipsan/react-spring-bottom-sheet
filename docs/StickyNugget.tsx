@@ -46,7 +46,14 @@ export default function StickyNugget({
       </div>
       <div className={cx(styles.example, { 'sm:order-first': flip })}>
         <div className={styles.phoneframe}>
-          <iframe src={mounted ? example : undefined} />
+          <iframe
+            style={
+              process.env.NODE_ENV !== 'production'
+                ? { background: mounted ? undefined : 'white' }
+                : undefined
+            }
+            src={mounted ? example : undefined}
+          />
         </div>
       </div>
     </article>
