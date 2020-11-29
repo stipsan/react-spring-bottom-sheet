@@ -1,6 +1,7 @@
 import cx from 'classnames'
 import { useEffect, useState } from 'react'
 import styles from './StickyNugget.module.css'
+import Link from 'next/link'
 
 export default function StickyNugget({
   flip = false,
@@ -25,14 +26,22 @@ export default function StickyNugget({
   return (
     <article className="grid grid-cols-1 sm:grid-cols-2 gap-5">
       <div>
-        <div className="sticky top-5 mb-5">
+        <div className="grid grid-flow-row place-items-start gap-2.5 sticky top-5 mb-5">
           <h2 className="text-5xl text-hero font-display">{heading}</h2>
           <p className="text-2xl px-0.5">{lead}</p>
           {process.env.NODE_ENV !== 'production' && (
-            <button onClick={() => setMounted((mounted) => !mounted)}>
+            <button
+              className=" bg-gray-300 text-gray-800 px-2 py-0 rounded-full"
+              onClick={() => setMounted((mounted) => !mounted)}
+            >
               {mounted ? 'Close iframe' : 'Load iframe'}
             </button>
           )}
+          <Link href={example}>
+            <a className="px-2 py-0 rounded-full transition-colors duration-150 focus:duration-0 bg-hero-lighter text-hero hover:bg-hero hover:text-hero-lighter focus:outline-none focus:bg-hero focus:text-hero-lighter focus:ring-2 focus:ring-offset-2 focus:ring-offset-white focus:ring-hero">
+              Go to example
+            </a>
+          </Link>
         </div>
       </div>
       <div className={cx(styles.example, { 'sm:order-first': flip })}>
