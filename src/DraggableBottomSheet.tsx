@@ -6,7 +6,6 @@
 // It also ensures that when transitioning to open on mount the state is always clean, not affected by previous states that could
 // cause race conditions.
 
-import classNames from 'classnames'
 import { createFocusTrap } from 'focus-trap'
 import React, { useEffect, useImperativeHandle, useMemo, useRef } from 'react'
 import { animated, useSpring } from 'react-spring'
@@ -525,7 +524,9 @@ export const DraggableBottomSheet = React.forwardRef(
     return (
       <div
         data-rsbs-root
+        data-rsbs-is-blocking={blocking}
         data-rsbs-has-header={!!header}
+        data-rsbs-has-footer={!!footer}
         className={className}
         ref={containerRef}
         style={{
@@ -561,11 +562,9 @@ export const DraggableBottomSheet = React.forwardRef(
           />
         )}
         <animated.div
-          key="bottom-sheet"
-          className={classNames('bottom-sheet-v2', {
-            'bottom-sheet-v2--non-blocking': !blocking,
-          })}
+          key="overlay"
           aria-modal="true"
+          data-rsbs-overlay
           tabIndex={-1}
           // Support both our own ref and any forwarded ref
           ref={(node) => {
@@ -595,13 +594,7 @@ export const DraggableBottomSheet = React.forwardRef(
           <div key="header" data-rsbs-header ref={headerRef} {...dragEvents}>
             <div data-rsbs-header-padding>{header}</div>
           </div>
-          <div
-            key="content"
-            className={classNames('bottom-sheet-v2__content', {
-              'bottom-sheet-v2__content--footer': !footer,
-            })}
-            ref={contentRef}
-          >
+          <div key="content" data-rsbs-content ref={contentRef}>
             <div
               ref={contentContainerRef}
               // The overflow hidden is for the resize observer to get dimensions including margins and paddings
