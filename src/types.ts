@@ -9,23 +9,13 @@ export type SnapPointArg = {
   viewportHeight: number
 }
 
-export type snapPoints = ({
-  currentHeight,
-  minHeight,
-  maxHeight,
-  viewportHeight,
-}: SnapPointArg) => number[]
+export type snapPoints = (args: SnapPointArg) => number[]
 
 type initialHeightArg = {
   snapPoints: number[]
 } & SnapPointArg
 
-export type initialHeight = ({
-  minHeight,
-  maxHeight,
-  viewportHeight,
-  snapPoints,
-}: initialHeightArg) => number
+export type initialHeight = (args: initialHeightArg) => number
 
 export type SharedProps = {
   children: React.ReactNode

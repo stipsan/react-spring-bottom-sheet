@@ -23,7 +23,8 @@ export default function ExperimentsFixturePage() {
           open={open}
           header={false}
           onDismiss={onDismiss}
-          snapPoints={({ maxHeight }) => [maxHeight]}
+          //snapPoints={({ maxHeight }) => [maxHeight]}
+          snapPoints={(args) => [100]}
         >
           <SheetContent>
             <p>

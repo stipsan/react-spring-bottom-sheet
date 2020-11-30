@@ -188,11 +188,17 @@ export const useDimensions = ({
     contentDimensions.height
   )
 
-  const minHeight = headerDimensions.height + footerDimensions.height
+  /*
+  // @TODO temp workaround for all the minHeight = 0 means not mounted assumptions in the codebase
+  const minHeight = Math.max(
+    headerDimensions.height + footerDimensions.height,
+    Math.min(contentHeight, 70)
+  )
+  //*/
   const maxHeight =
     contentHeight + headerDimensions.height + footerDimensions.height
-
-  return { minHeight, maxHeight }
+  console.log({ maxHeight })
+  return { maxHeight, contentHeight: contentDimensions.height }
 }
 
 interface TransitionState {

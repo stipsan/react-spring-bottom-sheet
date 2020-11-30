@@ -24,7 +24,7 @@ hmmmm
 
 - currentHeight => height
 - headerHeight => added
-- maxHeight => minHeight, includes header and footer heights, the
+- maxHeight => minHeight, includes header and footer heights, it tries to avoid a scrollbar
 - minHeight => gone, used to be header + footer
 - footerHeight => added
 - viewportHeight => maxHeight

@@ -98,7 +98,7 @@ export const DraggableBottomSheet = React.forwardRef(
       y: 0,
     }))
 
-    const { minHeight, maxHeight } = useDimensions({
+    const { contentHeight, maxHeight } = useDimensions({
       viewportHeight,
       headerRef,
       contentRef: contentContainerRef,
