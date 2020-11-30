@@ -1,19 +1,13 @@
-import * as React from 'react'
 import Portal from '@reach/portal'
-
+import * as React from 'react'
 import { DraggableBottomSheet } from './Root'
-import type { snapPoints, initialHeight, SharedProps } from './types'
+import type { SharedProps } from './types'
+
 export type { ForwardedRefType } from './types'
 
 type BottomSheetProps = {
   /** Whether the bottom sheet is open or not. */
   open: boolean
-
-  /** Handler that is called to get the height values that the bottom sheet can *snap* to when the user stops dragging. The function is given `minHeight`, `maxHeight`, `viewportHeight` and `currentHeight` as arguments. */
-  snapPoints?: snapPoints
-
-  /** Handler that is called to get the initial height of the bottom sheet when it's opened (or when the viewport is resized). The function is given `minHeight`, `maxHeight`, `viewportHeight`,`currentHeight` and `snappoints` as arguments. */
-  initialHeight?: initialHeight
 
   /** Handler that is called after the close transition has ended. Use this to know when it's safe to unmount hte bottom sheet. */
   onCloseTransitionEnd?: () => void

@@ -7,21 +7,19 @@ import SheetContent from '../../docs/fixtures/SheetContent'
 import { BottomSheet } from '../../src'
 
 function One() {
-  const [open, setOpen] = useState(true)
+  const [open, setOpen] = useState(false)
 
   function onDismiss() {
     setOpen(false)
   }
   return (
     <>
-      <Button onClick={() => setOpen(true)}>Open</Button>
+      <Button onClick={() => setOpen(true)}>1</Button>
       <BottomSheet
         style={{ ['--rsbs-bg' as any]: '#EFF6FF' }}
         open={open}
         header={false}
         onDismiss={onDismiss}
-        //snapPoints={({ maxHeight }) => [maxHeight]}
-        //snapPoints={(args) => [100]}
       >
         <SheetContent>
           <p>
@@ -49,7 +47,7 @@ function Two() {
   }
   return (
     <>
-      <Button onClick={() => setOpen(true)}>Open</Button>
+      <Button onClick={() => setOpen(true)}>2</Button>
       <BottomSheet
         style={{ ['--rsbs-bg' as any]: '#EFF6FF' }}
         open={open}
@@ -77,12 +75,84 @@ function Two() {
   )
 }
 
+function Three() {
+  const [open, setOpen] = useState(false)
+
+  function onDismiss() {
+    setOpen(false)
+  }
+  return (
+    <>
+      <Button onClick={() => setOpen(true)}>3</Button>
+      <BottomSheet
+        style={{ ['--rsbs-bg' as any]: '#EFF6FF' }}
+        open={open}
+        onDismiss={onDismiss}
+        header={
+          <Button
+            onClick={onDismiss}
+            className="w-full focus:ring-offset-rsbs-bg"
+          >
+            Dismiss
+          </Button>
+        }
+        snapPoints={({ maxHeight, headerHeight }) => [headerHeight, maxHeight]}
+      >
+        <SheetContent>
+          <p>
+            Using <Code>onDismiss</Code> lets users close the sheet by swiping
+            it down, tapping on the backdrop or by hitting <Kbd>esc</Kbd> on
+            their keyboard.
+          </p>
+        </SheetContent>
+      </BottomSheet>
+    </>
+  )
+}
+
+function Four() {
+  const [open, setOpen] = useState(false)
+
+  function onDismiss() {
+    setOpen(false)
+  }
+  return (
+    <>
+      <Button onClick={() => setOpen(true)}>4</Button>
+      <BottomSheet
+        style={{ ['--rsbs-bg' as any]: '#EFF6FF' }}
+        open={open}
+        onDismiss={onDismiss}
+        header={
+          <Button
+            onClick={onDismiss}
+            className="w-full focus:ring-offset-rsbs-bg"
+          >
+            Dismiss
+          </Button>
+        }
+        snapPoints={({ maxHeight, headerHeight }) => [headerHeight, maxHeight]}
+      >
+        <SheetContent>
+          <p>
+            Using <Code>onDismiss</Code> lets users close the sheet by swiping
+            it down, tapping on the backdrop or by hitting <Kbd>esc</Kbd> on
+            their keyboard.
+          </p>
+        </SheetContent>
+      </BottomSheet>
+    </>
+  )
+}
+
 export default function ExperimentsFixturePage() {
   return (
     <>
       <Container>
-        <One />
-        <Two />
+        <One key="1" />
+        <Two key="2" />
+        <Three key="3" />
+        <Four key="4" />
       </Container>
     </>
   )

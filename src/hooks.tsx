@@ -1,16 +1,15 @@
 import {
   useCallback,
   useEffect,
+  useLayoutEffect,
   useMemo,
+  useReducer,
   useRef,
   useState,
-  useReducer,
-  useLayoutEffect,
 } from 'react'
-import type { SnapPointArg, snapPoints } from './types'
-import { clamp } from './utils'
-
 import ResizeObserver from 'resize-observer-polyfill'
+import type { SnapPointArg, snapPoints } from './types'
+import { clamp, roundAndCheckForNaN } from './utils'
 
 /**
  * Hook for determining the size of an element using the Resize Observer API.
@@ -127,14 +126,21 @@ export const useSnapPoints = ({
       return { snapPoints: [0], minSnap: 0, maxSnap: 0 }
     }
 
-    const providedSnapPoints = getSnapPoints({
-      currentHeight,
-      maxHeight,
-      viewportHeight,
-    }).map(Math.round)
+    const massagedSnapPoints = []
+      .concat(
+        getSnapPoints({
+          currentHeight,
+          maxHeight,
+          viewportHeight,
+        })
+      )
+      .map(roundAndCheckForNaN)
+
+    // @TODO detect if invalid snap points in levels, only arrays or numbers allowed.
+    // And arrays must have at least 1 item. for now silently fix it
 
     const validSnapPoints: number[] = []
-    providedSnapPoints.forEach((snapPoint) => {
+    massagedSnapPoints.forEach((snapPoint) => {
       const validSnapPoint = clamp(snapPoint, 0, viewportHeight)
       if (validSnapPoints.indexOf(validSnapPoint) === -1) {
         validSnapPoints.push(validSnapPoint)

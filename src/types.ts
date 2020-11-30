@@ -1,4 +1,8 @@
-export type SnapPointArg = {
+type SnapPointArg = {
+  /** The height of the sticky footer, if there's one */
+  footerHeight: number
+  /** The height of the sticky footer, if there's one */
+  headerHeight: number
   /** If the bottom sheet is animating to a snap point the currentHeight will be the destination height, not the height the bottom sheet might have in the middle of the animation. */
   currentHeight: number
   /** How tall the sheet can be based on the content heights. Viewport height also affects this number. */
@@ -7,13 +11,13 @@ export type SnapPointArg = {
   viewportHeight: number
 }
 
-export type snapPoints = (args: SnapPointArg) => number[]
+type snapPoints = (args: SnapPointArg) => number[]
 
-type initialHeightArg = {
+type initialSnapPointArg = {
   snapPoints: number[]
 } & SnapPointArg
 
-export type initialHeight = (args: initialHeightArg) => number
+type initialSnapPoint = (args: initialSnapPointArg) => number
 
 export type SharedProps = {
   children: React.ReactNode
@@ -53,15 +57,21 @@ export type SharedProps = {
    * @default true
    */
   scrollLocking?: boolean
+
+  /** Handler that is called to get the height values that the bottom sheet can *snap* to when the user stops dragging. The function is given `minHeight`, `maxHeight`, `viewportHeight` and `currentHeight` as arguments. */
+  snapPoints?: snapPoints
+
+  /** Handler that is called to get the initial height of the bottom sheet when it's opened (or when the viewport is resized). The function is given `minHeight`, `maxHeight`, `viewportHeight`,`currentHeight` and `snappoints` as arguments. */
+  initialHeight?: initialSnapPoint
 } & Omit<React.PropsWithoutRef<JSX.IntrinsicElements['div']>, 'children'>
 
-type heightSetter = (state: initialHeightArg) => number
+type snapPointSetter = (state: initialSnapPointArg) => number
 /**
  * When given a number it'll find the closest snap point, so you don't need to know the exact value,
  * Use the callback method to access what snap points you can choose from.
  *
  */
-export type setSnapPoint = (fuzzySnapPoint: number | heightSetter) => void
+export type setSnapPoint = (fuzzySnapPoint: number | snapPointSetter) => void
 
 // Typings for the forwarded ref, useful as TS can't infer that `setSnapPoint` is available by itself
 export type ForwardedRefType = {

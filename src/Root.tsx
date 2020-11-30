@@ -13,25 +13,17 @@ import { useDrag } from 'react-use-gesture'
 import {
   useDimensions,
   useMobileSafari,
-  usePrevious,
   useReducedMotion,
   useSnapPoints,
   useTransitionState,
   useViewportHeight,
 } from './hooks'
+import type { setSnapPoint, SharedProps } from './types'
 import { createAriaHider, createScrollLocker, isNumber } from './utils'
-import type {
-  snapPoints,
-  initialHeight,
-  setSnapPoint,
-  SharedProps,
-} from './types'
 
 type DraggableBottomSheetProps = {
   _onClose: () => void
   _shouldClose: boolean
-  snapPoints: snapPoints
-  initialHeight: initialHeight
 } & SharedProps
 
 // How many pixels above the viewport height the user is allowed to drag the bottom sheet

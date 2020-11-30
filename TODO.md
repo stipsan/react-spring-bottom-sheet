@@ -3,13 +3,6 @@ Stop relying on memo stuff.
 If react's render loop triggers, communicate to outside fn's via refs and the like.
 A change to snap points affects how far one can drag.
 
-- minHeight should be renamed safeHeight or similar, as it denotes the smallest height while still being able to render the drag handle. Isn't it header height technically?
-- maxHeight renamed to fullHeight, as that's what it is (header + content + footer).
-- rename initialHeight to initialSnapPoint.
-
-- minHeight is gone, used to be a combo of `headerDimensions.height + footerDimensions.height`.
-- `maxHeight` renamed to `fitContentHeight`
-
 ```
 max-content
   The intrinsic preferred width.
@@ -23,12 +16,18 @@ fit-content(<length-percentage>)
 hmmmm
 
 - currentHeight => height
+- footerHeight => added
 - headerHeight => added
 - maxHeight => minHeight, includes header and footer heights, it tries to avoid a scrollbar
 - minHeight => gone, used to be header + footer
-- footerHeight => added
 - viewportHeight => maxHeight
 - snap points array is optional
+
+footerHeight
+headerHeight
+height
+maxHeight
+minHeight
 
 ## package.json stuffs
 
