@@ -3,8 +3,10 @@ Stop relying on memo stuff.
 If react's render loop triggers, communicate to outside fn's via refs and the like.
 A change to snap points affects how far one can drag.
 
-- minHeight should be renamed safeHeight or similar, as it denotes the smallest height while still being able to render the drag handle.
+- minHeight should be renamed safeHeight or similar, as it denotes the smallest height while still being able to render the drag handle. Isn't it header height technically?
 - maxHeight renamed to contentHeight, as that's what it is.
+- rename initialHeight to initialSnap.
+- rename viewportHeight to maxHeight?
 
 # Credits
 

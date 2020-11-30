@@ -1,0 +1,11 @@
+.point {
+  --size: 1vh;
+  transform: translateY(-50%);
+  border-top: var(--size) solid transparent;
+  border-bottom: var(--size) solid transparent;
+  border-left: var(--size) solid currentColor;
+}
+
+:global(.is-window) .point {
+  display: none;
+}
