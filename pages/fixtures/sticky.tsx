@@ -22,7 +22,11 @@ export default function StickyFixturePage() {
           viewportHeight - viewportHeight / 10,
           viewportHeight * 0.6,
         ]}
-        header={<div>Cancel Testing!</div>}
+        header={
+          <h1 className="flex items-center text-xl justify-center font-bold text-gray-800">
+            Sticky!
+          </h1>
+        }
         footer={
           <Button onClick={onDismiss} className="w-full">
             Done
@@ -33,6 +37,15 @@ export default function StickyFixturePage() {
           <p>
             Just as with content, if the header or footer changes their height
             the sheet will readjust accordingly.
+          </p>
+          <p>
+            When you provide a header the draggable area increases, making it
+            easier for users to adjust the height of the bottom sheet.
+          </p>
+          <p>
+            The same is true for a sticky footer, as it supports drag gestures
+            as well to optimize for large phones where the header might be
+            difficult to reach with one hand.
           </p>
         </SheetContent>
       </BottomSheet>
