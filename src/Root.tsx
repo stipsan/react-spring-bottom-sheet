@@ -98,7 +98,12 @@ export const DraggableBottomSheet = React.forwardRef(
       y: 0,
     }))
 
-    const { contentHeight, maxHeight } = useDimensions({
+    const {
+      contentHeight,
+      maxHeight,
+      headerHeight,
+      footerHeight,
+    } = useDimensions({
       viewportHeight,
       headerRef,
       contentRef: contentContainerRef,
@@ -107,21 +112,20 @@ export const DraggableBottomSheet = React.forwardRef(
 
     const { snapPoints, minSnap, maxSnap, toSnapPoint } = useSnapPoints({
       getSnapPoints,
+      contentHeight,
       currentHeight: state.currentHeight,
-      minHeight,
       maxHeight,
       viewportHeight,
     })
 
     const initialHeight = useMemo(() => {
-      // If we're firing before the dom is mounted then minHeight will be 0 and we should return default values
-      if (minHeight === 0) {
+      // If we're firing before the dom is mounted then contentHeight will be 0 and we should return default values
+      if (contentHeight === 0) {
         return 0
       }
 
       const nextHeight = _getInitialHeight({
         currentHeight: state.currentHeight,
-        minHeight,
         maxHeight,
         viewportHeight,
         snapPoints,
@@ -129,8 +133,8 @@ export const DraggableBottomSheet = React.forwardRef(
       return toSnapPoint(nextHeight)
     }, [
       _getInitialHeight,
+      contentHeight,
       maxHeight,
-      minHeight,
       snapPoints,
       state.currentHeight,
       toSnapPoint,
@@ -269,63 +273,6 @@ export const DraggableBottomSheet = React.forwardRef(
       isReady,
       prefersReducedMotion,
       set,
-    ])
-
-    // Respond to viewport height or content height changes if they affect the min and max heights
-    const prevDimensions = usePrevious({
-      minHeight,
-      maxHeight,
-      viewportHeight,
-    })
-
-    useEffect(() => {
-      // Don't interfer with other states
-      if (!isOpen) return
-
-      // Only respond if minHeight or maxHeight changes as a result
-      if (
-        minHeight !== prevDimensions.minHeight ||
-        maxHeight !== prevDimensions.maxHeight
-      ) {
-        set({
-          y: initialHeight,
-          // If the viewportHeight changed then we should respond immediatly instead of animating
-          immediate:
-            viewportHeight !== prevDimensions.viewportHeight ||
-            prefersReducedMotion.current,
-          onRest: () => {
-            dispatch({
-              type: 'OPEN',
-              currentHeight: initialHeight,
-            })
-          },
-        })
-        return
-      }
-      // Fail recovery effect, if an inconsistent state is detected it should correct itself
-      const validHeight = toSnapPoint(state.currentHeight)
-      if (state.currentHeight !== validHeight) {
-        set({
-          y: validHeight,
-          immediate: prefersReducedMotion.current,
-          onRest: () => {
-            dispatch({ type: 'OPEN', currentHeight: validHeight })
-          },
-        })
-      }
-    }, [
-      dispatch,
-      initialHeight,
-      isOpen,
-      maxHeight,
-      prefersReducedMotion,
-      prevDimensions.maxHeight,
-      prevDimensions.minHeight,
-      prevDimensions.viewportHeight,
-      set,
-      state.currentHeight,
-      toSnapPoint,
-      viewportHeight,
     ])
 
     useEffect(() => {

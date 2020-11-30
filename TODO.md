@@ -83,5 +83,6 @@ And that may affect side effects that are running atm
 - Some hooks care only about if we're on our way to open, or on our way to close.
 - Other hooks care about the current drag state.
 - Dragging is king, should not be interruptible, but may allow side effects that affect where/how dragging happens.
+- Except if the window changes height, maybe respond to header and footer height changes too by interrupting.
 - Focus set by keyboard nav or a screen reader can fuck things up.
 - Consider two drag modes? One fast, but can get scroll fuckups, one that's like the current one, safe because it changes the height property.

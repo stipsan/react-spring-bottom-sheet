@@ -7,7 +7,7 @@ import {
   useReducer,
   useLayoutEffect,
 } from 'react'
-import type { snapPoints } from './types'
+import type { SnapPointArg, snapPoints } from './types'
 import { clamp } from './utils'
 
 import ResizeObserver from 'resize-observer-polyfill'
@@ -110,15 +110,12 @@ export const useMobileSafari = () =>
 
 type UseSnapPointsProps = {
   getSnapPoints: snapPoints
-  minHeight: number
-  maxHeight: number
-  currentHeight: number
-  viewportHeight: number
-}
+  contentHeight: number
+} & SnapPointArg
 export const useSnapPoints = ({
   getSnapPoints,
-  minHeight,
   maxHeight,
+  contentHeight,
   currentHeight,
   viewportHeight,
 }: UseSnapPointsProps) => {
@@ -126,7 +123,7 @@ export const useSnapPoints = ({
   // @TODO replace this with simpler logic: https://stackoverflow.com/a/19277804
   const { snapPoints, minSnap, maxSnap } = useMemo(() => {
     // If we're firing before the dom is mounted then minHeight will be 0 and we should return default values
-    if (minHeight === 0) {
+    if (contentHeight === 0) {
       return { snapPoints: [0], minSnap: 0, maxSnap: 0 }
     }
 
@@ -152,7 +149,7 @@ export const useSnapPoints = ({
       minSnap: validSnapPoints[0],
       maxSnap: validSnapPoints[lastIndex],
     }
-  }, [currentHeight, getSnapPoints, maxHeight, minHeight, viewportHeight])
+  }, [contentHeight, currentHeight, getSnapPoints, maxHeight, viewportHeight])
 
   const toSnapPoint = useCallback(
     (y: number) =>
@@ -178,26 +175,23 @@ export const useDimensions = ({
   contentRef,
   footerRef,
 }: UseDimensionsProps) => {
-  const headerDimensions = useElementSizeObserver(headerRef)
+  // Rewrite these to set refs and use nextTick
+  const { height: headerHeight } = useElementSizeObserver(headerRef)
   const contentDimensions = useElementSizeObserver(contentRef)
-  const footerDimensions = useElementSizeObserver(footerRef)
+  const { height: footerHeight } = useElementSizeObserver(footerRef)
 
   const contentHeight = Math.min(
-    viewportHeight - headerDimensions.height - footerDimensions.height,
+    viewportHeight - headerHeight - footerHeight,
     contentDimensions.height
   )
 
-  /*
-  // @TODO temp workaround for all the minHeight = 0 means not mounted assumptions in the codebase
-  const minHeight = Math.max(
-    headerDimensions.height + footerDimensions.height,
-    Math.min(contentHeight, 70)
-  )
-  //*/
-  const maxHeight =
-    contentHeight + headerDimensions.height + footerDimensions.height
-  console.log({ maxHeight })
-  return { maxHeight, contentHeight: contentDimensions.height }
+  const maxHeight = contentHeight + headerHeight + footerHeight
+  return {
+    maxHeight,
+    contentHeight: contentDimensions.height,
+    headerHeight,
+    footerHeight,
+  }
 }
 
 interface TransitionState {

@@ -32,12 +32,8 @@ export const BottomSheet = React.forwardRef(
       onCloseTransitionEnd,
       scrollLocking,
       blocking,
-      initialHeight = ({ currentHeight, snapPoints }) =>
-        Math.max(currentHeight, Math.min(...snapPoints)),
-      snapPoints = ({ maxHeight, viewportHeight }) => [
-        maxHeight,
-        Math.min(Math.max(viewportHeight * 0.7019704433497537, 510), maxHeight),
-      ],
+      initialHeight = ({ snapPoints }) => Math.min(...snapPoints),
+      snapPoints = ({ maxHeight }) => [maxHeight],
       ...props
     }: BottomSheetProps,
     ref: React.Ref<HTMLDivElement>

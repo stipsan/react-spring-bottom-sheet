@@ -20,7 +20,7 @@
     "build:microbundle": "microbundle --tsconfig tsconfig.microbundle.json -f cjs,es",
     "build:postcss": "postcss -d dist --no-map src/style.css",
     "dev": "next",
-    "lint": "eslint . --ext ts,tsx,js,jsx --max-warnings 0",
+    "lint": "eslint . --ext ts,tsx,js,jsx --max-warnings 0 && tsc",
     "prepublishOnly": "npm run build:dist",
     "start": "next start",
     "test": "npm run prepublishOnly && npm run build"
@@ -89,6 +89,7 @@
   },
   "jsnext:main": "dist/index.es.js",
   "lint-staged": {
+    "*.{js,jsx,ts,tsx}": "eslint --fix",
     "*.{js,jsx,ts,tsx,md,html,css,yml,json}": "prettier --write",
     "package.json": "prettier-package-json --write"
   },
