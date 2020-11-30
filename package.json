@@ -1,5 +1,12 @@
 {
   "name": "react-spring-bottom-sheet",
+  "license": "MIT",
+  "author": "Cody Olsen",
+  "homepage": "https://react-spring-bottom-sheet.cocody.dev",
+  "repository": "stipsan/react-spring-bottom-sheet",
+  "bugs": {
+    "url": "https://github.com/stipsan/react-spring-bottom-sheet/issues"
+  },
   "scripts": {
     "build": "next build",
     "dev": "next",
