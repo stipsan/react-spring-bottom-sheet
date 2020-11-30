@@ -10,6 +10,12 @@ A change to snap points affects how far one can drag.
 - rename isOpen to open, like the <details> tag works.
 - rename setHeight to setSnapPoint
 
+## package.json stuffs
+
+- add description.
+- add keywords.
+- update readme.
+
 # Credits
 
 - Play icon: https://fontawesome.com/icons/play-circle?style=regular
