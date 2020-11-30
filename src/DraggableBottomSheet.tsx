@@ -627,8 +627,8 @@ export const DraggableBottomSheet = React.forwardRef(
           )}
         </animated.div>
         <animated.div
-          key="filler"
-          className="bottom-sheet-v2__filler"
+          key="antigap"
+          data-rsbs-antigap
           style={{ transform: interpolateFiller }}
         />
       </div>
