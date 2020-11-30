@@ -5,7 +5,7 @@ import Nugget from '../docs/Nugget'
 export default function IndexPage() {
   return (
     <main>
-      <Hero />
+      <Hero className="snap-start" />
       <div className="max-w-5xl mx-auto py-10 px-8 grid grid-cols-1 md:grid-cols-3 gap-4">
         <Nugget heading="Placeholder" lead="Lorem ipsum and so on" />
         <Nugget heading="Placeholder" lead="Lorem ipsum and so on" />

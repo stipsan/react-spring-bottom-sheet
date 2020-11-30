@@ -61,7 +61,7 @@ const SvgText: React.FC<{ x?: string; y?: string; className?: string }> = ({
   </g>
 )
 
-export default function Hero() {
+export default function Hero({ className }: { className?: string }) {
   const [open, setOpen] = useState(false)
   const openClassRef = useRef(false)
   const classNameRef = useRef(null)
@@ -93,7 +93,7 @@ export default function Hero() {
 
   return (
     <>
-      <div className={cx(styles.wrapper, 'flex justify-center')}>
+      <div className={cx(styles.wrapper, 'flex justify-center', className)}>
         <div className="inline-flex items-end">
           <svg
             onPointerDown={() => setOpen((open) => !open)}

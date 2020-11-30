@@ -2,9 +2,7 @@
 
 html,
 body {
-  @apply font-body overscroll-y-none;
-
-  scroll-snap-type: y proximity;
+  @apply font-body overscroll-y-none snap snap-proximity snap-y;
 }
 
 .is-window {

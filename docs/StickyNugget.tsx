@@ -28,7 +28,7 @@ export default function StickyNugget({
   }, [loaded, loading])
 
   return (
-    <article className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+    <article className="grid grid-cols-1 sm:grid-cols-2 gap-5 snap-center">
       <div>
         <div className="grid grid-flow-row place-items-start gap-2.5 sticky top-5 mb-5">
           <h2 className="text-5xl text-hero font-display">{heading}</h2>
