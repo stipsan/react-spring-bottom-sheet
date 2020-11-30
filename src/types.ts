@@ -41,9 +41,9 @@ export type SharedProps = {
   footer?: React.ReactNode
 
   /**
-   * Renders below the drag handle
+   * Renders below the drag handle, set to `false` to disable the drag handle
    */
-  header?: React.ReactNode
+  header?: React.ReactNode | false
 
   /** A reference to the element that should be focused. By default it'll be the first interactive element. */
   initialFocusRef?: React.RefObject<HTMLElement>
