@@ -23,6 +23,7 @@ module.exports = {
     },
   },
   variants: {
+    scrollSnapAlign: ['responsive'],
     extend: {
       backgroundColor: ['active'],
       textColor: ['active'],

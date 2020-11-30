@@ -5,9 +5,10 @@ A change to snap points affects how far one can drag.
 
 - minHeight should be renamed safeHeight or similar, as it denotes the smallest height while still being able to render the drag handle. Isn't it header height technically?
 - maxHeight renamed to contentHeight, as that's what it is.
-- rename initialHeight to initialSnap.
+- rename initialHeight to initialSnapPoint.
 - rename viewportHeight to maxHeight?
 - rename isOpen to open, like the <details> tag works.
+- rename setHeight to setSnapPoint
 
 # Credits
 

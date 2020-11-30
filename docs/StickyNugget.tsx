@@ -57,7 +57,7 @@ export default function StickyNugget({
         </div>
       </div>
       <div
-        className={cx(styles.example, 'snap-center', {
+        className={cx(styles.example, 'snap-end sm:snap-center', {
           'sm:order-first': flip,
         })}
       >

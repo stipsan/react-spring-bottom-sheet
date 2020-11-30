@@ -31,7 +31,7 @@
     "prettier-package-json": "^2.1.3",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
-    "scroll-into-view-if-needed": "^2.2.26",
+    "smooth-scroll-into-view-if-needed": "^1.1.29",
     "svgo": "^1.3.2",
     "tailwindcss": "^2.0.1",
     "tailwindcss-scroll-snap": "^1.0.3",
