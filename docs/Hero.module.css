@@ -1,0 +1,50 @@
+.wrapper {
+  background: linear-gradient(171.09deg, #f1c7a7 0.47%, #ff8fcb 96.54%), #c4c4c4;
+  height: 336px;
+  width: 100%;
+
+  position: relative;
+}
+.wrapper:before {
+  content: '';
+  display: block;
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 1px;
+  background: rgba(89, 35, 64, 0.4);
+  z-index: 1;
+}
+.subtitle,
+.text {
+  font-size: 32px;
+  line-height: 46px;
+}
+
+.text {
+  transition-property: transform, opacity;
+  transition-timing-function: ease-out, ease-in;
+}
+.text.text {
+  --tw-translate-y: 40px;
+  opacity: 0;
+}
+.open .text {
+  transition-duration: 300ms;
+  --tw-translate-y: 0px;
+  opacity: 1;
+}
+/* Only set delay while open to avoid weird artifacts with fast toggling */
+.open .text {
+  transition-delay: calc(150ms + 80ms * var(--index, 0));
+}
+.text + .text {
+  --index: 1;
+  & + .text {
+    --index: 2;
+    & + .text {
+      --index: 3;
+    }
+  }
+}

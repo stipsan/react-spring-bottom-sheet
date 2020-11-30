@@ -1,0 +1,6 @@
+.up {
+  --size: 0.6rem;
+  border-left: var(--size) solid transparent;
+  border-right: var(--size) solid transparent;
+  border-bottom: var(--size) solid currentColor;
+}

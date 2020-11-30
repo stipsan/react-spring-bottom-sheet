@@ -1,0 +1,54 @@
+.phoneframe {
+  overflow: hidden;
+  height: 0;
+  position: relative;
+  padding-top: calc(350 / 171 * 100%);
+
+  & iframe {
+    border: 0;
+    height: 91.6%;
+    left: 6.5%;
+    top: 2.8%;
+    width: 86.6%;
+    position: absolute;
+    background: transparent;
+    border-radius: 10.8% / 4.6%;
+  }
+
+  &:before {
+    content: '';
+    background-image: svg-load('StickyNugget.frame.svg');
+    background-size: contain;
+    background-repeat: no-repeat;
+    display: block;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 20;
+    pointer-events: none;
+  }
+}
+
+/* Have to apply max-width and max-height on a container to prevent fuckups to aspect-ratio behavior */
+.example {
+  max-width: 574px;
+  min-height: 380px;
+  aspect-ratio: 171 / 350;
+}
+@supports (aspect-ratio: 16 / 9) {
+  @media (min-width: 640px) {
+    .example {
+      max-height: calc(100vh - 2.5rem);
+    }
+  }
+}
+
+.loader {
+  border-radius: 10.8% / 4.6%;
+  height: 91.6%;
+  left: 6.5%;
+  top: 2.8%;
+  width: 86.6%;
+}

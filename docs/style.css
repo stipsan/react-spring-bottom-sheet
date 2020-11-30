@@ -1,0 +1,20 @@
+@tailwind base;
+
+html,
+body {
+  @apply font-body overscroll-y-none snap snap-proximity snap-y;
+}
+
+.is-window {
+  --rsbs-max-w: 640px;
+  --rsbs-ml: auto;
+  --rsbs-mr: auto;
+}
+.is-iframe {
+  --rsbs-ml: 0px;
+  --rsbs-mr: 0px;
+}
+
+@tailwind components;
+
+@tailwind utilities;

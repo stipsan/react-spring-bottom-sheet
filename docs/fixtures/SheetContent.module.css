@@ -1,0 +1,5 @@
+:global(.is-iframe) .spacing {
+  /* Follows device cornering */
+  padding: 1vh 3vh 3vh;
+  gap: 2vh;
+}
