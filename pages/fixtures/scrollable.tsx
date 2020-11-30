@@ -1,8 +1,12 @@
+import cx from 'classnames'
 import Code from '../../docs/fixtures/Code'
 import Container from '../../docs/fixtures/Container'
+import ScrollUp from '../../docs/fixtures/ScrollUp'
 import SheetContent from '../../docs/fixtures/SheetContent'
 import SnapMarker from '../../docs/fixtures/SnapMarker'
 import { BottomSheet } from '../../src'
+
+const rows = Array.from(Array(10), (_, x) => ({ key: x, color: '#000' }))
 
 export default function ScrollableFixturePage() {
   return (
@@ -40,6 +44,12 @@ export default function ScrollableFixturePage() {
           <p>
             You can override this with <Code>initialFocusRef</Code>.
           </p>
+          {rows.map(({ key, color }) => (
+            <div key={`row-${key}`} className={cx('block w-3')}>
+              {color}
+            </div>
+          ))}
+          <ScrollUp />
         </SheetContent>
       </BottomSheet>
     </Container>
