@@ -7,11 +7,24 @@
   "bugs": {
     "url": "https://github.com/stipsan/react-spring-bottom-sheet/issues"
   },
+  "main": "dist/index.js",
+  "module": "dist/index.es.js",
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "next build",
+    "prebuild:dist": "rimraf dist/**",
+    "build:dist": "npm run build:postcss && npm run build:microbundle",
+    "build:microbundle": "microbundle",
+    "build:postcss": "postcss -d dist --no-map src/style.css",
     "dev": "next",
+    "prepublishOnly": "npm run build:dist",
     "start": "next start"
   },
+  "sideEffects": [
+    "*.css"
+  ],
   "dependencies": {
     "@reach/portal": "^0.12.1",
     "body-scroll-lock": "^3.1.5",
@@ -53,6 +66,7 @@
       "pre-commit": "lint-staged"
     }
   },
+  "jsnext:main": "dist/index.es.js",
   "lint-staged": {
     "*.{js,jsx,ts,tsx,md,html,css,yml,json}": "prettier --write",
     "package.json": "prettier-package-json --write"
@@ -60,5 +74,7 @@
   "prettier": {
     "semi": false,
     "singleQuote": true
-  }
+  },
+  "source": "src",
+  "style": "dist/style.css"
 }
