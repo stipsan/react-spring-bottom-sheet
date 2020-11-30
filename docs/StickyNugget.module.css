@@ -38,10 +38,8 @@
   aspect-ratio: 171 / 350;
 }
 @supports (aspect-ratio: 16 / 9) {
-  @media (min-width: 640px) {
-    .example {
-      max-height: calc(100vh - 2.5rem);
-    }
+  .example {
+    max-height: max(calc(100vh - 2.5rem), 560px);
   }
 }
 
