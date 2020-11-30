@@ -84,7 +84,7 @@ export default function ScrollableFixturePage() {
                 textSize="text-sm"
                 padding="px2 py-1"
                 onClick={() =>
-                  sheetRef.current.setHeight(
+                  sheetRef.current.setSnapPoint(
                     // the snapPoints are always asc sorted, thus it's safe to pick by index
                     ({ snapPoints: [, , snapPoint] }) => snapPoint
                   )
@@ -97,7 +97,7 @@ export default function ScrollableFixturePage() {
                 textSize="text-sm"
                 padding="px2 py-1"
                 onClick={() =>
-                  sheetRef.current.setHeight(
+                  sheetRef.current.setSnapPoint(
                     ({ snapPoints: [, snapPoint] }) => snapPoint
                   )
                 }
@@ -108,7 +108,7 @@ export default function ScrollableFixturePage() {
                 textSize="text-sm"
                 padding="px2 py-1"
                 onClick={() =>
-                  sheetRef.current.setHeight(
+                  sheetRef.current.setSnapPoint(
                     ({ snapPoints: [snapPoint] }) => snapPoint
                   )
                 }

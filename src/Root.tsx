@@ -20,7 +20,12 @@ import {
   useViewportHeight,
 } from './hooks'
 import { createAriaHider, createScrollLocker, isNumber } from './utils'
-import type { snapPoints, initialHeight, setHeight, SharedProps } from './types'
+import type {
+  snapPoints,
+  initialHeight,
+  setSnapPoint,
+  SharedProps,
+} from './types'
 
 type DraggableBottomSheetProps = {
   _onClose: () => void
@@ -334,8 +339,8 @@ export const DraggableBottomSheet = React.forwardRef(
       })
     }, [_onClose, _shouldClose, prefersReducedMotion, set])
 
-    useImperativeHandle<{}, { setHeight: setHeight }>(forwardRef, () => ({
-      setHeight: (maybeHeightUpdater) => {
+    useImperativeHandle<{}, { setSnapPoint: setSnapPoint }>(forwardRef, () => ({
+      setSnapPoint: (maybeHeightUpdater) => {
         if (shouldCloseRef.current || !isOpen) return
         let nextHeight: number
         if (typeof maybeHeightUpdater === 'function') {
@@ -352,7 +357,7 @@ export const DraggableBottomSheet = React.forwardRef(
 
         if (process.env.NODE_ENV !== 'production' && !isNumber(nextHeight)) {
           console.error(
-            'setHeight expects valid numbers, instead it got: ',
+            'setSnapPoint expects valid numbers, instead it got: ',
             nextHeight
           )
           return

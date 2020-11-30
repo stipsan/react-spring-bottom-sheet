@@ -68,9 +68,9 @@ export type SharedProps = {
 } & Omit<React.PropsWithoutRef<JSX.IntrinsicElements['div']>, 'children'>
 
 type heightSetter = (state: initialHeightArg) => number
-export type setHeight = (height: number | heightSetter) => void
+export type setSnapPoint = (height: number | heightSetter) => void
 
-// Typings for the forwarded ref, useful as TS can't infer that `setHeight` is available by itself
+// Typings for the forwarded ref, useful as TS can't infer that `setSnapPoint` is available by itself
 export type ForwardedRefType = {
-  setHeight: setHeight
+  setSnapPoint: setSnapPoint
 } & HTMLDivElement

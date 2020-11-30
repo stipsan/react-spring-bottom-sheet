@@ -7,8 +7,6 @@ A change to snap points affects how far one can drag.
 - maxHeight renamed to contentHeight, as that's what it is.
 - rename initialHeight to initialSnapPoint.
 - rename viewportHeight to maxHeight?
-- rename isOpen to open, like the <details> tag works.
-- rename setHeight to setSnapPoint
 
 ## package.json stuffs
 
