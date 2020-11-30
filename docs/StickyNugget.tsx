@@ -77,7 +77,7 @@ export default function StickyNugget({
                 styles.loader,
                 loading
                   ? 'z-0 transition-all bg-white text-gray-900'
-                  : 'z-10 bg-black text-white hover:text-gray-900 hover:bg-gray-100 focus:text-gray-900 focus:bg-gray-100 active:bg-white',
+                  : 'z-10 bg-black text-gray-200 hover:text-gray-900 hover:bg-gray-100 focus:text-gray-900 focus:bg-gray-100 active:bg-white',
                 loaded && 'opacity-0',
                 'flex justify-center items-center flex-col absolute',
                 'focus:outline-none transition-colors duration-150 group'
