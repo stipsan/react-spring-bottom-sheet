@@ -592,13 +592,12 @@ export const DraggableBottomSheet = React.forwardRef(
         >
           <div
             key="header"
-            className={classNames('bottom-sheet-v2__header', {
-              'bottom-sheet-v2__header--empty': !header,
-            })}
+            data-rsbs-header
+            data-rsbs-header-empty={header ? undefined : true}
             ref={headerRef}
             {...dragEvents}
           >
-            <div className="bottom-sheet-v2__header-inner">{header}</div>
+            <div data-rsbs-header-padding>{header}</div>
           </div>
           <div
             key="content"
@@ -610,7 +609,7 @@ export const DraggableBottomSheet = React.forwardRef(
             <div
               ref={contentContainerRef}
               // The overflow hidden is for the resize observer to get dimensions including margins and paddings
-              className="u-overflow-hidden"
+              style={{ overflow: 'hidden' }}
             >
               <div className="bottom-sheet-v2__content-inner">{children}</div>
             </div>
