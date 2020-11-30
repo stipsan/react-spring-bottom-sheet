@@ -68,7 +68,12 @@ export type SharedProps = {
 } & Omit<React.PropsWithoutRef<JSX.IntrinsicElements['div']>, 'children'>
 
 type heightSetter = (state: initialHeightArg) => number
-export type setSnapPoint = (height: number | heightSetter) => void
+/**
+ * When given a number it'll find the closest snap point, so you don't need to know the exact value,
+ * Use the callback method to access what snap points you can choose from.
+ *
+ */
+export type setSnapPoint = (fuzzySnapPoint: number | heightSetter) => void
 
 // Typings for the forwarded ref, useful as TS can't infer that `setSnapPoint` is available by itself
 export type ForwardedRefType = {

@@ -56,7 +56,10 @@ And that may affect side effects that are running atm
 - transition to open while closing.
 - transition to closed after finished opening.
 - while opening the user interrupts and starts dragging (should be fine, all work should be done by now.).
+- while opening the user keyboard navs, maybe even fucks the scroll.
 
 - Some hooks care only about if we're on our way to open, or on our way to close.
 - Other hooks care about the current drag state.
 - Dragging is king, should not be interruptible, but may allow side effects that affect where/how dragging happens.
+- Focus set by keyboard nav or a screen reader can fuck things up.
+- Consider two drag modes? One fast, but can get scroll fuckups, one that's like the current one, safe because it changes the height property.
