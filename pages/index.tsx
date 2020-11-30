@@ -15,8 +15,8 @@ export default function IndexPage() {
         <StickyNugget
           heading="Easy to dismiss"
           lead={[
-            'This example is setup to use a single snap point, set to the content height.',
-            'The sheet adjusts itself accordingly if the content changes.',
+            "It should be just as intuitive to close the bottom sheet no matter if you're using touch, keyboard navigation, a screen reader or a mouse cursor.",
+            'This example is setup to use a single snap point, set to the content height. The sheet adjusts itself accordingly if the content changes.',
           ]}
           example="/fixtures/simple"
         />
