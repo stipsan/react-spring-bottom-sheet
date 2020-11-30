@@ -65,18 +65,6 @@ export type SharedProps = {
    * @default true
    */
   scrollLocking?: boolean
-
-  /** The max width. */
-  maxWidth?: string
-
-  /** Left side margin. */
-  marginLeft?: string
-
-  /** Right side margin. */
-  marginRight?: string
-
-  /** The background color. */
-  backgroundColor?: string
 } & Omit<React.PropsWithoutRef<JSX.IntrinsicElements['div']>, 'children'>
 
 type heightSetter = (state: initialHeightArg) => number

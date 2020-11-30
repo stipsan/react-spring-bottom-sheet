@@ -47,10 +47,6 @@ export const DraggableBottomSheet = React.forwardRef(
       snapPoints: getSnapPoints,
       blocking = true,
       scrollLocking = true,
-      maxWidth,
-      marginLeft,
-      marginRight,
-      backgroundColor,
       style,
       ...props
     }: DraggableBottomSheetProps,
@@ -533,15 +529,11 @@ export const DraggableBottomSheet = React.forwardRef(
         className={className}
         ref={containerRef}
         style={{
+          ...style,
           opacity:
             (isIdle || isPrerender || isReady) && !_shouldClose ? 0 : undefined,
           // Allows interactions on the rest of the page before the close transition is finished
           pointerEvents: _shouldClose ? 'none' : undefined,
-          ['--rsbs-max-w' as any]: maxWidth,
-          ['--rsbs-ml' as any]: marginLeft,
-          ['--rsbs-mr' as any]: marginRight,
-          ['--rsbs-bg' as any]: backgroundColor,
-          ...style,
         }}
       >
         {blocking && (

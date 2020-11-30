@@ -20,7 +20,6 @@ export default function ExperimentsFixturePage() {
         <Button onClick={() => setOpen(true)}>Open</Button>
         <BottomSheet
           style={{ ['--rsbs-bg' as any]: '#EFF6FF' }}
-          backgroundColor="black"
           isOpen={open}
           onDismiss={onDismiss}
           snapPoints={({ maxHeight }) => [maxHeight]}

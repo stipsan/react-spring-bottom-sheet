@@ -44,10 +44,6 @@ export const BottomSheet = React.forwardRef(
         maxHeight,
         Math.min(Math.max(viewportHeight * 0.7019704433497537, 510), maxHeight),
       ],
-      maxWidth,
-      marginLeft,
-      marginRight,
-      backgroundColor,
       ...props
     }: BottomSheetProps,
     ref: React.Ref<HTMLDivElement>
@@ -103,10 +99,6 @@ export const BottomSheet = React.forwardRef(
           blocking={blocking}
           scrollLocking={scrollLocking}
           snapPoints={snapPointsMemo}
-          maxWidth={maxWidth}
-          marginLeft={marginLeft}
-          marginRight={marginRight}
-          backgroundColor={backgroundColor}
         >
           {children}
         </DraggableBottomSheet>
