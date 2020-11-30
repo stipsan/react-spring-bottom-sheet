@@ -114,21 +114,3 @@
 .bottom-sheet-v2__footer-inner {
   padding-bottom: calc(16px + env(safe-area-inset-bottom));
 }
-.bottom-sheet-v2__toolbar {
-  display: flex;
-  align-items: center;
-}
-.bottom-sheet-v2__toolbar-left,
-.bottom-sheet-v2__toolbar-right {
-  display: flex;
-  width: 100%;
-}
-.bottom-sheet-v2__toolbar-left {
-  justify-content: flex-start;
-}
-.bottom-sheet-v2__toolbar-center {
-  flex-shrink: 0;
-}
-.bottom-sheet-v2__toolbar-right {
-  justify-content: flex-end;
-}
