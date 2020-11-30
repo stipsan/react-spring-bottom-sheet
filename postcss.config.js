@@ -12,6 +12,8 @@ module.exports = {
             '--rsbs-ml': 'env(safe-area-inset-left)',
             '--rsbs-mr': 'env(safe-area-inset-right)',
             '--rsbs-bg': '#fff',
+            '--rsbs-backdrop-bg': 'rgba(0, 0, 0, 0.6)',
+            '--rsbs-handle-bg': 'hsla(0, 0%, 0%, 0.25)',
             '--rsbs-y': '0px',
             '--rsbs-rounded': '16px',
           },

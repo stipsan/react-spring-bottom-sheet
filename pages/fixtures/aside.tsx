@@ -37,7 +37,6 @@ export default function AsideFixturePage() {
             You can combine this with <Code>onDismissable</Code> to fine-tune
             the behavior you want.
           </p>
-          <div className=" h-96" />
         </SheetContent>
       </BottomSheet>
     </Container>

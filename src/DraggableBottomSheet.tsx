@@ -524,17 +524,17 @@ export const DraggableBottomSheet = React.forwardRef(
 
     return (
       <div
-        className="bottom-sheet-v2__root"
+        className={className}
         ref={containerRef}
         style={{
           opacity:
             (isIdle || isPrerender || isReady) && !_shouldClose ? 0 : undefined,
           // Allows interactions on the rest of the page before the close transition is finished
           pointerEvents: _shouldClose ? 'none' : undefined,
-          ['--bottom-sheet-max-width' as any]: maxWidth,
-          ['--bottom-sheet-margin-left' as any]: marginLeft,
-          ['--bottom-sheet-margin-right' as any]: marginRight,
-          ['--bottom-sheet-background-color' as any]: backgroundColor,
+          ['--rsbs-max-w' as any]: maxWidth,
+          ['--rsbs-ml' as any]: marginLeft,
+          ['--rsbs-mr' as any]: marginRight,
+          ['--rsbs-bg' as any]: backgroundColor,
         }}
       >
         {blocking && (
@@ -542,7 +542,7 @@ export const DraggableBottomSheet = React.forwardRef(
             key="backdrop"
             // This component needs to be placed outside bottom-sheet, as bottom-sheet uses transform and thus creates a new context
             // that clips this element to the container, not allowing it to cover the full page.
-            className="bottom-sheet-v2__backdrop"
+            data-rsbs-backdrop
             style={{
               opacity:
                 isOpening || (onDismiss && isDragging) || _shouldClose
@@ -560,7 +560,7 @@ export const DraggableBottomSheet = React.forwardRef(
         )}
         <animated.div
           key="bottom-sheet"
-          className={classNames('bottom-sheet-v2', className, {
+          className={classNames('bottom-sheet-v2', {
             'bottom-sheet-v2--non-blocking': !blocking,
           })}
           aria-modal="true"

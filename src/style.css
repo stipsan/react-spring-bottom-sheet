@@ -21,7 +21,7 @@
   margin-right: var(--rsbs-mr);
 }
 .bottom-sheet-v2,
-.bottom-sheet-v2__backdrop,
+[data-rsbs-backdrop],
 .bottom-sheet-v2__filler {
   z-index: 3;
   -ms-scroll-chaining: none;
@@ -37,10 +37,10 @@
   -webkit-tap-highlight-color: transparent;
   -webkit-touch-callout: none;
 }
-.bottom-sheet-v2__backdrop {
+[data-rsbs-backdrop] {
   top: -60px;
   bottom: -60px;
-  background-color: rgba(0, 0, 0, 0.6);
+  background-color: var(--rsbs-backdrop-bg);
   will-change: opacity;
 }
 .bottom-sheet-v2__filler {
@@ -79,7 +79,7 @@
   width: 25px;
   height: 4px;
   border-radius: 2px;
-  background-color: #c3ccd9;
+  background-color: var(--rsbs-handle-bg);
 }
 .bottom-sheet-v2__header--empty {
   box-shadow: none;
