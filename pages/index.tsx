@@ -14,7 +14,10 @@ export default function IndexPage() {
       <div className="max-w-3xl mx-auto py-10 px-8 grid grid-flow-row gap-y-20">
         <StickyNugget
           heading="Simple Example"
-          lead="Intro"
+          lead={[
+            'This example is setup to use a single snap point, set to the content height.',
+            'The sheet adjusts itself accordingly if the content changes.',
+          ]}
           example="/fixtures/simple"
         />
         <StickyNugget

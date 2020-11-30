@@ -1,7 +1,5 @@
-:global(.is-iframe) .pxb {
+:global(.is-iframe) .spacing {
   /* Follows device cornering */
-  padding-left: 3vh;
-  padding-right: 3vh;
-  padding-bottom: 3vh;
+  padding: 1vh 3vh 3vh;
   gap: 2vh;
 }

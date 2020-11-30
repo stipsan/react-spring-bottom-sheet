@@ -32,7 +32,11 @@ export default function StickyNugget({
       <div>
         <div className="grid grid-flow-row place-items-start gap-2.5 sticky top-5 mb-5">
           <h2 className="text-5xl text-hero font-display">{heading}</h2>
-          <p className="text-2xl px-0.5">{lead}</p>
+          {[].concat(lead).map((lead, i) => (
+            <p key={`lead-${i}`} className="text-2xl px-0.5">
+              {lead}
+            </p>
+          ))}
 
           <Link href={example}>
             <a className="px-2 py-0 rounded-full transition-colors duration-150 focus:duration-0 bg-hero-lighter text-hero hover:bg-hero hover:text-hero-lighter focus:outline-none focus:bg-hero focus:text-hero-lighter focus:ring-2 focus:ring-offset-2 focus:ring-offset-white focus:ring-hero">
