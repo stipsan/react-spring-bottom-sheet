@@ -50,4 +50,15 @@ And that may affect side effects that are running atm
 - isOpen
 - snapPoints
 - initialHeight
--
+
+## Big picture state machines
+
+- transitioning from closed to open.
+- transition to closed while opening but not open.
+- transition to open while closing.
+- transition to closed after finished opening.
+- while opening the user interrupts and starts dragging (should be fine, all work should be done by now.).
+
+- Some hooks care only about if we're on our way to open, or on our way to close.
+- Other hooks care about the current drag state.
+- Dragging is king, should not be interruptible, but may allow side effects that affect where/how dragging happens.
