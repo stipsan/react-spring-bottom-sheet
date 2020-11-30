@@ -607,16 +607,11 @@ export const DraggableBottomSheet = React.forwardRef(
               // The overflow hidden is for the resize observer to get dimensions including margins and paddings
               style={{ overflow: 'hidden' }}
             >
-              <div className="bottom-sheet-v2__content-inner">{children}</div>
+              <div data-rsbs-content-padding>{children}</div>
             </div>
           </div>
           {footer && (
-            <div
-              key="footer"
-              ref={footerRef}
-              className="bottom-sheet-v2__footer"
-              {...dragEvents}
-            >
+            <div key="footer" ref={footerRef} data-rsbs-footer {...dragEvents}>
               <div data-rsbs-footer-padding>{footer}</div>
             </div>
           )}
