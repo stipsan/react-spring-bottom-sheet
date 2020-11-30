@@ -88,9 +88,11 @@ export const DraggableBottomSheet = React.forwardRef(
     // Drag interaction states
     const [spring, set] = useSpring(() => ({
       y: 0,
+      opacity: 0,
     }))
-    const y = spring.y
-    console.log(spring)
+    const { y } = spring
+    // @ts-ignore
+    window.cody = (arg) => set(arg)
 
     const {
       contentHeight,
@@ -500,6 +502,7 @@ export const DraggableBottomSheet = React.forwardRef(
                 isOpening || (onDismiss && isDragging) || _shouldClose
                   ? overlayOpacity
                   : undefined,
+              ...{ opacity: spring.opacity },
             }}
             onClick={(event) => {
               if (onDismiss) {
