@@ -1,12 +1,13 @@
 import * as React from 'react'
 import Portal from '@reach/portal'
 
-import { DraggableBottomSheet } from './DraggableBottomSheet'
-import type { snapPoints, initialHeight, setHeight, SharedProps } from './types'
+import { DraggableBottomSheet } from './Root'
+import type { snapPoints, initialHeight, SharedProps } from './types'
+export type { ForwardedRefType } from './types'
 
 type BottomSheetProps = {
   /** Whether the bottom sheet is open or not. */
-  isOpen: boolean
+  open: boolean
 
   /** Handler that is called to get the height values that the bottom sheet can *snap* to when the user stops dragging. The function is given `minHeight`, `maxHeight`, `viewportHeight` and `currentHeight` as arguments. */
   snapPoints?: snapPoints
@@ -18,13 +19,6 @@ type BottomSheetProps = {
   onCloseTransitionEnd?: () => void
 } & SharedProps
 
-// @TODO conduct a memo test and see if an state interval is causing unnecessary renders or expensive function creations
-
-// Typings for the forwarded ref, useful as TS can't infer that `setHeight` is available by itself
-export type ForwardedRefType = {
-  setHeight: setHeight
-} & HTMLDivElement
-
 export const BottomSheet = React.forwardRef(
   (
     {
@@ -33,7 +27,7 @@ export const BottomSheet = React.forwardRef(
       footer,
       header,
       initialFocusRef,
-      isOpen: shouldBeOpen,
+      open: shouldBeOpen,
       onDismiss,
       onCloseTransitionEnd,
       scrollLocking,

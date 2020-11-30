@@ -21,7 +21,7 @@ export default function SimpleFixturePage() {
       <Container>
         <Button onClick={() => setOpen(true)}>Open</Button>
         <BottomSheet
-          isOpen={open}
+          open={open}
           onDismiss={onDismiss}
           snapPoints={({ maxHeight }) => [maxHeight]}
         >

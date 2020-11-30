@@ -68,7 +68,7 @@ export default function ScrollableFixturePage() {
         />
         <SnapMarker style={{ top: '75vh', ['--size' as any]: '0.5vh' }} />
         <BottomSheet
-          isOpen
+          open
           ref={sheetRef}
           initialFocusRef={focusRef}
           initialHeight={({ snapPoints: [, _] }) => _}

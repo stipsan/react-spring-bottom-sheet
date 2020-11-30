@@ -19,7 +19,7 @@ export default function StickyFixturePage() {
       <Container>
         <Button onClick={() => setOpen(true)}>Open</Button>
         <BottomSheet
-          isOpen={open}
+          open={open}
           onDismiss={onDismiss}
           initialHeight={({ snapPoints }) => Math.max(...snapPoints)}
           snapPoints={({ viewportHeight }) => [
