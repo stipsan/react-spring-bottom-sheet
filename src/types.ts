@@ -1,8 +1,6 @@
 export type SnapPointArg = {
   /** If the bottom sheet is animating to a snap point the currentHeight will be the destination height, not the height the bottom sheet might have in the middle of the animation. */
   currentHeight: number
-  /** The lowest height the bottom sheet can be before it's unusable/unreachable. Things like device type and display cutouts is considered. */
-  minHeight: number
   /** How tall the sheet can be based on the content heights. Viewport height also affects this number. */
   maxHeight: number
   /** Use this instead of reading from window.innerHeight yourself, this helps prevent unnecessary reflows. */

@@ -132,14 +132,13 @@ export const useSnapPoints = ({
 
     const providedSnapPoints = getSnapPoints({
       currentHeight,
-      minHeight,
       maxHeight,
       viewportHeight,
     }).map(Math.round)
 
     const validSnapPoints: number[] = []
     providedSnapPoints.forEach((snapPoint) => {
-      const validSnapPoint = clamp(snapPoint, minHeight, viewportHeight)
+      const validSnapPoint = clamp(snapPoint, 0, viewportHeight)
       if (validSnapPoints.indexOf(validSnapPoint) === -1) {
         validSnapPoints.push(validSnapPoint)
       }

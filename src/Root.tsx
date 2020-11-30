@@ -318,7 +318,6 @@ export const DraggableBottomSheet = React.forwardRef(
       initialHeight,
       isOpen,
       maxHeight,
-      minHeight,
       prefersReducedMotion,
       prevDimensions.maxHeight,
       prevDimensions.minHeight,
@@ -346,7 +345,6 @@ export const DraggableBottomSheet = React.forwardRef(
         if (typeof maybeHeightUpdater === 'function') {
           nextHeight = maybeHeightUpdater({
             currentHeight: state.currentHeight,
-            minHeight,
             maxHeight,
             viewportHeight,
             snapPoints,

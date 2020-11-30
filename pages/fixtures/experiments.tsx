@@ -4,7 +4,6 @@ import Code from '../../docs/fixtures/Code'
 import Container from '../../docs/fixtures/Container'
 import Kbd from '../../docs/fixtures/Kbd'
 import SheetContent from '../../docs/fixtures/SheetContent'
-import HeadTitle from '../../docs/HeadTitle'
 import { BottomSheet } from '../../src'
 
 export default function ExperimentsFixturePage() {
