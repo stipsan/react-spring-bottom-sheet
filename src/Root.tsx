@@ -40,7 +40,7 @@ export const DraggableBottomSheet = React.forwardRef(
       header,
       initialFocusRef,
       onDismiss,
-      initialHeight: _getInitialHeight,
+      initialSnapPoint: _getInitialSnapPoint,
       snapPoints: getSnapPoints,
       blocking = true,
       scrollLocking = true,
@@ -86,9 +86,11 @@ export const DraggableBottomSheet = React.forwardRef(
     }, [_shouldClose, scrollLocking])
 
     // Drag interaction states
-    const [{ y }, set] = useSpring(() => ({
+    const [spring, set] = useSpring(() => ({
       y: 0,
     }))
+    const y = spring.y
+    console.log(spring)
 
     const {
       contentHeight,
@@ -105,6 +107,8 @@ export const DraggableBottomSheet = React.forwardRef(
     const { snapPoints, minSnap, maxSnap, toSnapPoint } = useSnapPoints({
       getSnapPoints,
       contentHeight,
+      footerHeight,
+      headerHeight,
       currentHeight: state.currentHeight,
       maxHeight,
       viewportHeight,
@@ -116,16 +120,20 @@ export const DraggableBottomSheet = React.forwardRef(
         return 0
       }
 
-      const nextHeight = _getInitialHeight({
+      const nextHeight = _getInitialSnapPoint({
         currentHeight: state.currentHeight,
+        headerHeight,
+        footerHeight,
         maxHeight,
         viewportHeight,
         snapPoints,
       })
       return toSnapPoint(nextHeight)
     }, [
-      _getInitialHeight,
+      _getInitialSnapPoint,
       contentHeight,
+      footerHeight,
+      headerHeight,
       maxHeight,
       snapPoints,
       state.currentHeight,
@@ -283,6 +291,8 @@ export const DraggableBottomSheet = React.forwardRef(
         let nextHeight: number
         if (typeof maybeHeightUpdater === 'function') {
           nextHeight = maybeHeightUpdater({
+            footerHeight,
+            headerHeight,
             currentHeight: state.currentHeight,
             maxHeight,
             viewportHeight,

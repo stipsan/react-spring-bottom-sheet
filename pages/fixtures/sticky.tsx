@@ -21,7 +21,7 @@ export default function StickyFixturePage() {
         <BottomSheet
           open={open}
           onDismiss={onDismiss}
-          initialHeight={({ snapPoints }) => Math.max(...snapPoints)}
+          initialSnapPoint={({ snapPoints }) => Math.max(...snapPoints)}
           snapPoints={({ viewportHeight }) => [
             viewportHeight - viewportHeight / 10,
             viewportHeight * 0.6,

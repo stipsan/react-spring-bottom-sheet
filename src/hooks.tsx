@@ -114,6 +114,8 @@ type UseSnapPointsProps = {
 export const useSnapPoints = ({
   getSnapPoints,
   maxHeight,
+  footerHeight,
+  headerHeight,
   contentHeight,
   currentHeight,
   viewportHeight,
@@ -130,6 +132,8 @@ export const useSnapPoints = ({
       .concat(
         getSnapPoints({
           currentHeight,
+          footerHeight,
+          headerHeight,
           maxHeight,
           viewportHeight,
         })
@@ -155,14 +159,24 @@ export const useSnapPoints = ({
       minSnap: validSnapPoints[0],
       maxSnap: validSnapPoints[lastIndex],
     }
-  }, [contentHeight, currentHeight, getSnapPoints, maxHeight, viewportHeight])
+  }, [
+    contentHeight,
+    currentHeight,
+    footerHeight,
+    getSnapPoints,
+    headerHeight,
+    maxHeight,
+    viewportHeight,
+  ])
 
   const toSnapPoint = useCallback(
-    (y: number) =>
-      snapPoints.reduce(
+    (rawY: number) => {
+      const y = roundAndCheckForNaN(rawY)
+      return snapPoints.reduce(
         (prev, curr) => (Math.abs(curr - y) < Math.abs(prev - y) ? curr : prev),
         minSnap
-      ),
+      )
+    },
     [minSnap, snapPoints]
   )
 

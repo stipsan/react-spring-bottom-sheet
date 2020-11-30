@@ -1,4 +1,4 @@
-type SnapPointArg = {
+export type SnapPointArg = {
   /** The height of the sticky footer, if there's one */
   footerHeight: number
   /** The height of the sticky footer, if there's one */
@@ -11,7 +11,7 @@ type SnapPointArg = {
   viewportHeight: number
 }
 
-type snapPoints = (args: SnapPointArg) => number[]
+export type snapPoints = (args: SnapPointArg) => number[]
 
 type initialSnapPointArg = {
   snapPoints: number[]
@@ -62,7 +62,7 @@ export type SharedProps = {
   snapPoints?: snapPoints
 
   /** Handler that is called to get the initial height of the bottom sheet when it's opened (or when the viewport is resized). The function is given `minHeight`, `maxHeight`, `viewportHeight`,`currentHeight` and `snappoints` as arguments. */
-  initialHeight?: initialSnapPoint
+  initialSnapPoint?: initialSnapPoint
 } & Omit<React.PropsWithoutRef<JSX.IntrinsicElements['div']>, 'children'>
 
 type snapPointSetter = (state: initialSnapPointArg) => number

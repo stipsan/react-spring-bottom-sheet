@@ -61,6 +61,7 @@ function Two() {
             Dismiss
           </Button>
         }
+        initialSnapPoint={({ footerHeight }) => footerHeight}
         snapPoints={({ maxHeight, footerHeight }) => [footerHeight, maxHeight]}
       >
         <SheetContent>
@@ -123,15 +124,11 @@ function Four() {
         style={{ ['--rsbs-bg' as any]: '#EFF6FF' }}
         open={open}
         onDismiss={onDismiss}
-        header={
-          <Button
-            onClick={onDismiss}
-            className="w-full focus:ring-offset-rsbs-bg"
-          >
-            Dismiss
-          </Button>
-        }
-        snapPoints={({ maxHeight, headerHeight }) => [headerHeight, maxHeight]}
+        snapPoints={({ maxHeight, headerHeight }) => [
+          0,
+          headerHeight,
+          maxHeight,
+        ]}
       >
         <SheetContent>
           <p>

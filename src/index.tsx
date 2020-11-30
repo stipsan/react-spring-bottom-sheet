@@ -26,7 +26,7 @@ export const BottomSheet = React.forwardRef(
       onCloseTransitionEnd,
       scrollLocking,
       blocking,
-      initialHeight = ({ snapPoints }) => Math.min(...snapPoints),
+      initialSnapPoint = ({ snapPoints }) => Math.min(...snapPoints),
       snapPoints = ({ maxHeight }) => [maxHeight],
       ...props
     }: BottomSheetProps,
@@ -46,10 +46,10 @@ export const BottomSheet = React.forwardRef(
     }, [shouldBeOpen, mounted])
 
     // Using refs and callback hooks to ensure the callbacks maintain identity without requiring userland to implement useCallback
-    const initialHeightRef = React.useRef(initialHeight)
-    initialHeightRef.current = initialHeight
+    const initialSnapPointRef = React.useRef(initialSnapPoint)
+    initialSnapPointRef.current = initialSnapPoint
     const initialHeightMemo = React.useCallback(
-      (props) => initialHeightRef.current(props),
+      (props) => initialSnapPointRef.current(props),
       []
     )
     const snapPointsRef = React.useRef(snapPoints)
@@ -77,7 +77,7 @@ export const BottomSheet = React.forwardRef(
           footer={footer}
           header={header}
           initialFocusRef={initialFocusRef}
-          initialHeight={initialHeightMemo}
+          initialSnapPoint={initialHeightMemo}
           key={instance.toString()}
           onDismiss={onDismiss}
           blocking={blocking}
