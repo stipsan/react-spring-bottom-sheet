@@ -524,6 +524,8 @@ export const DraggableBottomSheet = React.forwardRef(
 
     return (
       <div
+        data-rsbs-root
+        data-rsbs-has-header={!!header}
         className={className}
         ref={containerRef}
         style={{
@@ -590,13 +592,7 @@ export const DraggableBottomSheet = React.forwardRef(
             }
           }}
         >
-          <div
-            key="header"
-            data-rsbs-header
-            data-rsbs-header-empty={header ? undefined : true}
-            ref={headerRef}
-            {...dragEvents}
-          >
+          <div key="header" data-rsbs-header ref={headerRef} {...dragEvents}>
             <div data-rsbs-header-padding>{header}</div>
           </div>
           <div
@@ -621,7 +617,7 @@ export const DraggableBottomSheet = React.forwardRef(
               className="bottom-sheet-v2__footer"
               {...dragEvents}
             >
-              <div className="bottom-sheet-v2__footer-inner">{footer}</div>
+              <div data-rsbs-footer-padding>{footer}</div>
             </div>
           )}
         </animated.div>
