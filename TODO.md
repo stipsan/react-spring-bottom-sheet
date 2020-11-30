@@ -21,3 +21,26 @@ A change to snap points affects how far one can drag.
 - Play icon: https://fontawesome.com/icons/play-circle?style=regular
 - Phone frame used in logo: https://www.figma.com/community/file/896042888090872154/Mono-Devices-1.0
 - iPhone frame used to wrap examples: https://www.figma.com/community/file/858143367356468985/(Variants)-iOS-%26-iPadOS-14-UI-Kit-for-Figma
+
+# Ok let's map this nonsense
+
+Consider using a
+
+```js
+const [, nextTick] = useState(0)
+nextTick((_) => ++_)
+```
+
+to force updates.
+Fast way to check if there's new snapPoints generated:
+
+```js
+var arr1 = [1, 2, 3, 4, 5]
+var arr2 = [1, 2, 3, 4, 5]
+
+if (JSON.stringify(arr1) === JSON.stringify(arr2)) {
+  console.log('They are equal!')
+}
+```
+
+## Changes that can happen from React's side of things at any time by means of a prop change
