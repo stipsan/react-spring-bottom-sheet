@@ -42,6 +42,7 @@
   bottom: -60px;
   background-color: var(--rsbs-backdrop-bg);
   will-change: opacity;
+  cursor: pointer;
 }
 [data-rsbs-antigap] {
   pointer-events: none;
@@ -53,6 +54,7 @@
 [data-rsbs-footer],
 [data-rsbs-header] {
   flex-shrink: 0;
+  cursor: ns-resize;
 }
 [data-rsbs-footer-padding],
 [data-rsbs-header-padding] {
