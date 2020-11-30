@@ -1,4 +1,4 @@
-import { aside } from '../docs/headings'
+import { aside, scrollable, simple, sticky } from '../docs/headings'
 import Hero from '../docs/Hero'
 import Nugget from '../docs/Nugget'
 import StickyNugget from '../docs/StickyNugget'
@@ -14,7 +14,7 @@ export default function IndexPage() {
       </div>
       <div className="max-w-4xl mx-auto py-10 px-8 grid grid-flow-row gap-y-20">
         <StickyNugget
-          heading="Easy to dismiss"
+          heading={simple}
           lead={[
             "It should be just as intuitive to close the bottom sheet no matter if you're using touch, keyboard navigation, a screen reader or a mouse cursor.",
             'This example is setup to use a single snap point, set to the content height. The sheet adjusts itself accordingly if the content changes.',
@@ -23,12 +23,12 @@ export default function IndexPage() {
         />
         <StickyNugget
           flip
-          heading="Snap points & overflow"
+          heading={scrollable}
           lead="Intro"
           example="/fixtures/scrollable"
         />
         <StickyNugget
-          heading="Sticky Example"
+          heading={sticky}
           lead="Intro"
           example="/fixtures/sticky"
         />

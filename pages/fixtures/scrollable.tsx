@@ -1,13 +1,15 @@
 import cx from 'classnames'
+import { useRef } from 'react'
+import scrollIntoView from 'smooth-scroll-into-view-if-needed'
+import Button from '../../docs/fixtures/Button'
 import Code from '../../docs/fixtures/Code'
 import Container from '../../docs/fixtures/Container'
 import ScrollUp from '../../docs/fixtures/ScrollUp'
 import SheetContent from '../../docs/fixtures/SheetContent'
 import SnapMarker from '../../docs/fixtures/SnapMarker'
+import { scrollable } from '../../docs/headings'
+import HeadTitle from '../../docs/HeadTitle'
 import { BottomSheet, ForwardedRefType } from '../../src'
-import scrollIntoView from 'smooth-scroll-into-view-if-needed'
-import { useRef } from 'react'
-import Button from '../../docs/fixtures/Button'
 
 const rand = (_) => _[~~(Math.random() * _.length)]
 const colors = [
@@ -47,94 +49,97 @@ export default function ScrollableFixturePage() {
   const sheetRef = useRef<ForwardedRefType>()
 
   return (
-    <Container>
-      <SnapMarker
-        className="text-white text-opacity-50"
-        style={{ top: '10vh' }}
-      />
-      <SnapMarker style={{ top: '10vh', ['--size' as any]: '0.5vh' }} />
-      <SnapMarker
-        className="text-white text-opacity-50"
-        style={{ top: '40vh' }}
-      />
-      <SnapMarker style={{ top: '40vh', ['--size' as any]: '0.5vh' }} />
-      <SnapMarker
-        className="text-white text-opacity-50"
-        style={{ top: '75vh' }}
-      />
-      <SnapMarker style={{ top: '75vh', ['--size' as any]: '0.5vh' }} />
-      <BottomSheet
-        isOpen
-        ref={sheetRef}
-        initialFocusRef={focusRef}
-        initialHeight={({ snapPoints: [, _] }) => _}
-        snapPoints={({ viewportHeight }) => [
-          viewportHeight - viewportHeight / 10,
-          viewportHeight / 4,
-          viewportHeight * 0.6,
-        ]}
-      >
-        <SheetContent>
-          <div className="grid grid-cols-3 w-full gap-4">
-            <Button
-              textSize="text-sm"
-              padding="px2 py-1"
-              onClick={() =>
-                sheetRef.current.setHeight(
-                  // the snapPoints are always asc sorted, thus it's safe to pick by index
-                  ({ snapPoints: [, , snapPoint] }) => snapPoint
-                )
-              }
-            >
-              Top
-            </Button>
-            <Button
-              ref={focusRef}
-              textSize="text-sm"
-              padding="px2 py-1"
-              onClick={() =>
-                sheetRef.current.setHeight(
-                  ({ snapPoints: [, snapPoint] }) => snapPoint
-                )
-              }
-            >
-              Middle
-            </Button>
-            <Button
-              textSize="text-sm"
-              padding="px2 py-1"
-              onClick={() =>
-                sheetRef.current.setHeight(
-                  ({ snapPoints: [snapPoint] }) => snapPoint
-                )
-              }
-            >
-              Bottom
-            </Button>
-          </div>
-          <p>
-            The sheet will always try to set initial focus on the first
-            interactive element it finds.
-          </p>
-          <p>If none is found it sets keyboard focus to the container.</p>
-          <p>
-            You can override this with <Code>initialFocusRef</Code>.
-          </p>
-          {rows.map(({ key, bg, w }) => (
-            <div
-              key={`row-${key}`}
-              className={cx('block rounded-md h-8', bg, w)}
+    <>
+      <HeadTitle>{scrollable}</HeadTitle>
+      <Container>
+        <SnapMarker
+          className="text-white text-opacity-50"
+          style={{ top: '10vh' }}
+        />
+        <SnapMarker style={{ top: '10vh', ['--size' as any]: '0.5vh' }} />
+        <SnapMarker
+          className="text-white text-opacity-50"
+          style={{ top: '40vh' }}
+        />
+        <SnapMarker style={{ top: '40vh', ['--size' as any]: '0.5vh' }} />
+        <SnapMarker
+          className="text-white text-opacity-50"
+          style={{ top: '75vh' }}
+        />
+        <SnapMarker style={{ top: '75vh', ['--size' as any]: '0.5vh' }} />
+        <BottomSheet
+          isOpen
+          ref={sheetRef}
+          initialFocusRef={focusRef}
+          initialHeight={({ snapPoints: [, _] }) => _}
+          snapPoints={({ viewportHeight }) => [
+            viewportHeight - viewportHeight / 10,
+            viewportHeight / 4,
+            viewportHeight * 0.6,
+          ]}
+        >
+          <SheetContent>
+            <div className="grid grid-cols-3 w-full gap-4">
+              <Button
+                textSize="text-sm"
+                padding="px2 py-1"
+                onClick={() =>
+                  sheetRef.current.setHeight(
+                    // the snapPoints are always asc sorted, thus it's safe to pick by index
+                    ({ snapPoints: [, , snapPoint] }) => snapPoint
+                  )
+                }
+              >
+                Top
+              </Button>
+              <Button
+                ref={focusRef}
+                textSize="text-sm"
+                padding="px2 py-1"
+                onClick={() =>
+                  sheetRef.current.setHeight(
+                    ({ snapPoints: [, snapPoint] }) => snapPoint
+                  )
+                }
+              >
+                Middle
+              </Button>
+              <Button
+                textSize="text-sm"
+                padding="px2 py-1"
+                onClick={() =>
+                  sheetRef.current.setHeight(
+                    ({ snapPoints: [snapPoint] }) => snapPoint
+                  )
+                }
+              >
+                Bottom
+              </Button>
+            </div>
+            <p>
+              The sheet will always try to set initial focus on the first
+              interactive element it finds.
+            </p>
+            <p>If none is found it sets keyboard focus to the container.</p>
+            <p>
+              You can override this with <Code>initialFocusRef</Code>.
+            </p>
+            {rows.map(({ key, bg, w }) => (
+              <div
+                key={`row-${key}`}
+                className={cx('block rounded-md h-8', bg, w)}
+              />
+            ))}
+            <ScrollUp
+              className="my-6"
+              onClick={async () => {
+                await scrollIntoView(focusRef.current, { block: 'end' })
+                focusRef.current.focus()
+              }}
             />
-          ))}
-          <ScrollUp
-            className="my-6"
-            onClick={async () => {
-              await scrollIntoView(focusRef.current, { block: 'end' })
-              focusRef.current.focus()
-            }}
-          />
-        </SheetContent>
-      </BottomSheet>
-    </Container>
+          </SheetContent>
+        </BottomSheet>
+      </Container>
+    </>
   )
 }

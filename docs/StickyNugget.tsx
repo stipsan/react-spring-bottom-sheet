@@ -40,7 +40,7 @@ export default function StickyNugget({
 
           <Link href={example}>
             <a className="px-2 py-0 rounded-full transition-colors duration-150 focus:duration-0 bg-hero-lighter text-hero hover:bg-hero hover:text-hero-lighter focus:outline-none focus:bg-hero focus:text-hero-lighter focus:ring-2 focus:ring-offset-2 focus:ring-offset-white focus:ring-hero">
-              Go to example
+              Open example
             </a>
           </Link>
           {process.env.NODE_ENV !== 'production' && active && (

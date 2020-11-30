@@ -4,6 +4,8 @@ import Code from '../../docs/fixtures/Code'
 import Container from '../../docs/fixtures/Container'
 import Kbd from '../../docs/fixtures/Kbd'
 import SheetContent from '../../docs/fixtures/SheetContent'
+import { simple } from '../../docs/headings'
+import HeadTitle from '../../docs/HeadTitle'
 import { BottomSheet } from '../../src'
 
 export default function SimpleFixturePage() {
@@ -14,24 +16,27 @@ export default function SimpleFixturePage() {
   }
 
   return (
-    <Container>
-      <Button onClick={() => setOpen(true)}>Open</Button>
-      <BottomSheet
-        isOpen={open}
-        onDismiss={onDismiss}
-        snapPoints={({ maxHeight }) => [maxHeight]}
-      >
-        <SheetContent>
-          <p>
-            Using <Code>onDismiss</Code> lets users close the sheet by swiping
-            it down, tapping on the backdrop or by hitting <Kbd>esc</Kbd> on
-            their keyboard.
-          </p>
-          <Button onClick={onDismiss} className="w-full">
-            Dismiss
-          </Button>
-        </SheetContent>
-      </BottomSheet>
-    </Container>
+    <>
+      <HeadTitle>{simple}</HeadTitle>
+      <Container>
+        <Button onClick={() => setOpen(true)}>Open</Button>
+        <BottomSheet
+          isOpen={open}
+          onDismiss={onDismiss}
+          snapPoints={({ maxHeight }) => [maxHeight]}
+        >
+          <SheetContent>
+            <p>
+              Using <Code>onDismiss</Code> lets users close the sheet by swiping
+              it down, tapping on the backdrop or by hitting <Kbd>esc</Kbd> on
+              their keyboard.
+            </p>
+            <Button onClick={onDismiss} className="w-full">
+              Dismiss
+            </Button>
+          </SheetContent>
+        </BottomSheet>
+      </Container>
+    </>
   )
 }
