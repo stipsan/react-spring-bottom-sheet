@@ -1,10 +1,10 @@
 @tailwind base;
 
-/* Write your own custom base styles here */
 html,
 body {
-  /*@apply bg-gray-50 dark:bg-gray-900;*/
-  @apply font-body;
+  @apply font-body overscroll-y-none;
+
+  scroll-snap-type: y proximity;
 }
 
 .is-window {

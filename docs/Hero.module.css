@@ -4,6 +4,7 @@
   width: 100%;
 
   position: relative;
+  scroll-snap-align: start;
 }
 .wrapper:before {
   content: '';

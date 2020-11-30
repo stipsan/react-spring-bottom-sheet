@@ -34,5 +34,5 @@ module.exports = {
       ringWidth: ['group-focus'],
     },
   },
-  plugins: [],
+  plugins: [require('tailwindcss-scroll-snap')],
 }

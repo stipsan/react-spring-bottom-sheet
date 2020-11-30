@@ -7,7 +7,11 @@ const SnapMarker = forwardRef<
   Omit<React.PropsWithoutRef<JSX.IntrinsicElements['span']>, 'children'>
 >(({ className, ...props }, ref) => (
   <span
-    className={cx(styles.point, 'absolute left-0 z-10 w-0 h-0', className)}
+    className={cx(
+      styles.point,
+      'absolute left-0 z-10 w-0 h-0 pointer-events-none',
+      className
+    )}
     {...props}
     ref={ref}
   />

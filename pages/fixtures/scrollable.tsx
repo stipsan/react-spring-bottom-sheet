@@ -1,4 +1,3 @@
-import { useRef } from 'react'
 import Code from '../../docs/fixtures/Code'
 import Container from '../../docs/fixtures/Container'
 import SheetContent from '../../docs/fixtures/SheetContent'

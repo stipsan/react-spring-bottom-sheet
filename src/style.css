@@ -40,7 +40,7 @@
 .bottom-sheet-v2__backdrop {
   top: -60px;
   bottom: -60px;
-  background-color: rgba(71, 68, 69, 0.8);
+  background-color: rgba(0, 0, 0, 0.6);
   will-change: opacity;
 }
 .bottom-sheet-v2__filler {

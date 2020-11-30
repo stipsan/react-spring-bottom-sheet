@@ -1,17 +1,13 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import Button from '../../docs/fixtures/Button'
-import Container from '../../docs/fixtures/Container'
-import SheetContent from '../../docs/fixtures/SheetContent'
 import Code from '../../docs/fixtures/Code'
+import Container from '../../docs/fixtures/Container'
 import Kbd from '../../docs/fixtures/Kbd'
+import SheetContent from '../../docs/fixtures/SheetContent'
 import { BottomSheet } from '../../src'
 
 export default function SimpleFixturePage() {
-  const [open, setOpen] = useState(false)
-
-  useEffect(() => {
-    setOpen(true)
-  }, [])
+  const [open, setOpen] = useState(true)
 
   function onDismiss() {
     setOpen(false)
