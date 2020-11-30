@@ -16,15 +16,17 @@
     "build": "next build",
     "prebuild:dist": "rimraf dist/**",
     "build:dist": "npm run build:postcss && npm run build:microbundle",
-    "build:microbundle": "microbundle",
+    "build:microbundle": "microbundle --tsconfig tsconfig.microbundle.json -f cjs,es",
     "build:postcss": "postcss -d dist --no-map src/style.css",
     "dev": "next",
     "prepublishOnly": "npm run build:dist",
-    "start": "next start"
+    "start": "next start",
+    "test": "npm run prepublishOnly && npm run build"
   },
   "sideEffects": [
     "*.css"
   ],
+  "types": "dist/index.d.ts",
   "dependencies": {
     "@reach/portal": "^0.12.1",
     "body-scroll-lock": "^3.1.5",
@@ -75,6 +77,6 @@
     "semi": false,
     "singleQuote": true
   },
-  "source": "src",
+  "source": "src/index.tsx",
   "style": "dist/style.css"
 }
