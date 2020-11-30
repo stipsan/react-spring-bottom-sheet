@@ -2,4 +2,4 @@
 
 # Work in progress!
 
-Hold off using this until v1 is out, or you're gonna have a _bad time_!
+Hold off using this until `v2` is out, or you're gonna have a _bad time_!
