@@ -1,7 +1,7 @@
+import { aside } from '../docs/headings'
 import Hero from '../docs/Hero'
-import StickyNugget from '../docs/StickyNugget'
 import Nugget from '../docs/Nugget'
-import { Heading as AsideHeading } from './fixtures/aside'
+import StickyNugget from '../docs/StickyNugget'
 
 export default function IndexPage() {
   return (
@@ -34,7 +34,7 @@ export default function IndexPage() {
         />
         <StickyNugget
           flip
-          heading={AsideHeading}
+          heading={aside}
           lead="Intro"
           example="/fixtures/aside"
         />

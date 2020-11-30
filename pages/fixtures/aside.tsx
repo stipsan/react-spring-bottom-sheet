@@ -3,10 +3,9 @@ import Button from '../../docs/fixtures/Button'
 import Code from '../../docs/fixtures/Code'
 import Container from '../../docs/fixtures/Container'
 import SheetContent from '../../docs/fixtures/SheetContent'
-import { BottomSheet } from '../../src'
+import { aside } from '../../docs/headings'
 import HeadTitle from '../../docs/HeadTitle'
-
-export const Heading = 'Aside Example'
+import { BottomSheet } from '../../src'
 
 export default function AsideFixturePage() {
   const [open, setOpen] = useState(true)
@@ -18,7 +17,7 @@ export default function AsideFixturePage() {
 
   return (
     <>
-      <HeadTitle>{Heading}</HeadTitle>
+      <HeadTitle>{aside}</HeadTitle>
       <Container>
         <Button onClick={() => setOpen((open) => !open)} ref={focusRef}>
           {open ? 'Close' : 'Open'}
