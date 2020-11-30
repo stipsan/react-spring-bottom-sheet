@@ -529,6 +529,7 @@ export const DraggableBottomSheet = React.forwardRef(
         {...props}
         data-rsbs-root
         data-rsbs-is-blocking={blocking}
+        data-rsbs-is-dismissable={!!onDismiss}
         data-rsbs-has-header={!!header}
         data-rsbs-has-footer={!!footer}
         className={className}
@@ -592,9 +593,11 @@ export const DraggableBottomSheet = React.forwardRef(
             }
           }}
         >
-          <div key="header" data-rsbs-header ref={headerRef} {...dragEvents}>
-            <div data-rsbs-header-padding>{header}</div>
-          </div>
+          {header !== false && (
+            <div key="header" data-rsbs-header ref={headerRef} {...dragEvents}>
+              <div data-rsbs-header-padding>{header}</div>
+            </div>
+          )}
           <div key="content" data-rsbs-content ref={contentRef}>
             <div
               ref={contentContainerRef}

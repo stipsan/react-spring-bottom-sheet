@@ -21,6 +21,7 @@ export default function ExperimentsFixturePage() {
         <BottomSheet
           style={{ ['--rsbs-bg' as any]: '#EFF6FF' }}
           open={open}
+          header={false}
           onDismiss={onDismiss}
           snapPoints={({ maxHeight }) => [maxHeight]}
         >
