@@ -104,7 +104,7 @@
 .bottom-sheet-v2__content:focus {
   outline: none;
 }
-.bottom-sheet-v2__content--footer .bottom-sheet-v2__content-inner {
+.bottom-sheet-v2__content--footer [data-rsbs-content-padding] {
   padding-bottom: env(safe-area-inset-bottom);
 }
 [data-rsbs-footer] {
