@@ -1,6 +1,7 @@
 import Hero from '../docs/Hero'
 import StickyNugget from '../docs/StickyNugget'
 import Nugget from '../docs/Nugget'
+import { Heading as AsideHeading } from './fixtures/aside'
 
 export default function IndexPage() {
   return (
@@ -22,7 +23,7 @@ export default function IndexPage() {
         />
         <StickyNugget
           flip
-          heading="Scrollable Example"
+          heading="Snap points & overflow"
           lead="Intro"
           example="/fixtures/scrollable"
         />
@@ -33,7 +34,7 @@ export default function IndexPage() {
         />
         <StickyNugget
           flip
-          heading="Aside Example"
+          heading={AsideHeading}
           lead="Intro"
           example="/fixtures/aside"
         />
