@@ -41,7 +41,7 @@ export type SharedProps = {
   footer?: React.ReactNode
 
   /**
-   * Renders below the drag handle, most often a `<BottomSheetToolbar />`
+   * Renders below the drag handle
    */
   header?: React.ReactNode
 
@@ -77,7 +77,7 @@ export type SharedProps = {
 
   /** The background color. */
   backgroundColor?: string
-}
+} & Omit<React.PropsWithoutRef<JSX.IntrinsicElements['div']>, 'children'>
 
 type heightSetter = (state: initialHeightArg) => number
 export type setHeight = (height: number | heightSetter) => void

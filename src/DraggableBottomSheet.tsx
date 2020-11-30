@@ -51,6 +51,8 @@ export const DraggableBottomSheet = React.forwardRef(
       marginLeft,
       marginRight,
       backgroundColor,
+      style,
+      ...props
     }: DraggableBottomSheetProps,
     forwardRef: React.Ref<HTMLDivElement>
   ) => {
@@ -523,6 +525,7 @@ export const DraggableBottomSheet = React.forwardRef(
 
     return (
       <div
+        {...props}
         data-rsbs-root
         data-rsbs-is-blocking={blocking}
         data-rsbs-has-header={!!header}
@@ -538,6 +541,7 @@ export const DraggableBottomSheet = React.forwardRef(
           ['--rsbs-ml' as any]: marginLeft,
           ['--rsbs-mr' as any]: marginRight,
           ['--rsbs-bg' as any]: backgroundColor,
+          ...style,
         }}
       >
         {blocking && (

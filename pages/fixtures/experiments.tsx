@@ -19,6 +19,7 @@ export default function ExperimentsFixturePage() {
       <Container>
         <Button onClick={() => setOpen(true)}>Open</Button>
         <BottomSheet
+          style={{ ['--rsbs-bg' as any]: '#EFF6FF' }}
           backgroundColor="black"
           isOpen={open}
           onDismiss={onDismiss}
@@ -30,7 +31,10 @@ export default function ExperimentsFixturePage() {
               it down, tapping on the backdrop or by hitting <Kbd>esc</Kbd> on
               their keyboard.
             </p>
-            <Button onClick={onDismiss} className="w-full">
+            <Button
+              onClick={onDismiss}
+              className="w-full focus:ring-offset-rsbs-bg"
+            >
               Dismiss
             </Button>
           </SheetContent>

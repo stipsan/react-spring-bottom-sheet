@@ -48,6 +48,7 @@ export const BottomSheet = React.forwardRef(
       marginLeft,
       marginRight,
       backgroundColor,
+      ...props
     }: BottomSheetProps,
     ref: React.Ref<HTMLDivElement>
   ) => {
@@ -85,6 +86,7 @@ export const BottomSheet = React.forwardRef(
     return (
       <Portal data-troika-react-bottom-sheet-wrapper>
         <DraggableBottomSheet
+          {...props}
           _onClose={() => {
             setMounted(false)
             if (onCloseTransitionEnd) onCloseTransitionEnd()
