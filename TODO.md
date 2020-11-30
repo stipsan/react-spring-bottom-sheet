@@ -44,3 +44,10 @@ if (JSON.stringify(arr1) === JSON.stringify(arr2)) {
 ```
 
 ## Changes that can happen from React's side of things at any time by means of a prop change
+
+And that may affect side effects that are running atm
+
+- isOpen
+- snapPoints
+- initialHeight
+-
