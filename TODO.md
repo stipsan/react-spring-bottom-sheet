@@ -62,6 +62,11 @@ if (JSON.stringify(arr1) === JSON.stringify(arr2)) {
 }
 ```
 
+Faux plugin architecture. "Plugins" or "hooks" can register in an es6 map if they want to do work before the animation starts, while the bottom sheet is resting in the final state but opacity: 0. This allows setting up focus lock, scroll lock and more ahead of time. Hopefully alleviating a lot of jank.
+
+a transition to close can be cancelled if the open state is changed back to `true`.
+open/close is fairly easy and stabl. snap to snap on the other hand, require diligence in making sure whoever cancels a snap transition, makes sure to send the animation on the right direction.
+
 ## Changes that can happen from React's side of things at any time by means of a prop change
 
 And that may affect side effects that are running atm

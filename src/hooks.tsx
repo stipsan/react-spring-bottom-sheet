@@ -1,4 +1,4 @@
-import {
+import React, {
   useCallback,
   useEffect,
   useLayoutEffect,
@@ -19,7 +19,7 @@ import { clamp, roundAndCheckForNaN } from './utils'
 export default function useElementSizeObserver(
   ref: React.RefObject<Element>
 ): { width: number; height: number } {
-  let [size, setSize] = useState({ width: 0, height: 0 })
+  let [size, setSize] = useState(() => ({ width: 0, height: 0 }))
 
   const handleResize = useCallback((entries: ResizeObserverEntry[]) => {
     setSize({
@@ -51,7 +51,9 @@ export default function useElementSizeObserver(
 
 // Blazingly keep track of the current viewport height without blocking the thread, keeping that sweet 60fps on smartphones
 export const useViewportHeight = () => {
-  const [viewportHeight, setViewportHeight] = useState(window.innerHeight)
+  const [viewportHeight, setViewportHeight] = useState(() =>
+    typeof window !== 'undefined' ? window.innerHeight : 0
+  )
   const raf = useRef(0)
 
   useEffect(() => {
@@ -82,28 +84,33 @@ export const useViewportHeight = () => {
 // @TODO refactor to useState instead of useRef
 export function useReducedMotion() {
   const mql = useMemo(
-    () => window.matchMedia('(prefers-reduced-motion: reduce)'),
+    () =>
+      typeof window !== 'undefined'
+        ? window.matchMedia('(prefers-reduced-motion: reduce)')
+        : null,
     []
   )
-  const ref = useRef(mql.matches)
+  const ref = useRef(mql?.matches)
 
   useEffect(() => {
     const handler = (event) => {
       ref.current = event.matches
     }
-    mql.addListener(handler)
+    mql?.addListener(handler)
 
-    return () => mql.removeListener(handler)
+    return () => mql?.removeListener(handler)
   }, [mql])
 
   return ref
 }
 
+const _navigator = typeof navigator !== 'undefined' ? navigator : null
+
 export const useMobileSafari = () =>
   useMemo(
     () =>
-      navigator.userAgent.match(/(iPod|iPhone|iPad)/) &&
-      navigator.userAgent.match(/AppleWebKit/),
+      _navigator?.userAgent.match(/(iPod|iPhone|iPad)/) &&
+      _navigator?.userAgent.match(/AppleWebKit/),
     []
   )
 

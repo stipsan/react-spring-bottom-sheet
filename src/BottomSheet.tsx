@@ -5,7 +5,6 @@
 // It also ensures that when transitioning to open on mount the state is always clean, not affected by previous states that could
 // cause race conditions.
 
-import Portal from '@reach/portal' // Internal component with most of the gesture logic and physics based transitions
 import { createFocusTrap } from 'focus-trap'
 import React, {
   useEffect,
@@ -27,7 +26,7 @@ import {
 import type { setSnapPoint, SharedProps } from './types'
 import { clamp, createAriaHider, createScrollLocker, isNumber } from './utils'
 
-type DraggableBottomSheetProps = {
+type BottomSheetProps = {
   /** Handler that is called after the close transition has ended. Use this to know when it's safe to unmount hte bottom sheet. */
   onCloseTransitionEnd?: () => void
 } & SharedProps
@@ -35,16 +34,14 @@ type DraggableBottomSheetProps = {
 // How many pixels above the viewport height the user is allowed to drag the bottom sheet
 const MAX_OVERFLOW = 120
 
-export const DraggableBottomSheet = React.forwardRef(
+export const BottomSheet = React.forwardRef(
   (
     {
-      // @ts-expect-error
-      _onClose = () => {},
       children,
       className,
       footer,
       header,
-      open,
+      open: _open,
       initialFocusRef,
       onDismiss,
       initialSnapPoint: _getInitialSnapPoint = ({ snapPoints }) =>
@@ -55,14 +52,20 @@ export const DraggableBottomSheet = React.forwardRef(
       style,
       tabIndex,
       ...props
-    }: DraggableBottomSheetProps,
+    }: BottomSheetProps,
     forwardRef: React.Ref<HTMLDivElement>
   ) => {
     // Just to aid my ADHD brain here and keep track, short names are sweet for public APIs
     // but confusing as heck when transitioning between touch gestures and spring animations
+    const requestedOpen = _open
+    const requestedClose = !_open
 
-    const shouldCloseRef = useRef(!open)
-    shouldCloseRef.current = !open
+    // Rules:
+    // useDrag and interpolate functions capture values in the scope and is refreshed when rerender
+    // @TODO check if same is true for spring events as onRest and those events
+
+    const shouldCloseRef = useRef(requestedClose)
+    shouldCloseRef.current = requestedClose
     const containerRef = useRef<HTMLDivElement>(null)
     const backdropRef = useRef<HTMLDivElement>(null)
     const contentRef = useRef<HTMLDivElement>(null)
@@ -75,49 +78,46 @@ export const DraggableBottomSheet = React.forwardRef(
     // instead of reacting to *any* change to state.transitionState
     // For instance some hooks only want to run when transitionState changes to 'READY', not when it changes from
     // OPENING to OPEN. By using these consts we gain that pinpoint precision.
-    const isIdle = open && state.transitionState === 'IDLE'
-    const isPrerender = open && state.transitionState === 'PRERENDER'
-    const isReady = open && state.transitionState === 'READY'
-    const isOpening = open && state.transitionState === 'OPENING'
-    const isOpen = open && state.transitionState === 'OPEN'
+    const isIdle = requestedOpen && state.transitionState === 'IDLE'
+    const isPrerender = requestedOpen && state.transitionState === 'PRERENDER'
+    const isReady = requestedOpen && state.transitionState === 'READY'
+    const isOpening = requestedOpen && state.transitionState === 'OPENING'
+    const isOpen = requestedOpen && state.transitionState === 'OPEN'
 
     const prefersReducedMotion = useReducedMotion()
     const viewportHeight = useViewportHeight()
     const isMobileSafari = useMobileSafari()
 
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const [closing, setClosing] = useState(!open)
+    // "Plugins" huhuhu
+    const scrollLockRef = useRef<ReturnType<typeof createScrollLocker>>()
+    const focusTrapRef = useRef<
+      {
+        activate: () => Promise<any>
+      } & Omit<ReturnType<typeof createFocusTrap>, 'activate'>
+    >()
+    const ariaHiderRef = useRef<ReturnType<typeof createAriaHider>>()
 
-    useEffect(() => {
-      if (open) {
-        return () => {
-          setClosing(true)
-        }
-      }
-    }, [open])
-
-    console.log('render', tabIndex)
+    console.log('render', tabIndex, scrollLockRef.current?.activate)
 
     useEffect(() => {
       const content = contentRef.current
-      if (scrollLocking && content && open) {
-        const scrollLocker = createScrollLocker(content)
-        scrollLocker.activate()
-
-        return () => {
-          scrollLocker.deactivate()
-        }
+      if (scrollLocking && content) {
+        scrollLockRef.current = createScrollLocker(content)
       }
-    }, [_shouldClose, scrollLocking])
+    }, [requestedOpen, scrollLocking])
 
     // Drag interaction states
-    const [spring, set] = useSpring(() => ({
+    // @ts-expect-error
+    const [spring, set, stop] = useSpring(() => ({
       y: 0,
       opacity: 0,
+      backdrop: 0,
     }))
     const { y } = spring
-    // @ts-ignore
-    window.cody = (arg) => set(arg)
+    if (typeof window !== 'undefined') {
+      // @ts-ignore
+      window.cody = (arg) => set(arg)
+    }
 
     const {
       contentHeight,
@@ -170,7 +170,7 @@ export const DraggableBottomSheet = React.forwardRef(
 
     // @TODO move these to custom hooks
     useEffect(() => {
-      if (!open || isIdle) return
+      if (!requestedOpen || isIdle) return
 
       const container = containerRef.current
       const overlay = overlayRef.current
@@ -178,7 +178,9 @@ export const DraggableBottomSheet = React.forwardRef(
       if (blocking && container && overlay) {
         const trap = createFocusTrap(container, {
           onActivate: () => {
+            console.log('focus activate')
             requestAnimationFrame(() => {
+              console.log('focus frame')
               dispatch({ type: 'FOCUS_TRAP_READY' })
             })
           },
@@ -188,22 +190,19 @@ export const DraggableBottomSheet = React.forwardRef(
           escapeDeactivates: false,
           clickOutsideDeactivates: false,
         })
-        const ariaHide = createAriaHider(container)
-
-        trap.activate()
-        ariaHide.activate()
-
-        return () => {
-          ariaHide.deactivate()
-          trap.deactivate()
-        }
-      } else {
-        dispatch({ type: 'FOCUS_TRAP_READY' })
+        focusTrapRef.current = Object.assign(trap, {
+          activate: async () => {
+            await trap.activate()
+            return new Promise((resolve) => setTimeout(() => resolve(), 1000))
+          },
+          deactivate: () => trap.deactivate(),
+        })
+        ariaHiderRef.current = createAriaHider(container)
       }
-    }, [open, blocking, dispatch, isIdle, initialFocusRef])
+    }, [requestedOpen, blocking, dispatch, isIdle, initialFocusRef])
     // Handles both setting initial focus when opening, as well as changes to the initialFocusRef prop itself
     useEffect(() => {
-      if (!open || isIdle) return
+      if (requestedClose || isIdle) return
 
       let cancelRef
       if (initialFocusRef) {
@@ -241,22 +240,47 @@ export const DraggableBottomSheet = React.forwardRef(
       return () => {
         clearTimeout(cancelRef)
       }
-    }, [dispatch, initialFocusRef, isIdle, isMobileSafari, isPrerender])
+    }, [
+      dispatch,
+      initialFocusRef,
+      isIdle,
+      isMobileSafari,
+      isPrerender,
+      requestedClose,
+    ])
 
     useEffect(() => {
-      if (!open) return
+      if (!requestedOpen) return
 
+      set({
+        from: { y: 0, backdrop: 0, opacity: 0 },
+        // @ts-expect-error
+        to: async (next, cancel) => {
+          console.log('animate')
+          await next({
+            y: initialHeight,
+            backdrop: 0,
+            opacity: 0,
+            immediate: true,
+          })
+          await Promise.all([
+            scrollLockRef.current?.activate(),
+            focusTrapRef.current?.activate(),
+            ariaHiderRef.current?.activate(),
+          ])
+          console.log('again')
+          await next({ y: 0, opacity: 1, immediate: true })
+          console.log('ready to transition')
+          await next({ y: initialHeight, backdrop: 1, immediate: false })
+        },
+      })
+
+      return
       if (isIdle) {
         // render it hidden in the location it will be after the open transition
         set({
           y: initialHeight,
           immediate: true,
-          onRest: () => {
-            dispatch({
-              type: 'PRERENDER',
-              currentHeight: initialHeight,
-            })
-          },
         })
 
         return
@@ -267,7 +291,6 @@ export const DraggableBottomSheet = React.forwardRef(
         set({
           y: 0,
           immediate: true,
-          onRest: () => dispatch({ type: 'OPENING' }),
         })
       }
 
@@ -276,12 +299,6 @@ export const DraggableBottomSheet = React.forwardRef(
           opacity: 1,
           y: initialHeight,
           immediate: prefersReducedMotion.current,
-          onRest: () => {
-            dispatch({
-              type: 'OPEN',
-              currentHeight: initialHeight,
-            })
-          },
         })
       }
     }, [
@@ -291,21 +308,20 @@ export const DraggableBottomSheet = React.forwardRef(
       isOpen,
       isOpening,
       isReady,
-      open,
+      requestedOpen,
       prefersReducedMotion,
       set,
     ])
 
     useEffect(() => {
-      if (open) return
+      if (requestedOpen) return
 
       set({
         y: 0,
         opacity: 0,
         immediate: prefersReducedMotion.current,
-        onRest: _onClose,
       })
-    }, [_onClose, open, prefersReducedMotion, set])
+    }, [requestedOpen, prefersReducedMotion, set])
 
     useImperativeHandle<{}, { setSnapPoint: setSnapPoint }>(forwardRef, () => ({
       setSnapPoint: (maybeHeightUpdater) => {
@@ -438,7 +454,6 @@ export const DraggableBottomSheet = React.forwardRef(
                   y: 0,
                   opacity: 0,
                   immediate: prefersReducedMotion.current,
-                  onRest: _onClose,
                 })
               } else {
                 dispatch({
@@ -456,24 +471,26 @@ export const DraggableBottomSheet = React.forwardRef(
 
       return memo
     }
+    ///*
     useDrag(handleDrag, {
       domTarget: backdropRef,
       eventOptions: { capture: true },
-      enabled: !shouldCloseRef.current,
+      enabled: requestedOpen,
       axis: 'y',
     })
     useDrag(handleDrag, {
       domTarget: headerRef,
       eventOptions: { capture: true },
-      enabled: !shouldCloseRef.current,
+      enabled: requestedOpen,
       axis: 'y',
     })
-    useDrag((...args) => handleDrag(...args), {
+    useDrag(handleDrag, {
       domTarget: footerRef,
       eventOptions: { capture: true },
-      enabled: !shouldCloseRef.current,
+      enabled: requestedOpen,
       axis: 'y',
     })
+    //*/
 
     // @TODO the ts-ignore comments are because the `extrapolate` param isn't in the TS defs for some reason
     const interpolateBorderRadius =
@@ -504,104 +521,102 @@ export const DraggableBottomSheet = React.forwardRef(
     })
 
     return (
-      <Portal data-rsbs-portal>
-        <div
-          {...props}
-          data-rsbs-root
-          data-rsbs-is-blocking={blocking}
-          data-rsbs-is-dismissable={!!onDismiss}
-          data-rsbs-has-header={!!header}
-          data-rsbs-has-footer={!!footer}
-          className={className}
-          ref={containerRef}
+      <div
+        {...props}
+        data-rsbs-root
+        data-rsbs-is-blocking={blocking}
+        data-rsbs-is-dismissable={!!onDismiss}
+        data-rsbs-has-header={!!header}
+        data-rsbs-has-footer={!!footer}
+        className={className}
+        ref={containerRef}
+        style={{
+          ...style,
+          opacity: spring.opacity,
+          // Allows interactions on the rest of the page before the close transition is finished
+          pointerEvents: !requestedOpen ? 'none' : undefined,
+        }}
+      >
+        {blocking ? (
+          <animated.div
+            key="backdrop"
+            ref={backdropRef}
+            data-rsbs-backdrop
+            // This component needs to be placed outside bottom-sheet, as bottom-sheet uses transform and thus creates a new context
+            // that clips this element to the container, not allowing it to cover the full page.
+            style={{
+              opacity: spring.backdrop,
+            }}
+            onClickCapture={(event) => {
+              if (onDismiss) {
+                event.preventDefault()
+                onDismiss()
+              }
+            }}
+          />
+        ) : (
+          <div ref={backdropRef} />
+        )}
+        <animated.div
+          key="overlay"
+          aria-modal="true"
+          data-rsbs-overlay
+          tabIndex={-1}
+          // Support both our own ref and any forwarded ref
+          ref={(node) => {
+            overlayRef.current = node
+            if (forwardRef) {
+              if (typeof forwardRef === 'function') {
+                forwardRef(node)
+              } else {
+                // @ts-expect-error FIXME: Remove when this gets fixed https://github.com/DefinitelyTyped/DefinitelyTyped/issues/31065
+                forwardRef.current = node
+              }
+            }
+          }}
           style={{
-            ...style,
-            opacity: (isIdle || isPrerender || isReady) && open ? 0 : undefined,
-            // Allows interactions on the rest of the page before the close transition is finished
-            pointerEvents: !open ? 'none' : undefined,
+            height: interpolateHeight,
+            ['--rsbs-y' as any]: interpolateY,
+            ['--rsbs-rounded' as any]: interpolateBorderRadius,
+          }}
+          onKeyDown={(event) => {
+            if (event.key === 'Escape') {
+              // Always stop propagation, to avoid weirdness for bottom sheets inside other bottom sheets
+              event.stopPropagation()
+              if (onDismiss) onDismiss()
+            }
           }}
         >
-          {blocking ? (
-            <animated.div
-              key="backdrop"
-              ref={backdropRef}
-              data-rsbs-backdrop
-              // This component needs to be placed outside bottom-sheet, as bottom-sheet uses transform and thus creates a new context
-              // that clips this element to the container, not allowing it to cover the full page.
-              style={{
-                opacity: spring.opacity,
-              }}
-              onClickCapture={(event) => {
-                if (onDismiss) {
-                  event.preventDefault()
-                  onDismiss()
-                }
-              }}
-            />
-          ) : (
-            <div ref={backdropRef} />
-          )}
-          <animated.div
-            key="overlay"
-            aria-modal="true"
-            data-rsbs-overlay
-            tabIndex={-1}
-            // Support both our own ref and any forwarded ref
-            ref={(node) => {
-              overlayRef.current = node
-              if (forwardRef) {
-                if (typeof forwardRef === 'function') {
-                  forwardRef(node)
-                } else {
-                  // @ts-expect-error FIXME: Remove when this gets fixed https://github.com/DefinitelyTyped/DefinitelyTyped/issues/31065
-                  forwardRef.current = node
-                }
-              }
-            }}
-            style={{
-              height: interpolateHeight,
-              ['--rsbs-y' as any]: interpolateY,
-              ['--rsbs-rounded' as any]: interpolateBorderRadius,
-            }}
-            onKeyDown={(event) => {
-              if (event.key === 'Escape') {
-                // Always stop propagation, to avoid weirdness for bottom sheets inside other bottom sheets
-                event.stopPropagation()
-                if (onDismiss) onDismiss()
-              }
-            }}
-          >
-            {header !== false ? (
-              <div key="header" data-rsbs-header ref={headerRef}>
-                <div data-rsbs-header-padding>{header}</div>
-              </div>
-            ) : (
-              <div ref={headerRef} />
-            )}
-            <div key="content" data-rsbs-content ref={contentRef}>
-              <div
-                ref={contentContainerRef}
-                // The overflow hidden is for the resize observer to get dimensions including margins and paddings
-                style={{ overflow: 'hidden' }}
-              >
-                <div data-rsbs-content-padding>{children}</div>
-              </div>
+          {header !== false ? (
+            <div key="header" data-rsbs-header ref={headerRef}>
+              <div data-rsbs-header-padding>{header}</div>
             </div>
-            {footer ? (
-              <div key="footer" ref={footerRef} data-rsbs-footer>
-                <div data-rsbs-footer-padding>{footer}</div>
-              </div>
-            ) : (
-              <div ref={footerRef} />
-            )}
-          </animated.div>
-          <animated.div
-            key="antigap"
-            data-rsbs-antigap
-            style={{ transform: interpolateFiller }}
-          />
-        </div>
-      </Portal>
+          ) : (
+            <div ref={headerRef} />
+          )}
+          <div key="content" data-rsbs-content ref={contentRef}>
+            <div
+              ref={contentContainerRef}
+              // The overflow hidden is for the resize observer to get dimensions including margins and paddings
+              style={{ overflow: 'hidden' }}
+            >
+              <div data-rsbs-content-padding>{children}</div>
+            </div>
+          </div>
+          {footer ? (
+            <div key="footer" ref={footerRef} data-rsbs-footer>
+              <div data-rsbs-footer-padding>{footer}</div>
+            </div>
+          ) : (
+            <div ref={footerRef} />
+          )}
+        </animated.div>
+        <animated.div
+          key="antigap"
+          data-rsbs-antigap
+          style={{ transform: interpolateFiller }}
+        />
+      </div>
     )
   }
 )
