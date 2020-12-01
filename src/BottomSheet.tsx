@@ -79,8 +79,6 @@ export const BottomSheet = React.forwardRef(
     >()
     const ariaHiderRef = useRef<ReturnType<typeof createAriaHider>>()
 
-    console.log('render', tabIndex, scrollLockRef.current?.activate)
-
     useEffect(() => {
       const content = contentRef.current
       if (scrollLocking && content) {
@@ -150,9 +148,12 @@ export const BottomSheet = React.forwardRef(
 
       if (requestedOpen && blocking && container && overlay) {
         const trap = createFocusTrap(container, {
-          onActivate: () => {
-            console.log('focus activate')
-          },
+          onActivate:
+            process.env.NODE_ENV !== 'production'
+              ? () => {
+                  console.log('focus activate')
+                }
+              : undefined,
           // If initialFocusRef is manually specified we don't want the first tabbable element to receive focus if initialFocusRef can't be found
           initialFocus: initialFocusRef ? overlay : undefined,
           fallbackFocus: overlay,
@@ -183,7 +184,6 @@ export const BottomSheet = React.forwardRef(
       set({
         // @ts-expect-error
         to: async (next, cancel) => {
-          console.log('animate', tabIndex)
           await next({
             y: initialHeight,
             backdrop: 0,
@@ -195,7 +195,6 @@ export const BottomSheet = React.forwardRef(
             focusTrapRef.current?.activate(),
             ariaHiderRef.current?.activate(),
           ])
-          console.log('again')
           await next({
             y: 0,
             backdrop: 0,
@@ -203,7 +202,6 @@ export const BottomSheet = React.forwardRef(
             immediate: true,
           })
           heightRef.current = initialHeight
-          console.log('ready to transition')
           await next({
             y: initialHeight,
             backdrop: 1,
@@ -213,9 +211,6 @@ export const BottomSheet = React.forwardRef(
           })
         },
       })
-      return () => {
-        console.log('cancel opening!!')
-      }
     }, [initialHeight, prefersReducedMotion, requestedOpen, set, tabIndex])
 
     useEffect(() => {
@@ -355,10 +350,6 @@ export const BottomSheet = React.forwardRef(
           velocity: direction[1] * velocity,
         },
       })
-      if (first) {
-        console.log('dragging')
-      }
-      console.log('dragging', tabIndex)
 
       return memo
     }
