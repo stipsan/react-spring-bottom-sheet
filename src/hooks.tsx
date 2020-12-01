@@ -1,16 +1,14 @@
-import {
+import React, {
   useCallback,
   useEffect,
+  useLayoutEffect,
   useMemo,
   useRef,
   useState,
-  useReducer,
-  useLayoutEffect,
 } from 'react'
-import type { snapPoints } from './types'
-import { clamp } from './utils'
-
 import ResizeObserver from 'resize-observer-polyfill'
+import type { SnapPointArg, snapPoints } from './types'
+import { clamp, roundAndCheckForNaN } from './utils'
 
 /**
  * Hook for determining the size of an element using the Resize Observer API.
@@ -20,7 +18,7 @@ import ResizeObserver from 'resize-observer-polyfill'
 export default function useElementSizeObserver(
   ref: React.RefObject<Element>
 ): { width: number; height: number } {
-  let [size, setSize] = useState({ width: 0, height: 0 })
+  let [size, setSize] = useState(() => ({ width: 0, height: 0 }))
 
   const handleResize = useCallback((entries: ResizeObserverEntry[]) => {
     setSize({
@@ -52,7 +50,9 @@ export default function useElementSizeObserver(
 
 // Blazingly keep track of the current viewport height without blocking the thread, keeping that sweet 60fps on smartphones
 export const useViewportHeight = () => {
-  const [viewportHeight, setViewportHeight] = useState(window.innerHeight)
+  const [viewportHeight, setViewportHeight] = useState(() =>
+    typeof window !== 'undefined' ? window.innerHeight : 0
+  )
   const raf = useRef(0)
 
   useEffect(() => {
@@ -83,63 +83,64 @@ export const useViewportHeight = () => {
 // @TODO refactor to useState instead of useRef
 export function useReducedMotion() {
   const mql = useMemo(
-    () => window.matchMedia('(prefers-reduced-motion: reduce)'),
+    () =>
+      typeof window !== 'undefined'
+        ? window.matchMedia('(prefers-reduced-motion: reduce)')
+        : null,
     []
   )
-  const ref = useRef(mql.matches)
+  const ref = useRef(mql?.matches)
 
   useEffect(() => {
     const handler = (event) => {
       ref.current = event.matches
     }
-    mql.addListener(handler)
+    mql?.addListener(handler)
 
-    return () => mql.removeListener(handler)
+    return () => mql?.removeListener(handler)
   }, [mql])
 
   return ref
 }
 
-export const useMobileSafari = () =>
-  useMemo(
-    () =>
-      navigator.userAgent.match(/(iPod|iPhone|iPad)/) &&
-      navigator.userAgent.match(/AppleWebKit/),
-    []
-  )
-
 type UseSnapPointsProps = {
   getSnapPoints: snapPoints
-  minHeight: number
-  maxHeight: number
-  currentHeight: number
-  viewportHeight: number
-}
+  contentHeight: number
+} & SnapPointArg
 export const useSnapPoints = ({
   getSnapPoints,
-  minHeight,
   maxHeight,
+  footerHeight,
+  headerHeight,
+  contentHeight,
   currentHeight,
   viewportHeight,
 }: UseSnapPointsProps) => {
-  // @TODO Extract the snap points logic to a separate function that can be unit tested
-  // @TODO replace this with simpler logic: https://stackoverflow.com/a/19277804
-  const { snapPoints, minSnap, maxSnap } = useMemo(() => {
+  // @TODO cleanup
+  function _getSnaps() {
     // If we're firing before the dom is mounted then minHeight will be 0 and we should return default values
-    if (minHeight === 0) {
+    if (contentHeight === 0) {
       return { snapPoints: [0], minSnap: 0, maxSnap: 0 }
     }
 
-    const providedSnapPoints = getSnapPoints({
-      currentHeight,
-      minHeight,
-      maxHeight,
-      viewportHeight,
-    }).map(Math.round)
+    const massagedSnapPoints = []
+      .concat(
+        getSnapPoints({
+          currentHeight,
+          footerHeight,
+          headerHeight,
+          maxHeight,
+          viewportHeight,
+        })
+      )
+      .map(roundAndCheckForNaN)
+
+    // @TODO detect if invalid snap points in levels, only arrays or numbers allowed.
+    // And arrays must have at least 1 item. for now silently fix it
 
     const validSnapPoints: number[] = []
-    providedSnapPoints.forEach((snapPoint) => {
-      const validSnapPoint = clamp(snapPoint, minHeight, viewportHeight)
+    massagedSnapPoints.forEach((snapPoint) => {
+      const validSnapPoint = clamp(snapPoint, 0, viewportHeight)
       if (validSnapPoints.indexOf(validSnapPoint) === -1) {
         validSnapPoints.push(validSnapPoint)
       }
@@ -153,16 +154,19 @@ export const useSnapPoints = ({
       minSnap: validSnapPoints[0],
       maxSnap: validSnapPoints[lastIndex],
     }
-  }, [currentHeight, getSnapPoints, maxHeight, minHeight, viewportHeight])
+  }
 
-  const toSnapPoint = useCallback(
-    (y: number) =>
-      snapPoints.reduce(
-        (prev, curr) => (Math.abs(curr - y) < Math.abs(prev - y) ? curr : prev),
-        minSnap
-      ),
-    [minSnap, snapPoints]
-  )
+  // @TODO Extract the snap points logic to a separate function that can be unit tested
+  // @TODO replace this with simpler logic: https://stackoverflow.com/a/19277804
+  const { snapPoints, minSnap, maxSnap } = _getSnaps()
+
+  const toSnapPoint = (rawY: number) => {
+    const y = roundAndCheckForNaN(rawY)
+    return snapPoints.reduce(
+      (prev, curr) => (Math.abs(curr - y) < Math.abs(prev - y) ? curr : prev),
+      minSnap
+    )
+  }
 
   return { snapPoints, minSnap, maxSnap, toSnapPoint }
 }
@@ -179,92 +183,42 @@ export const useDimensions = ({
   contentRef,
   footerRef,
 }: UseDimensionsProps) => {
-  const headerDimensions = useElementSizeObserver(headerRef)
+  // Rewrite these to set refs and use nextTick
+  const { height: headerHeight } = useElementSizeObserver(headerRef)
   const contentDimensions = useElementSizeObserver(contentRef)
-  const footerDimensions = useElementSizeObserver(footerRef)
+  const { height: footerHeight } = useElementSizeObserver(footerRef)
 
   const contentHeight = Math.min(
-    viewportHeight - headerDimensions.height - footerDimensions.height,
+    viewportHeight - headerHeight - footerHeight,
     contentDimensions.height
   )
 
-  const minHeight = headerDimensions.height + footerDimensions.height
-  const maxHeight =
-    contentHeight + headerDimensions.height + footerDimensions.height
-
-  return { minHeight, maxHeight }
-}
-
-interface TransitionState {
-  transitionState:
-    | 'IDLE'
-    | 'PRERENDER'
-    | 'READY'
-    | 'OPENING'
-    | 'OPEN'
-    | 'DRAGGING'
-  focusTrapReady: boolean
-  initialFocusReady: boolean
-  currentHeight: number
-}
-
-type TransitionActions =
-  | { type: 'PRERENDER'; currentHeight: number }
-  | { type: 'FOCUS_TRAP_READY' }
-  | { type: 'INITIAL_FOCUS_READY' }
-  | { type: 'OPENING' }
-  | { type: 'OPEN'; currentHeight: number }
-  | { type: 'DRAGGING' }
-
-function transitionReducer(
-  state: TransitionState,
-  action: TransitionActions
-): TransitionState {
-  switch (action.type) {
-    case 'PRERENDER':
-      // The bottom sheet is mounted and rendered with opacity 0 in the initialHeight position
-      return { ...state, transitionState: 'PRERENDER' }
-    case 'FOCUS_TRAP_READY':
-      return {
-        ...state,
-        focusTrapReady: true,
-        transitionState:
-          state.transitionState === 'PRERENDER' &&
-          state.initialFocusReady === true
-            ? 'READY'
-            : state.transitionState,
-      }
-    case 'INITIAL_FOCUS_READY':
-      return {
-        ...state,
-        initialFocusReady: true,
-        transitionState:
-          state.transitionState === 'PRERENDER' && state.focusTrapReady === true
-            ? 'READY'
-            : state.transitionState,
-      }
-    case 'OPENING':
-      return { ...state, transitionState: 'OPENING' }
-    case 'OPEN':
-      return {
-        ...state,
-        transitionState: 'OPEN',
-        currentHeight: action.currentHeight,
-      }
-    case 'DRAGGING':
-      return { ...state, transitionState: 'DRAGGING' }
+  const maxHeight = contentHeight + headerHeight + footerHeight
+  return {
+    maxHeight,
+    contentHeight: contentDimensions.height,
+    headerHeight,
+    footerHeight,
   }
 }
 
-const initialTransitionState: TransitionState = {
-  transitionState: 'IDLE',
-  focusTrapReady: false,
-  initialFocusReady: false,
-  currentHeight: 0,
-}
+export const useInterval = (callback, delay) => {
+  const savedCallback = useRef<() => any>()
 
-export const useTransitionState = () =>
-  useReducer(transitionReducer, initialTransitionState)
+  useEffect(() => {
+    savedCallback.current = callback
+  }, [callback])
+
+  useEffect(() => {
+    function tick() {
+      savedCallback.current()
+    }
+    if (delay !== null) {
+      let id = setInterval(tick, delay)
+      return () => clearInterval(id)
+    }
+  }, [delay])
+}
 
 export function usePrevious<T>(value: T): T {
   const ref = useRef<T>(value)

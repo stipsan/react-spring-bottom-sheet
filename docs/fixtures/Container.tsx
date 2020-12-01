@@ -12,7 +12,7 @@ export default function Container({ children }: { children: React.ReactNode }) {
   }, [env])
 
   return (
-    <main className="grid place-items-center min-h-screen bg-white">
+    <main className="grid place-content-evenly min-h-screen bg-white">
       {children}
     </main>
   )

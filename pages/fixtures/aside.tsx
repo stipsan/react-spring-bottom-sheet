@@ -23,7 +23,7 @@ export default function AsideFixturePage() {
           {open ? 'Close' : 'Open'}
         </Button>
         <BottomSheet
-          isOpen={open}
+          open={open}
           onDismiss={() => setOpen(false)}
           blocking={false}
           snapPoints={({ viewportHeight }) => [

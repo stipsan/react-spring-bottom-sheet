@@ -68,10 +68,10 @@ export default function ScrollableFixturePage() {
         />
         <SnapMarker style={{ top: '75vh', ['--size' as any]: '0.5vh' }} />
         <BottomSheet
-          isOpen
+          open
           ref={sheetRef}
           initialFocusRef={focusRef}
-          initialHeight={({ snapPoints: [, _] }) => _}
+          initialSnapPoint={({ snapPoints: [, _] }) => _}
           snapPoints={({ viewportHeight }) => [
             viewportHeight - viewportHeight / 10,
             viewportHeight / 4,
@@ -84,7 +84,7 @@ export default function ScrollableFixturePage() {
                 textSize="text-sm"
                 padding="px2 py-1"
                 onClick={() =>
-                  sheetRef.current.setHeight(
+                  sheetRef.current.setSnapPoint(
                     // the snapPoints are always asc sorted, thus it's safe to pick by index
                     ({ snapPoints: [, , snapPoint] }) => snapPoint
                   )
@@ -97,7 +97,7 @@ export default function ScrollableFixturePage() {
                 textSize="text-sm"
                 padding="px2 py-1"
                 onClick={() =>
-                  sheetRef.current.setHeight(
+                  sheetRef.current.setSnapPoint(
                     ({ snapPoints: [, snapPoint] }) => snapPoint
                   )
                 }
@@ -108,7 +108,7 @@ export default function ScrollableFixturePage() {
                 textSize="text-sm"
                 padding="px2 py-1"
                 onClick={() =>
-                  sheetRef.current.setHeight(
+                  sheetRef.current.setSnapPoint(
                     ({ snapPoints: [snapPoint] }) => snapPoint
                   )
                 }

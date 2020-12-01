@@ -17,6 +17,9 @@ module.exports = {
           lighter: '#FC9CC3',
         },
       },
+      ringOffsetColor: {
+        'rsbs-bg': 'var(--rsbs-bg)',
+      },
       transitionDuration: {
         0: '0ms',
       },

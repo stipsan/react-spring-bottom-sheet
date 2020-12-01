@@ -14,6 +14,7 @@ module.exports = {
           '--rsbs-handle-bg': 'hsla(0, 0%, 0%, 0.25)',
           '--rsbs-y': '0px',
           '--rsbs-rounded': '16px',
+          '--rsbs-content-opacity': '1',
         },
       },
     },

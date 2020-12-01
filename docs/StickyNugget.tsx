@@ -10,7 +10,7 @@ export default function StickyNugget({
   example,
 }: {
   flip?: boolean
-  heading: React.ReactNode
+  heading: string
   lead: React.ReactNode
   example: string
 }) {
@@ -64,6 +64,7 @@ export default function StickyNugget({
         <div className={styles.phoneframe}>
           {active && (
             <iframe
+              title={heading}
               className={cx('z-10 transition-opacity duration-300', {
                 'opacity-0': !loaded,
               })}

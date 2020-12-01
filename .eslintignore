@@ -1,0 +1,7 @@
+# Ignore nested node_modules
+node_modules/
+coverage/
+dist/
+.cache
+.next
+.vercel

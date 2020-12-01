@@ -1,5 +1,9 @@
 @tailwind base;
 
+:root {
+  --rsbs-backdrop-bg: rgba(15, 23, 42, 0.7);
+}
+
 html,
 body {
   @apply font-body overscroll-y-none snap snap-proximity snap-y;
