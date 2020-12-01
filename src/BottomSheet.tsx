@@ -49,15 +49,16 @@ export const BottomSheet = React.forwardRef(
   ) => {
     // Just to aid my ADHD brain here and keep track, short names are sweet for public APIs
     // but confusing as heck when transitioning between touch gestures and spring animations
-    const requestedOpen = _open
-    const requestedClose = !_open
+    const on = _open
+    const off = !_open
+    const dismissable = !!onDismiss
 
     // Rules:
     // useDrag and interpolate functions capture values in the scope and is refreshed when rerender
     // @TODO check if same is true for spring events as onRest and those events
 
-    const shouldCloseRef = useRef(requestedClose)
-    shouldCloseRef.current = requestedClose
+    const shouldCloseRef = useRef(off)
+    shouldCloseRef.current = off
     const containerRef = useRef<HTMLDivElement>(null)
     const backdropRef = useRef<HTMLDivElement>(null)
     const contentRef = useRef<HTMLDivElement>(null)
@@ -84,7 +85,7 @@ export const BottomSheet = React.forwardRef(
       if (scrollLocking && content) {
         scrollLockRef.current = createScrollLocker(content)
       }
-    }, [requestedOpen, scrollLocking])
+    }, [on, scrollLocking])
 
     // Drag interaction states
     const [spring, set] = useSpring(() => ({
@@ -145,8 +146,14 @@ export const BottomSheet = React.forwardRef(
     useEffect(() => {
       const container = containerRef.current
       const overlay = overlayRef.current
-
-      if (requestedOpen && blocking && container && overlay) {
+      console.log({
+        requestedOpen: on,
+        blocking,
+        container,
+        overlay,
+        initialFocusRef,
+      })
+      if (on && blocking && container && overlay) {
         const trap = createFocusTrap(container, {
           onActivate:
             process.env.NODE_ENV !== 'production'
@@ -155,7 +162,9 @@ export const BottomSheet = React.forwardRef(
                 }
               : undefined,
           // If initialFocusRef is manually specified we don't want the first tabbable element to receive focus if initialFocusRef can't be found
-          initialFocus: initialFocusRef ? overlay : undefined,
+          initialFocus: initialFocusRef
+            ? () => initialFocusRef?.current || overlay
+            : undefined,
           fallbackFocus: overlay,
           escapeDeactivates: false,
           clickOutsideDeactivates: false,
@@ -176,10 +185,10 @@ export const BottomSheet = React.forwardRef(
           focusTrapRef.current = null
         }
       }
-    }, [requestedOpen, blocking, initialFocusRef])
+    }, [on, blocking, initialFocusRef])
 
     useEffect(() => {
-      if (!requestedOpen) return
+      if (!on) return
 
       set({
         // @ts-expect-error
@@ -210,10 +219,10 @@ export const BottomSheet = React.forwardRef(
           })
         },
       })
-    }, [initialHeight, prefersReducedMotion, requestedOpen, set, tabIndex])
+    }, [initialHeight, prefersReducedMotion, on, set, tabIndex])
 
     useEffect(() => {
-      if (requestedOpen) return
+      if (on) return
 
       heightRef.current = 0
       set({
@@ -222,11 +231,11 @@ export const BottomSheet = React.forwardRef(
         backdrop: 0,
         immediate: prefersReducedMotion.current,
       })
-    }, [prefersReducedMotion, requestedOpen, set])
+    }, [prefersReducedMotion, on, set])
 
     useImperativeHandle<{}, { setSnapPoint: setSnapPoint }>(forwardRef, () => ({
       setSnapPoint: (maybeHeightUpdater) => {
-        if (shouldCloseRef.current || requestedClose) return
+        if (shouldCloseRef.current || off) return
         let nextHeight: number
         if (typeof maybeHeightUpdater === 'function') {
           nextHeight = maybeHeightUpdater({
@@ -352,22 +361,23 @@ export const BottomSheet = React.forwardRef(
       return memo
     }
     ///*
+    console.log({ on, off })
     useDrag(handleDrag, {
       domTarget: backdropRef,
       eventOptions: { capture: true },
-      enabled: requestedOpen,
+      enabled: on,
       axis: 'y',
     })
     useDrag(handleDrag, {
       domTarget: headerRef,
       eventOptions: { capture: true },
-      enabled: requestedOpen,
+      enabled: on,
       axis: 'y',
     })
     useDrag(handleDrag, {
       domTarget: footerRef,
       eventOptions: { capture: true },
-      enabled: requestedOpen,
+      enabled: on,
       axis: 'y',
     })
     //*/
@@ -410,7 +420,7 @@ export const BottomSheet = React.forwardRef(
         {...props}
         data-rsbs-root
         data-rsbs-is-blocking={blocking}
-        data-rsbs-is-dismissable={!!onDismiss}
+        data-rsbs-is-dismissable={dismissable}
         data-rsbs-has-header={!!header}
         data-rsbs-has-footer={!!footer}
         className={className}
@@ -420,7 +430,7 @@ export const BottomSheet = React.forwardRef(
           // @ts-expect-error
           opacity: spring.opacity,
           // Allows interactions on the rest of the page before the close transition is finished
-          pointerEvents: requestedClose ? 'none' : undefined,
+          pointerEvents: off ? 'none' : undefined,
           // Fancy content fade-in effect
           // @ts-ignore
           ['--rsbs-content-opacity' as any]: y?.interpolate({
@@ -428,19 +438,18 @@ export const BottomSheet = React.forwardRef(
             output: [0, 0, 1],
             extrapolate: 'clamp',
           }),
+          // Fading in the backdrop, done here so the effect can be controlled through CSS
+          // @ts-expect-error
+          ['--rsbs-backdrop-opacity' as any]: spring.backdrop,
         }}
       >
         {blocking ? (
           <animated.div
-            key="backdrop"
-            ref={backdropRef}
-            data-rsbs-backdrop
             // This component needs to be placed outside bottom-sheet, as bottom-sheet uses transform and thus creates a new context
             // that clips this element to the container, not allowing it to cover the full page.
-            style={{
-              // @ts-expect-error
-              opacity: spring.backdrop,
-            }}
+            key="backdrop"
+            data-rsbs-backdrop
+            ref={backdropRef}
             onClickCapture={(event) => {
               if (onDismiss) {
                 event.preventDefault()

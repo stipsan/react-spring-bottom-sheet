@@ -6,15 +6,16 @@ module.exports = {
     'postcss-custom-properties-fallback': {
       importFrom: {
         customProperties: {
+          '--rsbs-backdrop-bg': 'rgba(0, 0, 0, 0.6)',
+          '--rsbs-backdrop-opacity': '1',
+          '--rsbs-bg': '#fff',
+          '--rsbs-content-opacity': '1',
+          '--rsbs-handle-bg': 'hsla(0, 0%, 0%, 0.25)',
           '--rsbs-max-w': 'auto',
           '--rsbs-ml': 'env(safe-area-inset-left)',
           '--rsbs-mr': 'env(safe-area-inset-right)',
-          '--rsbs-bg': '#fff',
-          '--rsbs-backdrop-bg': 'rgba(0, 0, 0, 0.6)',
-          '--rsbs-handle-bg': 'hsla(0, 0%, 0%, 0.25)',
-          '--rsbs-y': '0px',
           '--rsbs-rounded': '16px',
-          '--rsbs-content-opacity': '1',
+          '--rsbs-y': '0px',
         },
       },
     },
