@@ -90,3 +90,16 @@ And that may affect side effects that are running atm
 - Except if the window changes height, maybe respond to header and footer height changes too by interrupting.
 - Focus set by keyboard nav or a screen reader can fuck things up.
 - Consider two drag modes? One fast, but can get scroll fuckups, one that's like the current one, safe because it changes the height property.
+
+tailwind rsbs
+
+- focus-visible
+- motion-reduce
+- blue gray shades on content below header
+
+important:
+lastSnap on initialSnap, to make it persist your choice.
+only fade out when dismissable
+show inertia location to predict where sheet slides on release
+don't fade in if not dismissable
+show resize cursor instead of pointer when not dismissable

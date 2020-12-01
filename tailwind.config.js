@@ -29,12 +29,12 @@ module.exports = {
     extend: {
       backgroundColor: ['active'],
       textColor: ['active'],
-      transitionDuration: ['focus'],
-      ringColor: ['group-focus'],
-      ringOffsetColor: ['group-focus'],
-      ringOffsetWidth: ['group-focus'],
-      ringOpacity: ['group-focus'],
-      ringWidth: ['group-focus'],
+      transitionDuration: ['focus', 'focus-visible'],
+      ringColor: ['group-focus', 'focus-visible'],
+      ringOffsetColor: ['group-focus', 'focus-visible'],
+      ringOffsetWidth: ['group-focus', 'focus-visible'],
+      ringOpacity: ['group-focus', 'focus-visible'],
+      ringWidth: ['group-focus', 'focus-visible'],
     },
   },
 }
