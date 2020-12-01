@@ -88,7 +88,7 @@ export const BottomSheet = React.forwardRef(
 
     // Drag interaction states
     const [spring, set] = useSpring(() => ({
-      from: { y: 0, opacity: 0, backdrop: 0, contentOpacity: 0 },
+      from: { y: 0, opacity: 0, backdrop: 0 },
     }))
     // @ts-expect-error
     const { y } = spring
@@ -206,7 +206,6 @@ export const BottomSheet = React.forwardRef(
             y: initialHeight,
             backdrop: 1,
             opacity: 1,
-            contentOpacity: 1,
             immediate: prefersReducedMotion.current,
           })
         },
@@ -221,7 +220,6 @@ export const BottomSheet = React.forwardRef(
         // @ts-expect-error
         y: 0,
         backdrop: 0,
-        contentOpacity: 0,
         immediate: prefersReducedMotion.current,
       })
     }, [prefersReducedMotion, requestedOpen, set])
@@ -405,6 +403,8 @@ export const BottomSheet = React.forwardRef(
       // @ts-ignore
       window.set = set
     }
+
+    const fadeInContentThreshold = Math.min(260, minSnap)
     return (
       <animated.div
         {...props}
@@ -422,13 +422,12 @@ export const BottomSheet = React.forwardRef(
           // Allows interactions on the rest of the page before the close transition is finished
           pointerEvents: requestedClose ? 'none' : undefined,
           // Fancy content fade-in effect
-          // @ts-expect-error
-          ['--rsbs-content-opacity' as any]: spring.contentOpacity?.interpolate(
-            {
-              range: [0, 0.8, 1],
-              output: [0, 0, 1],
-            }
-          ),
+          // @ts-ignore
+          ['--rsbs-content-opacity' as any]: y?.interpolate({
+            range: [0, fadeInContentThreshold / 2, fadeInContentThreshold],
+            output: [0, 0, 1],
+            extrapolate: 'clamp',
+          }),
         }}
       >
         {blocking ? (
