@@ -3,7 +3,6 @@ import React, {
   useEffect,
   useLayoutEffect,
   useMemo,
-  useReducer,
   useRef,
   useState,
 } from 'react'
@@ -104,16 +103,6 @@ export function useReducedMotion() {
   return ref
 }
 
-const _navigator = typeof navigator !== 'undefined' ? navigator : null
-
-export const useMobileSafari = () =>
-  useMemo(
-    () =>
-      _navigator?.userAgent.match(/(iPod|iPhone|iPad)/) &&
-      _navigator?.userAgent.match(/AppleWebKit/),
-    []
-  )
-
 type UseSnapPointsProps = {
   getSnapPoints: snapPoints
   contentHeight: number
@@ -213,58 +202,6 @@ export const useDimensions = ({
   }
 }
 
-interface TransitionState {
-  transitionState: 'IDLE' | 'PRERENDER' | 'READY' | 'OPENING' | 'OPEN'
-  focusTrapReady: boolean
-  initialFocusReady: boolean
-  currentHeight: number
-}
-
-type TransitionActions =
-  | { type: 'PRERENDER'; currentHeight: number }
-  | { type: 'FOCUS_TRAP_READY' }
-  | { type: 'INITIAL_FOCUS_READY' }
-  | { type: 'OPENING' }
-  | { type: 'OPEN'; currentHeight: number }
-
-function transitionReducer(
-  state: TransitionState,
-  action: TransitionActions
-): TransitionState {
-  switch (action.type) {
-    case 'PRERENDER':
-      // The bottom sheet is mounted and rendered with opacity 0 in the initialHeight position
-      return { ...state, transitionState: 'PRERENDER' }
-    case 'FOCUS_TRAP_READY':
-      return {
-        ...state,
-        focusTrapReady: true,
-        transitionState:
-          state.transitionState === 'PRERENDER' &&
-          state.initialFocusReady === true
-            ? 'READY'
-            : state.transitionState,
-      }
-    case 'INITIAL_FOCUS_READY':
-      return {
-        ...state,
-        initialFocusReady: true,
-        transitionState:
-          state.transitionState === 'PRERENDER' && state.focusTrapReady === true
-            ? 'READY'
-            : state.transitionState,
-      }
-    case 'OPENING':
-      return { ...state, transitionState: 'OPENING' }
-    case 'OPEN':
-      return {
-        ...state,
-        transitionState: 'OPEN',
-        currentHeight: action.currentHeight,
-      }
-  }
-}
-
 export const useInterval = (callback, delay) => {
   const savedCallback = useRef<() => any>()
 
@@ -282,16 +219,6 @@ export const useInterval = (callback, delay) => {
     }
   }, [delay])
 }
-
-const initialTransitionState: TransitionState = {
-  transitionState: 'IDLE',
-  focusTrapReady: false,
-  initialFocusReady: false,
-  currentHeight: 0,
-}
-
-export const useTransitionState = () =>
-  useReducer(transitionReducer, initialTransitionState)
 
 export function usePrevious<T>(value: T): T {
   const ref = useRef<T>(value)

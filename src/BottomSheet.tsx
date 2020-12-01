@@ -6,21 +6,13 @@
 // cause race conditions.
 
 import { createFocusTrap } from 'focus-trap'
-import React, {
-  useEffect,
-  useImperativeHandle,
-  useMemo,
-  useRef,
-  useState,
-} from 'react'
+import React, { useEffect, useImperativeHandle, useMemo, useRef } from 'react'
 import { animated, useSpring } from 'react-spring'
 import { useDrag } from 'react-use-gesture'
 import {
   useDimensions,
-  useMobileSafari,
   useReducedMotion,
   useSnapPoints,
-  useTransitionState,
   useViewportHeight,
 } from './hooks'
 import type { setSnapPoint, SharedProps } from './types'
@@ -73,27 +65,17 @@ export const BottomSheet = React.forwardRef(
     const headerRef = useRef<HTMLDivElement>(null)
     const footerRef = useRef<HTMLDivElement>(null)
     const overlayRef = useRef<HTMLDivElement | null>(null)
-    const [state, dispatch] = useTransitionState()
-    // The following variables are extracted to ensure useEffect hooks respond to specific transition states
-    // instead of reacting to *any* change to state.transitionState
-    // For instance some hooks only want to run when transitionState changes to 'READY', not when it changes from
-    // OPENING to OPEN. By using these consts we gain that pinpoint precision.
-    const isIdle = requestedOpen && state.transitionState === 'IDLE'
-    const isPrerender = requestedOpen && state.transitionState === 'PRERENDER'
-    const isReady = requestedOpen && state.transitionState === 'READY'
-    const isOpening = requestedOpen && state.transitionState === 'OPENING'
-    const isOpen = requestedOpen && state.transitionState === 'OPEN'
+    const heightRef = useRef(0)
 
     const prefersReducedMotion = useReducedMotion()
     const viewportHeight = useViewportHeight()
-    const isMobileSafari = useMobileSafari()
 
     // "Plugins" huhuhu
     const scrollLockRef = useRef<ReturnType<typeof createScrollLocker>>()
     const focusTrapRef = useRef<
       {
         activate: () => Promise<any>
-      } & Omit<ReturnType<typeof createFocusTrap>, 'activate'>
+      } & Pick<ReturnType<typeof createFocusTrap>, 'deactivate'>
     >()
     const ariaHiderRef = useRef<ReturnType<typeof createAriaHider>>()
 
@@ -107,17 +89,11 @@ export const BottomSheet = React.forwardRef(
     }, [requestedOpen, scrollLocking])
 
     // Drag interaction states
-    // @ts-expect-error
-    const [spring, set, stop] = useSpring(() => ({
-      y: 0,
-      opacity: 0,
-      backdrop: 0,
+    const [spring, set] = useSpring(() => ({
+      from: { y: 0, opacity: 0, backdrop: 0, contentOpacity: 0 },
     }))
+    // @ts-expect-error
     const { y } = spring
-    if (typeof window !== 'undefined') {
-      // @ts-ignore
-      window.cody = (arg) => set(arg)
-    }
 
     const {
       contentHeight,
@@ -136,7 +112,7 @@ export const BottomSheet = React.forwardRef(
       contentHeight,
       footerHeight,
       headerHeight,
-      currentHeight: state.currentHeight,
+      currentHeight: heightRef.current,
       maxHeight,
       viewportHeight,
     })
@@ -148,7 +124,7 @@ export const BottomSheet = React.forwardRef(
       }
 
       const nextHeight = _getInitialSnapPoint({
-        currentHeight: state.currentHeight,
+        currentHeight: heightRef.current,
         headerHeight,
         footerHeight,
         maxHeight,
@@ -163,26 +139,19 @@ export const BottomSheet = React.forwardRef(
       headerHeight,
       maxHeight,
       snapPoints,
-      state.currentHeight,
       toSnapPoint,
       viewportHeight,
     ])
 
     // @TODO move these to custom hooks
     useEffect(() => {
-      if (!requestedOpen || isIdle) return
-
       const container = containerRef.current
       const overlay = overlayRef.current
 
-      if (blocking && container && overlay) {
+      if (requestedOpen && blocking && container && overlay) {
         const trap = createFocusTrap(container, {
           onActivate: () => {
             console.log('focus activate')
-            requestAnimationFrame(() => {
-              console.log('focus frame')
-              dispatch({ type: 'FOCUS_TRAP_READY' })
-            })
           },
           // If initialFocusRef is manually specified we don't want the first tabbable element to receive focus if initialFocusRef can't be found
           initialFocus: initialFocusRef ? overlay : undefined,
@@ -190,73 +159,31 @@ export const BottomSheet = React.forwardRef(
           escapeDeactivates: false,
           clickOutsideDeactivates: false,
         })
-        focusTrapRef.current = Object.assign(trap, {
+        focusTrapRef.current = {
           activate: async () => {
             await trap.activate()
-            return new Promise((resolve) => setTimeout(() => resolve(), 1000))
+            return new Promise((resolve) =>
+              requestAnimationFrame(() => resolve(void 1))
+            )
           },
           deactivate: () => trap.deactivate(),
-        })
-        ariaHiderRef.current = createAriaHider(container)
-      }
-    }, [requestedOpen, blocking, dispatch, isIdle, initialFocusRef])
-    // Handles both setting initial focus when opening, as well as changes to the initialFocusRef prop itself
-    useEffect(() => {
-      if (requestedClose || isIdle) return
-
-      let cancelRef
-      if (initialFocusRef) {
-        // branch of wether we're setting initial focus for the first time, or after opening
-        if (isPrerender) {
-          cancelRef = setTimeout(() => {
-            initialFocusRef.current?.focus?.()
-
-            // @TODO also handle .select
-            cancelRef = setTimeout(() => {
-              dispatch({ type: 'INITIAL_FOCUS_READY' })
-            })
-          })
-        } else {
-          if (initialFocusRef.current) {
-            if (isMobileSafari) {
-              initialFocusRef.current.blur?.()
-              cancelRef = setTimeout(() => {
-                if (initialFocusRef.current) {
-                  // Thanks to Safari edge cases it's actually necessary to do two rAF cycles...
-                  cancelRef = requestAnimationFrame(() => {
-                    initialFocusRef.current?.focus?.()
-                  })
-                }
-              })
-            } else {
-              initialFocusRef.current.focus?.()
-            }
-          }
         }
-      } else if (isPrerender) {
-        dispatch({ type: 'INITIAL_FOCUS_READY' })
-      }
+        ariaHiderRef.current = createAriaHider(container)
 
-      return () => {
-        clearTimeout(cancelRef)
+        return () => {
+          focusTrapRef.current.deactivate()
+          focusTrapRef.current = null
+        }
       }
-    }, [
-      dispatch,
-      initialFocusRef,
-      isIdle,
-      isMobileSafari,
-      isPrerender,
-      requestedClose,
-    ])
+    }, [requestedOpen, blocking, initialFocusRef])
 
     useEffect(() => {
       if (!requestedOpen) return
 
       set({
-        from: { y: 0, backdrop: 0, opacity: 0 },
         // @ts-expect-error
         to: async (next, cancel) => {
-          console.log('animate')
+          console.log('animate', tabIndex)
           await next({
             y: initialHeight,
             backdrop: 0,
@@ -269,69 +196,50 @@ export const BottomSheet = React.forwardRef(
             ariaHiderRef.current?.activate(),
           ])
           console.log('again')
-          await next({ y: 0, opacity: 1, immediate: true })
+          await next({
+            y: 0,
+            backdrop: 0,
+            opacity: 1,
+            immediate: true,
+          })
+          heightRef.current = initialHeight
           console.log('ready to transition')
-          await next({ y: initialHeight, backdrop: 1, immediate: false })
+          await next({
+            y: initialHeight,
+            backdrop: 1,
+            opacity: 1,
+            contentOpacity: 1,
+            immediate: prefersReducedMotion.current,
+          })
         },
       })
-
-      return
-      if (isIdle) {
-        // render it hidden in the location it will be after the open transition
-        set({
-          y: initialHeight,
-          immediate: true,
-        })
-
-        return
+      return () => {
+        console.log('cancel opening!!')
       }
-
-      // The transitionState is changed from READY to OPENING when potential focus traps and initial focus is done
-      if (isReady) {
-        set({
-          y: 0,
-          immediate: true,
-        })
-      }
-
-      if (isOpening) {
-        set({
-          opacity: 1,
-          y: initialHeight,
-          immediate: prefersReducedMotion.current,
-        })
-      }
-    }, [
-      dispatch,
-      initialHeight,
-      isIdle,
-      isOpen,
-      isOpening,
-      isReady,
-      requestedOpen,
-      prefersReducedMotion,
-      set,
-    ])
+    }, [initialHeight, prefersReducedMotion, requestedOpen, set, tabIndex])
 
     useEffect(() => {
       if (requestedOpen) return
 
+      heightRef.current = 0
       set({
+        // @ts-expect-error
         y: 0,
-        opacity: 0,
+        backdrop: 0,
+        contentOpacity: 0,
         immediate: prefersReducedMotion.current,
       })
-    }, [requestedOpen, prefersReducedMotion, set])
+    }, [prefersReducedMotion, requestedOpen, set])
 
     useImperativeHandle<{}, { setSnapPoint: setSnapPoint }>(forwardRef, () => ({
       setSnapPoint: (maybeHeightUpdater) => {
-        if (shouldCloseRef.current || !isOpen) return
+        if (shouldCloseRef.current || requestedClose) return
         let nextHeight: number
         if (typeof maybeHeightUpdater === 'function') {
           nextHeight = maybeHeightUpdater({
             footerHeight,
             headerHeight,
-            currentHeight: state.currentHeight,
+            currentHeight: heightRef.current,
             maxHeight,
             viewportHeight,
             snapPoints,
@@ -350,14 +258,11 @@ export const BottomSheet = React.forwardRef(
 
         nextHeight = toSnapPoint(nextHeight)
 
+        heightRef.current = nextHeight
         set({
+          // @ts-expect-error
           y: nextHeight,
           immediate: prefersReducedMotion.current,
-          onRest: () =>
-            dispatch({
-              type: 'OPEN',
-              currentHeight: nextHeight,
-            }),
         })
       },
     }))
@@ -434,11 +339,14 @@ export const BottomSheet = React.forwardRef(
       // Constrict y to a valid snap point
       if (last) {
         newY = toSnapPoint(newY)
+        heightRef.current = newY
       }
 
       set({
+        // @ts-expect-error
         y: newY,
-        opacity: clamp(newY / minSnap, 0, 1),
+        backdrop: clamp(newY / minSnap, 0, 1),
+        opacity: 1,
         immediate: prefersReducedMotion.current || down,
         config: {
           mass: relativeVelocity,
@@ -446,23 +354,6 @@ export const BottomSheet = React.forwardRef(
           friction: 35 * relativeVelocity,
           velocity: direction[1] * velocity,
         },
-        onRest: last
-          ? () => {
-              // Race condition case for onClick happening after _shouldClose is false
-              if (shouldCloseRef.current) {
-                set({
-                  y: 0,
-                  opacity: 0,
-                  immediate: prefersReducedMotion.current,
-                })
-              } else {
-                dispatch({
-                  type: 'OPEN',
-                  currentHeight: newY,
-                })
-              }
-            }
-          : undefined,
       })
       if (first) {
         console.log('dragging')
@@ -496,32 +387,35 @@ export const BottomSheet = React.forwardRef(
     const interpolateBorderRadius =
       viewportHeight !== maxSnap
         ? undefined
-        : // @ts-expect-error
-          y.interpolate({
+        : y?.interpolate({
             range: [viewportHeight - 16, viewportHeight],
             output: ['16px', '0px'],
             extrapolate: 'clamp',
             map: Math.round,
           })
-    // @ts-expect-error
-    const interpolateHeight = y.interpolate({
+    const interpolateHeight = y?.interpolate({
       range: [minSnap, maxSnap],
       output: [minSnap, maxSnap],
       extrapolate: 'clamp',
     })
-    const interpolateY = y.interpolate({
+    const interpolateY = y?.interpolate({
       range: [0, minSnap, maxSnap, maxSnap + MAX_OVERFLOW],
       output: [`${minSnap}px`, '0px', '0px', `${-MAX_OVERFLOW}px`],
     })
-    // @ts-expect-error
-    const interpolateFiller = y.interpolate({
+    const interpolateFiller = y?.interpolate({
       range: [0, maxSnap, maxSnap + MAX_OVERFLOW],
       output: ['scaleY(0)', 'scaleY(0)', `scaleY(${MAX_OVERFLOW})`],
       map: Math.ceil,
     })
-
+    if (
+      process.env.NODE_ENV !== 'production' &&
+      typeof window !== 'undefined'
+    ) {
+      // @ts-ignore
+      window.set = set
+    }
     return (
-      <div
+      <animated.div
         {...props}
         data-rsbs-root
         data-rsbs-is-blocking={blocking}
@@ -532,9 +426,17 @@ export const BottomSheet = React.forwardRef(
         ref={containerRef}
         style={{
           ...style,
+          // @ts-expect-error
           opacity: spring.opacity,
           // Allows interactions on the rest of the page before the close transition is finished
-          pointerEvents: !requestedOpen ? 'none' : undefined,
+          pointerEvents: requestedClose ? 'none' : undefined,
+          // Fancy content fade-in effect
+          ['--rsbs-content-opacity' as any]: spring.contentOpacity?.interpolate(
+            {
+              range: [0, 0.8, 1],
+              output: [0, 0, 1],
+            }
+          ),
         }}
       >
         {blocking ? (
@@ -545,6 +447,7 @@ export const BottomSheet = React.forwardRef(
             // This component needs to be placed outside bottom-sheet, as bottom-sheet uses transform and thus creates a new context
             // that clips this element to the container, not allowing it to cover the full page.
             style={{
+              // @ts-expect-error
               opacity: spring.backdrop,
             }}
             onClickCapture={(event) => {
@@ -616,7 +519,7 @@ export const BottomSheet = React.forwardRef(
           data-rsbs-antigap
           style={{ transform: interpolateFiller }}
         />
-      </div>
+      </animated.div>
     )
   }
 )

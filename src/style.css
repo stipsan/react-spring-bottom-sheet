@@ -117,3 +117,9 @@
 [data-rsbs-footer-padding] {
   padding-bottom: calc(16px + env(safe-area-inset-bottom));
 }
+
+[data-rsbs-header-padding],
+[data-rsbs-content-padding],
+[data-rsbs-footer-padding] {
+  opacity: var(--rsbs-content-opacity);
+}
