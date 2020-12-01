@@ -19,7 +19,7 @@ import {
   useViewportHeight,
 } from './hooks'
 import type { setSnapPoint, SharedProps } from './types'
-import { createAriaHider, createScrollLocker, isNumber } from './utils'
+import { clamp, createAriaHider, createScrollLocker, isNumber } from './utils'
 
 type DraggableBottomSheetProps = {
   _onClose: () => void
@@ -67,7 +67,6 @@ export const DraggableBottomSheet = React.forwardRef(
     const isReady = !_shouldClose && state.transitionState === 'READY'
     const isOpening = !_shouldClose && state.transitionState === 'OPENING'
     const isOpen = !_shouldClose && state.transitionState === 'OPEN'
-    const isDragging = !_shouldClose && state.transitionState === 'DRAGGING'
 
     const prefersReducedMotion = useReducedMotion()
     const viewportHeight = useViewportHeight()
@@ -255,6 +254,7 @@ export const DraggableBottomSheet = React.forwardRef(
 
       if (isOpening) {
         set({
+          opacity: 1,
           y: initialHeight,
           immediate: prefersReducedMotion.current,
           onRest: () => {
@@ -282,6 +282,7 @@ export const DraggableBottomSheet = React.forwardRef(
 
       set({
         y: 0,
+        opacity: 0,
         immediate: prefersReducedMotion.current,
         onRest: _onClose,
       })
@@ -403,6 +404,7 @@ export const DraggableBottomSheet = React.forwardRef(
 
         set({
           y: newY,
+          opacity: clamp(newY / minSnap, 0, 1),
           immediate: prefersReducedMotion.current || down,
           config: {
             mass: relativeVelocity,
@@ -416,6 +418,7 @@ export const DraggableBottomSheet = React.forwardRef(
                 if (shouldCloseRef.current) {
                   set({
                     y: 0,
+                    opacity: 0,
                     immediate: prefersReducedMotion.current,
                     onRest: _onClose,
                   })
@@ -429,7 +432,7 @@ export const DraggableBottomSheet = React.forwardRef(
             : undefined,
         })
         if (first) {
-          dispatch({ type: 'DRAGGING' })
+          console.log('dragging')
         }
 
         return memo
@@ -448,12 +451,6 @@ export const DraggableBottomSheet = React.forwardRef(
             extrapolate: 'clamp',
             map: Math.round,
           })
-    // @ts-expect-error
-    const overlayOpacity = y.interpolate({
-      range: [0, minSnap],
-      output: [0, 1],
-      extrapolate: 'clamp',
-    })
     // @ts-expect-error
     const interpolateHeight = y.interpolate({
       range: [minSnap, maxSnap],
@@ -498,11 +495,7 @@ export const DraggableBottomSheet = React.forwardRef(
             // that clips this element to the container, not allowing it to cover the full page.
             data-rsbs-backdrop
             style={{
-              opacity:
-                isOpening || (onDismiss && isDragging) || _shouldClose
-                  ? overlayOpacity
-                  : undefined,
-              ...{ opacity: spring.opacity },
+              opacity: spring.opacity,
             }}
             onClick={(event) => {
               if (onDismiss) {

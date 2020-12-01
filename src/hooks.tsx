@@ -215,13 +215,7 @@ export const useDimensions = ({
 }
 
 interface TransitionState {
-  transitionState:
-    | 'IDLE'
-    | 'PRERENDER'
-    | 'READY'
-    | 'OPENING'
-    | 'OPEN'
-    | 'DRAGGING'
+  transitionState: 'IDLE' | 'PRERENDER' | 'READY' | 'OPENING' | 'OPEN'
   focusTrapReady: boolean
   initialFocusReady: boolean
   currentHeight: number
@@ -233,7 +227,6 @@ type TransitionActions =
   | { type: 'INITIAL_FOCUS_READY' }
   | { type: 'OPENING' }
   | { type: 'OPEN'; currentHeight: number }
-  | { type: 'DRAGGING' }
 
 function transitionReducer(
   state: TransitionState,
@@ -270,8 +263,6 @@ function transitionReducer(
         transitionState: 'OPEN',
         currentHeight: action.currentHeight,
       }
-    case 'DRAGGING':
-      return { ...state, transitionState: 'DRAGGING' }
   }
 }
 
