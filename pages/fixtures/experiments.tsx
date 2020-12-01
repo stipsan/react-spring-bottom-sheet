@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import Button from '../../docs/fixtures/Button'
 import Code from '../../docs/fixtures/Code'
 import Container from '../../docs/fixtures/Container'
@@ -10,38 +10,43 @@ import { useInterval } from '../../src/hooks'
 function One() {
   const [open, setOpen] = useState(false)
 
-  const [seconds, setSeconds] = useState(0)
+  const [seconds, setSeconds] = useState(1)
+
+  const style = useMemo(() => ({ ['--rsbs-bg' as any]: '#EFF6FF' }), [])
+  const onDismiss = useCallback(() => setOpen(false), [])
+  const children = useMemo(
+    () => (
+      <SheetContent>
+        <p>
+          Using <Code>onDismiss</Code> lets users close the sheet by swiping it
+          down, tapping on the backdrop or by hitting <Kbd>esc</Kbd> on their
+          keyboard.
+        </p>
+        <Button
+          onClick={onDismiss}
+          className="w-full focus-visible:ring-offset-rsbs-bg"
+        >
+          Dismiss
+        </Button>
+      </SheetContent>
+    ),
+    [onDismiss]
+  )
 
   useInterval(() => {
     setSeconds(seconds + 1)
   }, 10000)
 
-  function onDismiss() {
-    setOpen(false)
-  }
   return (
     <>
-      <Button onClick={() => setOpen(true)}>1</Button>
+      <Button onClick={() => setOpen(true)}>{seconds}</Button>
       <BottomSheet
-        tabIndex={seconds}
-        style={{ ['--rsbs-bg' as any]: '#EFF6FF' }}
+        style={style}
         open={open}
         header={false}
         onDismiss={onDismiss}
       >
-        <SheetContent>
-          <p>
-            Using <Code>onDismiss</Code> lets users close the sheet by swiping
-            it down, tapping on the backdrop or by hitting <Kbd>esc</Kbd> on
-            their keyboard.
-          </p>
-          <Button
-            onClick={onDismiss}
-            className="w-full focus-visible:ring-offset-rsbs-bg"
-          >
-            Dismiss
-          </Button>
-        </SheetContent>
+        {children}
       </BottomSheet>
     </>
   )

@@ -42,7 +42,6 @@ export const BottomSheet = React.forwardRef(
       blocking = true,
       scrollLocking = true,
       style,
-      tabIndex,
       ...props
     }: BottomSheetProps,
     forwardRef: React.Ref<HTMLDivElement>
@@ -52,6 +51,22 @@ export const BottomSheet = React.forwardRef(
     const on = _open
     const off = !_open
     const dismissable = !!onDismiss
+
+    // Behold, the engine of it all!
+    const [spring, set] = useSpring(() => ({
+      from: { y: 0, opacity: 0, backdrop: 0 },
+    }))
+    // @ts-expect-error
+    const { y } = spring
+
+    // Dev convenience, consider exposing on docs page
+    if (
+      process.env.NODE_ENV !== 'production' &&
+      typeof window !== 'undefined'
+    ) {
+      // @ts-ignore
+      window.set = set
+    }
 
     // Rules:
     // useDrag and interpolate functions capture values in the scope and is refreshed when rerender
@@ -66,6 +81,7 @@ export const BottomSheet = React.forwardRef(
     const headerRef = useRef<HTMLDivElement>(null)
     const footerRef = useRef<HTMLDivElement>(null)
     const overlayRef = useRef<HTMLDivElement | null>(null)
+
     const heightRef = useRef(0)
 
     const prefersReducedMotion = useReducedMotion()
@@ -86,13 +102,6 @@ export const BottomSheet = React.forwardRef(
         scrollLockRef.current = createScrollLocker(content)
       }
     }, [on, scrollLocking])
-
-    // Drag interaction states
-    const [spring, set] = useSpring(() => ({
-      from: { y: 0, opacity: 0, backdrop: 0 },
-    }))
-    // @ts-expect-error
-    const { y } = spring
 
     const {
       contentHeight,
@@ -219,7 +228,7 @@ export const BottomSheet = React.forwardRef(
           })
         },
       })
-    }, [initialHeight, prefersReducedMotion, on, set, tabIndex])
+    }, [initialHeight, prefersReducedMotion, on, set])
 
     useEffect(() => {
       if (on) return
@@ -406,13 +415,6 @@ export const BottomSheet = React.forwardRef(
       output: ['scaleY(0)', 'scaleY(0)', `scaleY(${MAX_OVERFLOW})`],
       map: Math.ceil,
     })
-    if (
-      process.env.NODE_ENV !== 'production' &&
-      typeof window !== 'undefined'
-    ) {
-      // @ts-ignore
-      window.set = set
-    }
 
     return (
       <animated.div
