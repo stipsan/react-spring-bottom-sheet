@@ -431,6 +431,7 @@ export const BottomSheet = React.forwardRef(
           // Allows interactions on the rest of the page before the close transition is finished
           pointerEvents: requestedClose ? 'none' : undefined,
           // Fancy content fade-in effect
+          // @ts-expect-error
           ['--rsbs-content-opacity' as any]: spring.contentOpacity?.interpolate(
             {
               range: [0, 0.8, 1],
