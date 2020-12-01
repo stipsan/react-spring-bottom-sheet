@@ -6,7 +6,7 @@
 
 html,
 body {
-  @apply font-body overscroll-y-none snap snap-proximity snap-y;
+  @apply font-body overscroll-y-none;
 }
 
 .is-window {

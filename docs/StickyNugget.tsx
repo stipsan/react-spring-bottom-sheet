@@ -30,7 +30,7 @@ export default function StickyNugget({
   return (
     <article className="grid grid-cols-1 sm:grid-cols-2 gap-5">
       <div>
-        <div className="grid grid-flow-row place-items-start gap-2.5 sticky top-5 mb-5 sm:snap-start snap-mt-5">
+        <div className="grid grid-flow-row place-items-start gap-2.5 sticky top-5 mb-5">
           <h2 className="text-5xl text-hero font-display">{heading}</h2>
           {[].concat(lead).map((lead, i) => (
             <p key={`lead-${i}`} className="text-2xl px-0.5">
@@ -57,7 +57,7 @@ export default function StickyNugget({
         </div>
       </div>
       <div
-        className={cx(styles.example, 'sm:snap-center', {
+        className={cx(styles.example, {
           'sm:order-first': flip,
         })}
       >
