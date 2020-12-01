@@ -36,8 +36,8 @@ export const BottomSheet = React.forwardRef(
       open: _open,
       initialFocusRef,
       onDismiss,
-      initialSnapPoint: _getInitialSnapPoint = ({ snapPoints }) =>
-        Math.min(...snapPoints),
+      initialSnapPoint: _getInitialSnapPoint = ({ snapPoints, lastSnap }) =>
+        lastSnap ?? Math.min(...snapPoints),
       snapPoints: getSnapPoints = ({ maxHeight }) => [maxHeight],
       blocking = true,
       scrollLocking = true,
@@ -82,7 +82,10 @@ export const BottomSheet = React.forwardRef(
     const footerRef = useRef<HTMLDivElement>(null)
     const overlayRef = useRef<HTMLDivElement | null>(null)
 
+    // Keeps track of the current height, or the height transitioning to
     const heightRef = useRef(0)
+    // The last point that the user snapped to, useful for open/closed toggling and the user defined height is remembered
+    const lastSnapRef = useRef(0)
 
     const prefersReducedMotion = useReducedMotion()
     const viewportHeight = useViewportHeight()
@@ -137,6 +140,7 @@ export const BottomSheet = React.forwardRef(
         footerHeight,
         maxHeight,
         viewportHeight,
+        lastSnap: lastSnapRef.current,
         snapPoints,
       })
       return toSnapPoint(nextHeight)
@@ -196,6 +200,7 @@ export const BottomSheet = React.forwardRef(
       }
     }, [on, blocking, initialFocusRef])
 
+    // Handle closed to open transition
     useEffect(() => {
       if (!on) return
 
@@ -230,6 +235,7 @@ export const BottomSheet = React.forwardRef(
       })
     }, [initialHeight, prefersReducedMotion, on, set])
 
+    // Handle open to closed animations
     useEffect(() => {
       if (on) return
 
@@ -254,6 +260,7 @@ export const BottomSheet = React.forwardRef(
             maxHeight,
             viewportHeight,
             snapPoints,
+            lastSnap: lastSnapRef.current,
           })
         } else {
           nextHeight = maybeHeightUpdater
@@ -351,6 +358,7 @@ export const BottomSheet = React.forwardRef(
       if (last) {
         newY = toSnapPoint(newY)
         heightRef.current = newY
+        lastSnapRef.current = newY
       }
 
       set({
@@ -369,8 +377,7 @@ export const BottomSheet = React.forwardRef(
 
       return memo
     }
-    ///*
-    console.log({ on, off })
+
     useDrag(handleDrag, {
       domTarget: backdropRef,
       eventOptions: { capture: true },
@@ -389,7 +396,6 @@ export const BottomSheet = React.forwardRef(
       enabled: on,
       axis: 'y',
     })
-    //*/
 
     // @TODO the ts-ignore comments are because the `extrapolate` param isn't in the TS defs for some reason
     const interpolateBorderRadius =
