@@ -37,7 +37,7 @@ function One() {
           </p>
           <Button
             onClick={onDismiss}
-            className="w-full focus:ring-offset-rsbs-bg"
+            className="w-full focus-visible:ring-offset-rsbs-bg"
           >
             Dismiss
           </Button>
@@ -64,7 +64,7 @@ function Two() {
         footer={
           <Button
             onClick={onDismiss}
-            className="w-full focus:ring-offset-rsbs-bg"
+            className="w-full focus-visible:ring-offset-rsbs-bg"
           >
             Dismiss
           </Button>
@@ -100,7 +100,7 @@ function Three() {
         header={
           <Button
             onClick={onDismiss}
-            className="w-full focus:ring-offset-rsbs-bg"
+            className="w-full focus-visible:ring-offset-rsbs-bg"
           >
             Dismiss
           </Button>

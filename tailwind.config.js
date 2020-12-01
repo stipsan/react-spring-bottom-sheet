@@ -27,8 +27,8 @@ module.exports = {
   },
   variants: {
     extend: {
-      backgroundColor: ['active'],
-      textColor: ['active'],
+      backgroundColor: ['active', 'focus-visible'],
+      textColor: ['active', 'focus-visible'],
       transitionDuration: ['focus', 'focus-visible'],
       ringColor: ['group-focus', 'focus-visible'],
       ringOffsetColor: ['group-focus', 'focus-visible'],
