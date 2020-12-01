@@ -11,7 +11,7 @@ body {
   --rsbs-mr: auto;
 }
 .is-iframe {
-  --rsbs-backdrop: rgba(15, 23, 42, 0.6);
+  --rsbs-backdrop-bg: rgba(15, 23, 42, 0.7);
   --rsbs-ml: 0px;
   --rsbs-mr: 0px;
 }

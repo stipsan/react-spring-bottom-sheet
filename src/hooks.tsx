@@ -120,9 +120,8 @@ export const useSnapPoints = ({
   currentHeight,
   viewportHeight,
 }: UseSnapPointsProps) => {
-  // @TODO Extract the snap points logic to a separate function that can be unit tested
-  // @TODO replace this with simpler logic: https://stackoverflow.com/a/19277804
-  const { snapPoints, minSnap, maxSnap } = useMemo(() => {
+  // @TODO cleanup
+  function _getSnaps() {
     // If we're firing before the dom is mounted then minHeight will be 0 and we should return default values
     if (contentHeight === 0) {
       return { snapPoints: [0], minSnap: 0, maxSnap: 0 }
@@ -159,26 +158,19 @@ export const useSnapPoints = ({
       minSnap: validSnapPoints[0],
       maxSnap: validSnapPoints[lastIndex],
     }
-  }, [
-    contentHeight,
-    currentHeight,
-    footerHeight,
-    getSnapPoints,
-    headerHeight,
-    maxHeight,
-    viewportHeight,
-  ])
+  }
 
-  const toSnapPoint = useCallback(
-    (rawY: number) => {
-      const y = roundAndCheckForNaN(rawY)
-      return snapPoints.reduce(
-        (prev, curr) => (Math.abs(curr - y) < Math.abs(prev - y) ? curr : prev),
-        minSnap
-      )
-    },
-    [minSnap, snapPoints]
-  )
+  // @TODO Extract the snap points logic to a separate function that can be unit tested
+  // @TODO replace this with simpler logic: https://stackoverflow.com/a/19277804
+  const { snapPoints, minSnap, maxSnap } = _getSnaps()
+
+  const toSnapPoint = (rawY: number) => {
+    const y = roundAndCheckForNaN(rawY)
+    return snapPoints.reduce(
+      (prev, curr) => (Math.abs(curr - y) < Math.abs(prev - y) ? curr : prev),
+      minSnap
+    )
+  }
 
   return { snapPoints, minSnap, maxSnap, toSnapPoint }
 }
@@ -264,6 +256,24 @@ function transitionReducer(
         currentHeight: action.currentHeight,
       }
   }
+}
+
+export const useInterval = (callback, delay) => {
+  const savedCallback = useRef<() => any>()
+
+  useEffect(() => {
+    savedCallback.current = callback
+  }, [callback])
+
+  useEffect(() => {
+    function tick() {
+      savedCallback.current()
+    }
+    if (delay !== null) {
+      let id = setInterval(tick, delay)
+      return () => clearInterval(id)
+    }
+  }, [delay])
 }
 
 const initialTransitionState: TransitionState = {

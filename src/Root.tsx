@@ -45,6 +45,7 @@ export const DraggableBottomSheet = React.forwardRef(
       blocking = true,
       scrollLocking = true,
       style,
+      tabIndex,
       ...props
     }: DraggableBottomSheetProps,
     forwardRef: React.Ref<HTMLDivElement>
@@ -52,6 +53,7 @@ export const DraggableBottomSheet = React.forwardRef(
     const shouldCloseRef = useRef(_shouldClose)
     shouldCloseRef.current = _shouldClose
     const containerRef = useRef<HTMLDivElement>(null)
+    const backdropRef = useRef<HTMLDivElement>(null)
     const contentRef = useRef<HTMLDivElement>(null)
     const contentContainerRef = useRef<HTMLDivElement>(null)
     const headerRef = useRef<HTMLDivElement>(null)
@@ -71,6 +73,8 @@ export const DraggableBottomSheet = React.forwardRef(
     const prefersReducedMotion = useReducedMotion()
     const viewportHeight = useViewportHeight()
     const isMobileSafari = useMobileSafari()
+
+    console.log('render', tabIndex)
 
     useEffect(() => {
       const content = contentRef.current
@@ -376,69 +380,90 @@ export const DraggableBottomSheet = React.forwardRef(
       return predictedY
     }
 
-    const bind = useDrag(
-      ({
-        down,
+    const handleDrag = ({
+      down,
+      velocity,
+      direction,
+      memo = y.getValue(),
+      first,
+      last,
+      movement: [, my],
+    }) => {
+      if (shouldCloseRef.current) return memo
+
+      let newY = getY({
+        down: !!down,
+        movement: isNaN(my) ? 0 : my,
         velocity,
-        direction,
-        memo = y.getValue(),
-        first,
-        last,
-        movement: [, my],
-      }) => {
-        if (shouldCloseRef.current) return memo
+        temp: memo,
+      })
 
-        let newY = getY({
-          down: !!down,
-          movement: isNaN(my) ? 0 : my,
-          velocity,
-          temp: memo,
-        })
+      const relativeVelocity = Math.max(1, velocity)
 
-        const relativeVelocity = Math.max(1, velocity)
+      // Constrict y to a valid snap point
+      if (last) {
+        newY = toSnapPoint(newY)
+      }
 
-        // Constrict y to a valid snap point
-        if (last) {
-          newY = toSnapPoint(newY)
-        }
-
-        set({
-          y: newY,
-          opacity: clamp(newY / minSnap, 0, 1),
-          immediate: prefersReducedMotion.current || down,
-          config: {
-            mass: relativeVelocity,
-            tension: 300 * relativeVelocity,
-            friction: 35 * relativeVelocity,
-            velocity: direction[1] * velocity,
-          },
-          onRest: last
-            ? () => {
-                // Race condition case for onClick happening after _shouldClose is false
-                if (shouldCloseRef.current) {
-                  set({
-                    y: 0,
-                    opacity: 0,
-                    immediate: prefersReducedMotion.current,
-                    onRest: _onClose,
-                  })
-                } else {
-                  dispatch({
-                    type: 'OPEN',
-                    currentHeight: newY,
-                  })
-                }
+      set({
+        y: newY,
+        opacity: clamp(newY / minSnap, 0, 1),
+        immediate: prefersReducedMotion.current || down,
+        config: {
+          mass: relativeVelocity,
+          tension: 300 * relativeVelocity,
+          friction: 35 * relativeVelocity,
+          velocity: direction[1] * velocity,
+        },
+        onRest: last
+          ? () => {
+              // Race condition case for onClick happening after _shouldClose is false
+              if (shouldCloseRef.current) {
+                set({
+                  y: 0,
+                  opacity: 0,
+                  immediate: prefersReducedMotion.current,
+                  onRest: _onClose,
+                })
+              } else {
+                dispatch({
+                  type: 'OPEN',
+                  currentHeight: newY,
+                })
               }
-            : undefined,
-        })
-        if (first) {
-          console.log('dragging')
-        }
+            }
+          : undefined,
+      })
+      if (first) {
+        console.log('dragging')
+      }
+      console.log('dragging', tabIndex)
 
-        return memo
-      },
-      { enabled: !shouldCloseRef.current, axis: 'y' }
-    )
+      return memo
+    }
+    useDrag((...args) => handleDrag(...args), {
+      domTarget: backdropRef,
+      eventOptions: { capture: true },
+      enabled: !shouldCloseRef.current,
+      axis: 'y',
+    })
+    ///*
+    useDrag((...args) => handleDrag(...args), {
+      domTarget: headerRef,
+      eventOptions: { capture: true },
+      enabled: !shouldCloseRef.current,
+      axis: 'y',
+    })
+    // */
+    ///*
+
+    useDrag((...args) => handleDrag(...args), {
+      domTarget: footerRef,
+      eventOptions: { capture: true },
+      enabled: !shouldCloseRef.current,
+      axis: 'y',
+    })
+    // */
 
     // @TODO the ts-ignore comments are because the `extrapolate` param isn't in the TS defs for some reason
     const interpolateBorderRadius =
@@ -468,8 +493,6 @@ export const DraggableBottomSheet = React.forwardRef(
       map: Math.ceil,
     })
 
-    const dragEvents = bind()
-
     return (
       <div
         {...props}
@@ -491,19 +514,19 @@ export const DraggableBottomSheet = React.forwardRef(
         {blocking && (
           <animated.div
             key="backdrop"
+            ref={backdropRef}
+            data-rsbs-backdrop
             // This component needs to be placed outside bottom-sheet, as bottom-sheet uses transform and thus creates a new context
             // that clips this element to the container, not allowing it to cover the full page.
-            data-rsbs-backdrop
             style={{
               opacity: spring.opacity,
             }}
-            onClick={(event) => {
+            onClickCapture={(event) => {
               if (onDismiss) {
                 event.preventDefault()
                 onDismiss()
               }
             }}
-            {...dragEvents}
           />
         )}
         <animated.div
@@ -536,10 +559,12 @@ export const DraggableBottomSheet = React.forwardRef(
             }
           }}
         >
-          {header !== false && (
-            <div key="header" data-rsbs-header ref={headerRef} {...dragEvents}>
+          {header !== false ? (
+            <div key="header" data-rsbs-header ref={headerRef}>
               <div data-rsbs-header-padding>{header}</div>
             </div>
+          ) : (
+            <div ref={headerRef} />
           )}
           <div key="content" data-rsbs-content ref={contentRef}>
             <div
@@ -550,10 +575,12 @@ export const DraggableBottomSheet = React.forwardRef(
               <div data-rsbs-content-padding>{children}</div>
             </div>
           </div>
-          {footer && (
-            <div key="footer" ref={footerRef} data-rsbs-footer {...dragEvents}>
+          {footer ? (
+            <div key="footer" ref={footerRef} data-rsbs-footer>
               <div data-rsbs-footer-padding>{footer}</div>
             </div>
+          ) : (
+            <div ref={footerRef} />
           )}
         </animated.div>
         <animated.div

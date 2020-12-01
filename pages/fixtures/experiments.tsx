@@ -1,13 +1,20 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import Button from '../../docs/fixtures/Button'
 import Code from '../../docs/fixtures/Code'
 import Container from '../../docs/fixtures/Container'
 import Kbd from '../../docs/fixtures/Kbd'
 import SheetContent from '../../docs/fixtures/SheetContent'
 import { BottomSheet } from '../../src'
+import { useInterval } from '../../src/hooks'
 
 function One() {
   const [open, setOpen] = useState(false)
+
+  const [seconds, setSeconds] = useState(0)
+
+  useInterval(() => {
+    setSeconds(seconds + 1)
+  }, 10000)
 
   function onDismiss() {
     setOpen(false)
@@ -16,6 +23,7 @@ function One() {
     <>
       <Button onClick={() => setOpen(true)}>1</Button>
       <BottomSheet
+        tabIndex={seconds}
         style={{ ['--rsbs-bg' as any]: '#EFF6FF' }}
         open={open}
         header={false}
