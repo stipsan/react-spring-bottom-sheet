@@ -414,7 +414,6 @@ export const BottomSheet = React.forwardRef(
       window.set = set
     }
 
-    const fadeInContentThreshold = Math.min(260, minSnap)
     return (
       <animated.div
         {...props}
@@ -434,8 +433,13 @@ export const BottomSheet = React.forwardRef(
           // Fancy content fade-in effect
           // @ts-ignore
           ['--rsbs-content-opacity' as any]: y?.interpolate({
-            range: [0, fadeInContentThreshold / 2, fadeInContentThreshold],
-            output: [0, 0, 1],
+            range: [
+              0,
+              Math.max(minSnap / 2 - 45, 0),
+              Math.min(minSnap / 2 + 45, minSnap),
+              minSnap,
+            ],
+            output: [0, 0, 1, 1],
             extrapolate: 'clamp',
           }),
           // Fading in the backdrop, done here so the effect can be controlled through CSS
