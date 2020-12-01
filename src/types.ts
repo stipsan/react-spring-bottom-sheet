@@ -16,7 +16,7 @@ export type snapPoints = (args: SnapPointArg) => number[]
 type initialSnapPointArg = {
   snapPoints: number[]
   /** The last snap point the user dragged to, if any. 0 if the user haven't interacted */
-  lastSnap: number
+  lastSnap: number | null
 } & SnapPointArg
 
 type initialSnapPoint = (args: initialSnapPointArg) => number

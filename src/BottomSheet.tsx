@@ -85,7 +85,7 @@ export const BottomSheet = React.forwardRef(
     // Keeps track of the current height, or the height transitioning to
     const heightRef = useRef(0)
     // The last point that the user snapped to, useful for open/closed toggling and the user defined height is remembered
-    const lastSnapRef = useRef(0)
+    const lastSnapRef = useRef(null)
 
     const prefersReducedMotion = useReducedMotion()
     const viewportHeight = useViewportHeight()
