@@ -16,16 +16,8 @@ type BottomSheetProps = {
 export const BottomSheet = React.forwardRef(
   (
     {
-      children,
-      className,
-      footer,
-      header,
-      initialFocusRef,
       open: shouldBeOpen,
-      onDismiss,
       onCloseTransitionEnd,
-      scrollLocking,
-      blocking,
       initialSnapPoint = ({ snapPoints }) => Math.min(...snapPoints),
       snapPoints = ({ maxHeight }) => [maxHeight],
       ...props
@@ -64,7 +56,7 @@ export const BottomSheet = React.forwardRef(
     }
 
     return (
-      <Portal data-troika-react-bottom-sheet-wrapper>
+      <Portal data-rsbs-portal>
         <DraggableBottomSheet
           {...props}
           _onClose={() => {
@@ -73,19 +65,10 @@ export const BottomSheet = React.forwardRef(
           }}
           _shouldClose={!shouldBeOpen}
           ref={ref}
-          className={className}
-          footer={footer}
-          header={header}
-          initialFocusRef={initialFocusRef}
           initialSnapPoint={initialHeightMemo}
           key={instance.toString()}
-          onDismiss={onDismiss}
-          blocking={blocking}
-          scrollLocking={scrollLocking}
           snapPoints={snapPointsMemo}
-        >
-          {children}
-        </DraggableBottomSheet>
+        />
       </Portal>
     )
   }
