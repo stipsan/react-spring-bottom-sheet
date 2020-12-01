@@ -19,8 +19,31 @@ type initialSnapPointArg = {
 
 type initialSnapPoint = (args: initialSnapPointArg) => number
 
+/* Might make sense to expose a preventDefault method here */
+type SpringEvent = {
+  type: 'OPEN' | 'SNAP' | 'CLOSE'
+}
+
+// Rename to Props! Woohoo!
 export type SharedProps = {
   children: React.ReactNode
+
+  /**
+   * Start a transition from closed to open, open to closed, or snap to snap
+   */
+  onSpringStart?: (event: SpringEvent) => void
+  /**
+   * A running transition didn't finish or got stopped
+   */
+  onSpringCancel?: (event: SpringEvent) => void
+  /**
+   * The transition ended successfully. Handy to know when it's safe to unmount
+   * the sheet without interrupting the closing animation.
+   */
+  onSpringEnd?: (event: SpringEvent) => void
+
+  /** Whether the bottom sheet is open or not. */
+  open: boolean
 
   /**
    * Additional CSS class for the container.
