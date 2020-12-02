@@ -10,7 +10,7 @@ module.exports = {
           '--rsbs-backdrop-opacity': '1',
           '--rsbs-bg': '#fff',
           '--rsbs-content-opacity': '1',
-          '--rsbs-handle-bg': 'hsla(0, 0%, 0%, 0.25)',
+          '--rsbs-handle-bg': 'hsla(0, 0%, 0%, 0.14)',
           '--rsbs-max-w': 'auto',
           '--rsbs-ml': 'env(safe-area-inset-left)',
           '--rsbs-mr': 'env(safe-area-inset-right)',
