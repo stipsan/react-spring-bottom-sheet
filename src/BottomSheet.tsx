@@ -126,7 +126,7 @@ export const BottomSheet = React.forwardRef(
       contentHeight,
       footerHeight,
       headerHeight,
-      currentHeight: heightRef.current,
+      height: heightRef.current,
       maxHeight,
       viewportHeight,
     })
@@ -138,7 +138,7 @@ export const BottomSheet = React.forwardRef(
       }
 
       const nextHeight = _getInitialSnapPoint({
-        currentHeight: heightRef.current,
+        height: heightRef.current,
         headerHeight,
         footerHeight,
         maxHeight,
@@ -259,7 +259,7 @@ export const BottomSheet = React.forwardRef(
           nextHeight = maybeHeightUpdater({
             footerHeight,
             headerHeight,
-            currentHeight: heightRef.current,
+            height: heightRef.current,
             maxHeight,
             viewportHeight,
             snapPoints,

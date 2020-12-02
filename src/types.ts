@@ -3,15 +3,15 @@ export type SnapPointArg = {
   footerHeight: number
   /** The height of the sticky footer, if there's one */
   headerHeight: number
-  /** If the bottom sheet is animating to a snap point the currentHeight will be the destination height, not the height the bottom sheet might have in the middle of the animation. */
-  currentHeight: number
+  /** If the bottom sheet is animating to a snap point the height will match the destination height, not the height the bottom sheet might have in the middle of the animation. */
+  height: number
   /** How tall the sheet can be based on the content heights. Viewport height also affects this number. */
   maxHeight: number
   /** Use this instead of reading from window.innerHeight yourself, this helps prevent unnecessary reflows. */
   viewportHeight: number
 }
 
-export type snapPoints = (args: SnapPointArg) => number[]
+export type snapPoints = (args: SnapPointArg) => number[] | number
 
 type initialSnapPointArg = {
   snapPoints: number[]
@@ -83,10 +83,10 @@ export type SharedProps = {
    */
   scrollLocking?: boolean
 
-  /** Handler that is called to get the height values that the bottom sheet can *snap* to when the user stops dragging. The function is given `minHeight`, `maxHeight`, `viewportHeight` and `currentHeight` as arguments. */
+  /** Handler that is called to get the height values that the bottom sheet can *snap* to when the user stops dragging. */
   snapPoints?: snapPoints
 
-  /** Handler that is called to get the initial height of the bottom sheet when it's opened (or when the viewport is resized). The function is given `minHeight`, `maxHeight`, `viewportHeight`,`currentHeight` and `snappoints` as arguments. */
+  /** Handler that is called to get the initial height of the bottom sheet when it's opened (or when the viewport is resized). */
   initialSnapPoint?: initialSnapPoint
 } & Omit<React.PropsWithoutRef<JSX.IntrinsicElements['div']>, 'children'>
 

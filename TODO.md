@@ -15,21 +15,18 @@ fit-content(<length-percentage>)
 
 hmmmm
 
-- currentHeight => height
-- footerHeight => added
-- headerHeight => added
 - maxHeight => minHeight, includes header and footer heights, it tries to avoid a scrollbar
 - minHeight => gone, used to be header + footer
 - viewportHeight => maxHeight
-- snap points array is optional
 
 footerHeight
 headerHeight
 height
+lastSnap
 maxHeight
 minHeight
 
-data-rsbs-state = dragging | snapping | closing | opening | open | closed
+fix uneven icon that is being animated, the corner is driving me crazy...
 
 ## package.json stuffs
 

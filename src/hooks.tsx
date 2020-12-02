@@ -113,7 +113,7 @@ export const useSnapPoints = ({
   footerHeight,
   headerHeight,
   contentHeight,
-  currentHeight,
+  height,
   viewportHeight,
 }: UseSnapPointsProps) => {
   // @TODO cleanup
@@ -126,7 +126,7 @@ export const useSnapPoints = ({
     const massagedSnapPoints = []
       .concat(
         getSnapPoints({
-          currentHeight,
+          height,
           footerHeight,
           headerHeight,
           maxHeight,
