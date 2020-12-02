@@ -38,6 +38,7 @@ export const BottomSheet = React.forwardRef<RefHandles, Props>(
       open: _open,
       initialFocusRef,
       onDismiss,
+      maxHeight: controlledMaxHeight,
       defaultSnap: getDefaultSnap = _defaultSnap,
       snapPoints: getSnapPoints = _snapPoints,
       blocking = true,
@@ -90,8 +91,7 @@ export const BottomSheet = React.forwardRef<RefHandles, Props>(
     const lastSnapRef = useRef(null)
 
     const prefersReducedMotion = useReducedMotion()
-    const viewportHeight = useViewportHeight()
-    const maxHeight = viewportHeight
+    const maxHeight = useViewportHeight(controlledMaxHeight)
 
     // "Plugins" huhuhu
     const scrollLockRef = useRef<ReturnType<typeof createScrollLocker>>()

@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import Button from '../../docs/fixtures/Button'
 import Code from '../../docs/fixtures/Code'
 import Container from '../../docs/fixtures/Container'
@@ -186,6 +186,41 @@ function Five() {
   )
 }
 
+function Six() {
+  const [open, setOpen] = useState(false)
+  const [half, setHalf] = useState(false)
+  const [maxHeight, setMaxHeight] = useState(() =>
+    typeof window !== 'undefined'
+      ? half
+        ? window.innerHeight / 2
+        : window.innerHeight
+      : 0
+  )
+
+  useEffect(() => {
+    setMaxHeight(half ? window.innerHeight / 2 : window.innerHeight)
+  }, [half])
+
+  return (
+    <>
+      <Button onClick={() => setOpen(true)}>6</Button>
+      <BottomSheet
+        style={{ ['--rsbs-bg' as any]: '#EFF6FF' }}
+        open={open}
+        maxHeight={maxHeight}
+        onDismiss={() => setOpen(false)}
+        snapPoints={({ minHeight, maxHeight }) => [minHeight, maxHeight]}
+      >
+        <SheetContent>
+          <Button onClick={() => setHalf((half) => !half)}>
+            {half ? 'maxHeight 100%' : 'maxHeight 50%'}
+          </Button>
+        </SheetContent>
+      </BottomSheet>
+    </>
+  )
+}
+
 export default function ExperimentsFixturePage() {
   return (
     <>
@@ -195,6 +230,7 @@ export default function ExperimentsFixturePage() {
         <Three />
         <Four />
         <Five />
+        <Six />
       </Container>
     </>
   )
