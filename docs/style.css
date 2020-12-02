@@ -13,7 +13,10 @@
 @layer base {
   :root {
     --rsbs-backdrop-bg: rgba(15, 23, 42, 0.7);
-    --rsbs-handle-bg: theme('colors.gray.400');
+    --rsbs-handle-bg: currentColor;
+  }
+  [data-rsbs-header]:before {
+    @apply text-gray-900 text-opacity-20;
   }
 }
 @layer utilities {

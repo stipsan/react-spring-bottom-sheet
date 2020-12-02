@@ -82,13 +82,18 @@
   position: absolute;
   content: '';
   display: block;
-  width: 25px;
+  width: 28px;
   height: 4px;
   top: calc(8px + env(safe-area-inset-top));
   left: 50%;
   transform: translateX(-50%);
   border-radius: 2px;
   background-color: var(--rsbs-handle-bg);
+}
+@media (min-resolution: 2dppx) {
+  [data-rsbs-header]:before {
+    transform: translateX(-50%) scaleY(0.75);
+  }
 }
 [data-rsbs-has-header='false'] [data-rsbs-header] {
   box-shadow: none;
