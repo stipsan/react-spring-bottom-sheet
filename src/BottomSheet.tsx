@@ -25,6 +25,8 @@ type BottomSheetProps = {
 
 // How many pixels above the viewport height the user is allowed to drag the bottom sheet
 const MAX_OVERFLOW = 120
+// Toggle new experimental algo for animating snap states that avoid animating the `height` property, staying in FLIP bounds
+const EXPERIMENTAL_FAST_TRANSITION = false
 
 export const BottomSheet = React.forwardRef(
   (
@@ -277,7 +279,6 @@ export const BottomSheet = React.forwardRef(
 
         nextHeight = toSnapPoint(nextHeight)
 
-        heightRef.current = nextHeight
         set({
           // @ts-expect-error
           y: nextHeight,
@@ -380,14 +381,11 @@ export const BottomSheet = React.forwardRef(
         },
       })
 
-      // @TODO nonono changed my mind, let's use events instead
-      // Intentionally checking dataset twice, this function fires A LOT and it's much cheaper to only do the
-      // deep property access checks if `first` or `last`, which means at most twice per drag session
-      if (first && containerRef.current?.dataset) {
-        containerRef.current.dataset.rsbsState = 'dragging'
+      if (first) {
+        draggingRef.current = true
       }
-      if (last && containerRef.current?.dataset) {
-        containerRef.current.dataset.rsbsState = 'snapping'
+      if (last) {
+        draggingRef.current = false
       }
 
       return memo
@@ -422,15 +420,48 @@ export const BottomSheet = React.forwardRef(
             extrapolate: 'clamp',
             map: Math.round,
           })
-    const interpolateHeight = y?.interpolate({
+    const interpolateHeightLegacy = y?.interpolate({
       range: [minSnap, maxSnap],
       output: [minSnap, maxSnap],
       extrapolate: 'clamp',
     })
-    const interpolateY = y?.interpolate({
+    const interpolateHeight =
+      EXPERIMENTAL_FAST_TRANSITION && interpolateHeightLegacy
+        ? interpolate(
+            [
+              y.interpolate({
+                // @TODO optimize
+                range: [heightRef.current, heightRef.current],
+                output: [heightRef.current, heightRef.current],
+                extrapolate: 'clamp',
+              }),
+              interpolateHeightLegacy,
+            ],
+            (a, b) => (draggingRef.current ? b : a)
+          )
+        : interpolateHeightLegacy
+    const interpolateYLegacy = y?.interpolate({
       range: [0, minSnap, maxSnap, maxSnap + MAX_OVERFLOW],
       output: [`${minSnap}px`, '0px', '0px', `${-MAX_OVERFLOW}px`],
     })
+    const interpolateY =
+      EXPERIMENTAL_FAST_TRANSITION && interpolateYLegacy
+        ? interpolate(
+            [
+              y.interpolate({
+                range: [
+                  0,
+                  minSnap,
+                  heightRef.current,
+                  heightRef.current + MAX_OVERFLOW,
+                ],
+                output: [`${minSnap}px`, '0px', '0px', `${-MAX_OVERFLOW}px`],
+              }),
+              interpolateYLegacy,
+            ],
+            (a, b) => (draggingRef.current ? b : a)
+          )
+        : interpolateYLegacy
     const interpolateFiller = y?.interpolate({
       range: [0, maxSnap, maxSnap + MAX_OVERFLOW],
       output: ['scaleY(0)', 'scaleY(0)', `scaleY(${MAX_OVERFLOW})`],
@@ -467,13 +498,7 @@ export const BottomSheet = React.forwardRef(
           }),
           // Fading in the backdrop, done here so the effect can be controlled through CSS
           // @ts-expect-error
-          ['--rsbs-backdrop-opacity' as any]: spring.backdrop
-            ? // @ts-expect-error
-              interpolate([spring.backdrop, spring.backdrop], (a, b) => {
-                console.log('a b test', { a, b })
-                return a
-              })
-            : undefined,
+          ['--rsbs-backdrop-opacity' as any]: spring.backdrop,
         }}
       >
         {blocking ? (
