@@ -16,8 +16,9 @@ fit-content(<length-percentage>)
 hmmmm
 
 - maxHeight => minHeight, includes header and footer heights, it tries to avoid a scrollbar
-- minHeight => gone, used to be header + footer
 - viewportHeight => maxHeight
+- initialHeight => initialSnapPoint => initialSnap => defaultSnap
+- setHeight => setSnapPoint => setSnap => snapTo
 
 footerHeight
 headerHeight

@@ -40,7 +40,7 @@ export const BottomSheet = React.forwardRef(
       onDismiss,
       initialSnapPoint: _getInitialSnapPoint = ({ snapPoints, lastSnap }) =>
         lastSnap ?? Math.min(...snapPoints),
-      snapPoints: getSnapPoints = ({ maxHeight }) => [maxHeight],
+      snapPoints: getSnapPoints = ({ minHeight: maxHeight }) => [maxHeight],
       blocking = true,
       scrollLocking = true,
       style,
@@ -127,7 +127,7 @@ export const BottomSheet = React.forwardRef(
       footerHeight,
       headerHeight,
       height: heightRef.current,
-      maxHeight,
+      minHeight: maxHeight,
       viewportHeight,
     })
 
@@ -141,7 +141,7 @@ export const BottomSheet = React.forwardRef(
         height: heightRef.current,
         headerHeight,
         footerHeight,
-        maxHeight,
+        minHeight: maxHeight,
         viewportHeight,
         lastSnap: lastSnapRef.current,
         snapPoints,
@@ -260,7 +260,7 @@ export const BottomSheet = React.forwardRef(
             footerHeight,
             headerHeight,
             height: heightRef.current,
-            maxHeight,
+            minHeight: maxHeight,
             viewportHeight,
             snapPoints,
             lastSnap: lastSnapRef.current,

@@ -77,7 +77,10 @@ function Two() {
           </Button>
         }
         initialSnapPoint={({ footerHeight }) => footerHeight}
-        snapPoints={({ maxHeight, footerHeight }) => [footerHeight, maxHeight]}
+        snapPoints={({ minHeight: maxHeight, footerHeight }) => [
+          footerHeight,
+          maxHeight,
+        ]}
       >
         <SheetContent>
           <p>
@@ -112,7 +115,10 @@ function Three() {
             Dismiss
           </Button>
         }
-        snapPoints={({ maxHeight, headerHeight }) => [headerHeight, maxHeight]}
+        snapPoints={({ minHeight: maxHeight, headerHeight }) => [
+          headerHeight,
+          maxHeight,
+        ]}
       >
         <SheetContent>
           <p>
@@ -139,7 +145,7 @@ function Four() {
         style={{ ['--rsbs-bg' as any]: '#EFF6FF' }}
         open={open}
         onDismiss={onDismiss}
-        snapPoints={({ maxHeight }) => [0, maxHeight]}
+        snapPoints={({ minHeight: maxHeight }) => [0, maxHeight]}
       >
         <SheetContent>
           <p>
@@ -168,7 +174,7 @@ function Five() {
         footer={<strong>Sticky footer</strong>}
         onDismiss={onDismiss}
         initialSnapPoint={({ lastSnap }) => lastSnap}
-        snapPoints={({ maxHeight, headerHeight, footerHeight }) => [
+        snapPoints={({ minHeight: maxHeight, headerHeight, footerHeight }) => [
           headerHeight,
           headerHeight + footerHeight,
           maxHeight,

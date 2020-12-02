@@ -1,12 +1,12 @@
 export type SnapPointArg = {
   /** The height of the sticky footer, if there's one */
-  footerHeight: number
-  /** The height of the sticky footer, if there's one */
   headerHeight: number
-  /** If the bottom sheet is animating to a snap point the height will match the destination height, not the height the bottom sheet might have in the middle of the animation. */
+  /** The height of the sticky footer, if there's one */
+  footerHeight: number
+  /** If the bottom sheet is animating to a snap point the height will match the destination height, not the height the bottom sheet might have in the middle of the animation. It includes the header and footer heights. */
   height: number
-  /** How tall the sheet can be based on the content heights. Viewport height also affects this number. */
-  maxHeight: number
+  /** Minimum height needed to avoid scroll overflow in the content area, if possible. */
+  minHeight: number
   /** Use this instead of reading from window.innerHeight yourself, this helps prevent unnecessary reflows. */
   viewportHeight: number
 }
