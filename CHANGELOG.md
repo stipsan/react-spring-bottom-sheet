@@ -1,3 +1,10 @@
+## [1.0.3](https://github.com/stipsan/react-spring-bottom-sheet/compare/v1.0.2...v1.0.3) (2020-12-02)
+
+
+### Bug Fixes
+
+* **deps:** update dependency focus-trap to v6.2.2 ([9f79d35](https://github.com/stipsan/react-spring-bottom-sheet/commit/9f79d354e4bee3ffb8bb58c220cd59744472b778))
+
 ## [1.0.2](https://github.com/stipsan/react-spring-bottom-sheet/compare/v1.0.1...v1.0.2) (2020-12-01)
 
 
