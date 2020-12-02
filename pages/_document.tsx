@@ -30,6 +30,12 @@ gtag('config', '${ga}');
             href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;900&family=Source+Sans+Pro&display=swap"
             rel="stylesheet"
           />
+          <link rel="icon" type="image/svg+xml" href="/favicon-rounded.svg" />
+          <link
+            rel="alternate icon"
+            type="image/png"
+            href="/favicon-rounded-64w.png"
+          />
         </Head>
         <body>
           <Main />
