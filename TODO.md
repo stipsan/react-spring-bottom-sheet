@@ -29,6 +29,8 @@ height
 maxHeight
 minHeight
 
+data-rsbs-state = dragging | snapping | closing | opening | open | closed
+
 ## package.json stuffs
 
 - add description.

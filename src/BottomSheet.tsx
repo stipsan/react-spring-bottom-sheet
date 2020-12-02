@@ -7,7 +7,7 @@
 
 import { createFocusTrap } from 'focus-trap'
 import React, { useEffect, useImperativeHandle, useMemo, useRef } from 'react'
-import { animated, useSpring } from 'react-spring'
+import { animated, useSpring, interpolate } from 'react-spring'
 import { useDrag } from 'react-use-gesture'
 import {
   useDimensions,
@@ -82,6 +82,7 @@ export const BottomSheet = React.forwardRef(
     const footerRef = useRef<HTMLDivElement>(null)
     const overlayRef = useRef<HTMLDivElement | null>(null)
 
+    const draggingRef = useRef(false)
     // Keeps track of the current height, or the height transitioning to
     const heightRef = useRef(0)
     // The last point that the user snapped to, useful for open/closed toggling and the user defined height is remembered
@@ -343,7 +344,11 @@ export const BottomSheet = React.forwardRef(
       last,
       movement: [, my],
     }) => {
-      if (shouldCloseRef.current) return memo
+      // Prevent a drag from accidentally stop a close transition due to calling set()
+      if (shouldCloseRef.current) {
+        draggingRef.current = false
+        return memo
+      }
 
       let newY = getY({
         down: !!down,
@@ -374,6 +379,16 @@ export const BottomSheet = React.forwardRef(
           velocity: direction[1] * velocity,
         },
       })
+
+      // @TODO nonono changed my mind, let's use events instead
+      // Intentionally checking dataset twice, this function fires A LOT and it's much cheaper to only do the
+      // deep property access checks if `first` or `last`, which means at most twice per drag session
+      if (first && containerRef.current?.dataset) {
+        containerRef.current.dataset.rsbsState = 'dragging'
+      }
+      if (last && containerRef.current?.dataset) {
+        containerRef.current.dataset.rsbsState = 'snapping'
+      }
 
       return memo
     }
@@ -452,7 +467,13 @@ export const BottomSheet = React.forwardRef(
           }),
           // Fading in the backdrop, done here so the effect can be controlled through CSS
           // @ts-expect-error
-          ['--rsbs-backdrop-opacity' as any]: spring.backdrop,
+          ['--rsbs-backdrop-opacity' as any]: spring.backdrop
+            ? // @ts-expect-error
+              interpolate([spring.backdrop, spring.backdrop], (a, b) => {
+                console.log('a b test', { a, b })
+                return a
+              })
+            : undefined,
         }}
       >
         {blocking ? (
