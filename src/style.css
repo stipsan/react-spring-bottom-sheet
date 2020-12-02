@@ -82,7 +82,7 @@
   position: absolute;
   content: '';
   display: block;
-  width: 28px;
+  width: 36px;
   height: 4px;
   top: calc(8px + env(safe-area-inset-top));
   left: 50%;
