@@ -71,7 +71,7 @@ export default function ScrollableFixturePage() {
           open
           ref={sheetRef}
           initialFocusRef={focusRef}
-          defaultSnap={({ snapPoints: [, _] }) => _}
+          defaultSnap={({ maxHeight }) => maxHeight / 2}
           snapPoints={({ maxHeight }) => [
             maxHeight - maxHeight / 10,
             maxHeight / 4,
@@ -84,9 +84,8 @@ export default function ScrollableFixturePage() {
                 textSize="text-sm"
                 padding="px2 py-1"
                 onClick={() =>
-                  sheetRef.current.setSnapPoint(
-                    // the snapPoints are always asc sorted, thus it's safe to pick by index
-                    ({ snapPoints: [, , snapPoint] }) => snapPoint
+                  sheetRef.current.snapTo(({ snapPoints }) =>
+                    Math.max(...snapPoints)
                   )
                 }
               >
@@ -97,9 +96,7 @@ export default function ScrollableFixturePage() {
                 textSize="text-sm"
                 padding="px2 py-1"
                 onClick={() =>
-                  sheetRef.current.setSnapPoint(
-                    ({ snapPoints: [, snapPoint] }) => snapPoint
-                  )
+                  sheetRef.current.snapTo(({ maxHeight }) => maxHeight / 2)
                 }
               >
                 Middle
@@ -108,8 +105,8 @@ export default function ScrollableFixturePage() {
                 textSize="text-sm"
                 padding="px2 py-1"
                 onClick={() =>
-                  sheetRef.current.setSnapPoint(
-                    ({ snapPoints: [snapPoint] }) => snapPoint
+                  sheetRef.current.snapTo(({ snapPoints }) =>
+                    Math.min(...snapPoints)
                   )
                 }
               >
