@@ -34,7 +34,9 @@ function One() {
   )
 
   useInterval(() => {
-    setSeconds(seconds + 1)
+    if (open) {
+      setSeconds(seconds + 1)
+    }
   }, 10000)
 
   return (
@@ -137,9 +139,38 @@ function Four() {
         style={{ ['--rsbs-bg' as any]: '#EFF6FF' }}
         open={open}
         onDismiss={onDismiss}
-        snapPoints={({ maxHeight, headerHeight }) => [
-          0,
+        snapPoints={({ maxHeight }) => [0, maxHeight]}
+      >
+        <SheetContent>
+          <p>
+            Using <Code>onDismiss</Code> lets users close the sheet by swiping
+            it down, tapping on the backdrop or by hitting <Kbd>esc</Kbd> on
+            their keyboard.
+          </p>
+        </SheetContent>
+      </BottomSheet>
+    </>
+  )
+}
+
+function Five() {
+  const [open, setOpen] = useState(false)
+
+  function onDismiss() {
+    setOpen(false)
+  }
+  return (
+    <>
+      <Button onClick={() => setOpen(true)}>5</Button>
+      <BottomSheet
+        style={{ ['--rsbs-bg' as any]: '#EFF6FF' }}
+        open={open}
+        footer={<strong>Sticky footer</strong>}
+        onDismiss={onDismiss}
+        initialSnapPoint={({ lastSnap }) => lastSnap}
+        snapPoints={({ maxHeight, headerHeight, footerHeight }) => [
           headerHeight,
+          headerHeight + footerHeight,
           maxHeight,
         ]}
       >
@@ -159,10 +190,11 @@ export default function ExperimentsFixturePage() {
   return (
     <>
       <Container>
-        <One key="1" />
-        <Two key="2" />
-        <Three key="3" />
-        <Four key="4" />
+        <One />
+        <Two />
+        <Three />
+        <Four />
+        <Five />
       </Container>
     </>
   )
