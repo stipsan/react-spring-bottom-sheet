@@ -278,3 +278,136 @@ export const useScrollLock = (
 
   return ref
 }
+
+// Handle hiding and restoring aria-hidden attributes
+export const useAriaHider = (
+  targetRef: React.RefObject<Element>,
+  { enabled }
+) => {
+  const ref = useRef<{ activate: () => void; deactivate: () => void }>({
+    activate: () => {
+      throw new TypeError('Tried to activate aria hider too early')
+    },
+    deactivate: () => {},
+  })
+
+  useEffect(() => {
+    if (!enabled) {
+      ref.current.deactivate()
+      ref.current = { activate: () => {}, deactivate: () => {} }
+      return
+    }
+
+    const target = targetRef.current
+    let active = false
+    let originalValues: (null | string)[] = []
+    let rootNodes: Element[] = []
+
+    ref.current = {
+      activate: () => {
+        if (active) return
+        active = true
+
+        const parentNode = target.parentNode
+
+        document.querySelectorAll('body > *').forEach((node) => {
+          if (node === parentNode) {
+            return
+          }
+          let attr = node.getAttribute('aria-hidden')
+          let alreadyHidden = attr !== null && attr !== 'false'
+          if (alreadyHidden) {
+            return
+          }
+          originalValues.push(attr)
+          rootNodes.push(node)
+          node.setAttribute('aria-hidden', 'true')
+        })
+      },
+      deactivate: () => {
+        if (!active) return
+        active = false
+
+        rootNodes.forEach((node, index) => {
+          let originalValue = originalValues[index]
+          if (originalValue === null) {
+            node.removeAttribute('aria-hidden')
+          } else {
+            node.setAttribute('aria-hidden', originalValue)
+          }
+        })
+        originalValues = []
+        rootNodes = []
+      },
+    }
+  }, [targetRef, enabled])
+
+  return ref
+}
+
+export const useFocusTrap = (
+  targetRef: React.RefObject<Element>,
+  { enabled }
+) => {
+  const _ref = useRef<{ activate: () => void; deactivate: () => void }>({
+    activate: () => {
+      throw new TypeError('Tried to activate focus trap too early')
+    },
+    deactivate: () => {},
+  })
+
+  useEffect(() => {
+    if (!enabled) {
+      _ref.current.deactivate()
+      _ref.current = { activate: () => {}, deactivate: () => {} }
+      return
+    }
+
+    const target = targetRef.current
+    let active = false
+
+    _ref.current = {
+      activate: () => {
+        if (active) return
+        active = true
+
+        //
+      },
+      deactivate: () => {
+        if (!active) return
+        active = false
+
+        //
+      },
+    }
+  }, [targetRef, enabled])
+
+  return _ref
+}
+/*
+
+ const trap = createFocusTrap(container, {
+          onActivate:
+            process.env.NODE_ENV !== 'production'
+              ? () => {
+                  console.log('focus activate')
+                }
+              : undefined,
+          // If initialFocusRef is manually specified we don't want the first tabbable element to receive focus if initialFocusRef can't be found
+          initialFocus: initialFocusRef
+            ? () => initialFocusRef?.current || overlay
+            : undefined,
+          fallbackFocus: overlay,
+          escapeDeactivates: false,
+          clickOutsideDeactivates: false,
+        })
+        focusTrapRef.current = {
+          activate: async () => {
+            await trap.activate()
+            return new Promise((resolve) =>
+              requestAnimationFrame(() => resolve(void 1))
+            )
+          },
+          deactivate: () => trap.deactivate(),
+        }
+*/

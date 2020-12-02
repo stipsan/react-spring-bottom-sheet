@@ -5,7 +5,6 @@
 // It also ensures that when transitioning to open on mount the state is always clean, not affected by previous states that could
 // cause race conditions.
 
-import { createFocusTrap } from 'focus-trap'
 import React, {
   useEffect,
   useImperativeHandle,
@@ -16,6 +15,8 @@ import React, {
 import { animated, interpolate, useSpring } from 'react-spring'
 import { useDrag } from 'react-use-gesture'
 import {
+  useFocusTrap,
+  useAriaHider,
   useDimensions,
   useReducedMotion,
   useScrollLock,
@@ -29,7 +30,7 @@ import type {
   RefHandles,
   SpringEvent,
 } from './types'
-import { clamp, createAriaHider, createScrollLocker, isNumber } from './utils'
+import { clamp, isNumber } from './utils'
 
 // How many pixels above the viewport height the user is allowed to drag the bottom sheet
 const MAX_OVERFLOW = 120
@@ -119,13 +120,14 @@ export const BottomSheet = React.forwardRef<RefHandles, Props>(
     const maxHeight = useViewportHeight(controlledMaxHeight)
 
     // "Plugins" huhuhu
-    const scrollLockRef = useScrollLock(contentRef, { enabled: scrollLocking })
-    const focusTrapRef = useRef<
-      {
-        activate: () => Promise<any>
-      } & Pick<ReturnType<typeof createFocusTrap>, 'deactivate'>
-    >()
-    const ariaHiderRef = useRef<ReturnType<typeof createAriaHider>>()
+    const scrollLockRef = useScrollLock(contentRef, {
+      enabled: ready && scrollLocking,
+    })
+    const ariaHiderRef = useAriaHider(containerRef, {
+      enabled: ready && blocking,
+    })
+    //ready && on && blocking && containerRef.current && overlayRef.current
+    const focusTrapRef = useFocusTrap()
 
     const {
       contentHeight,
@@ -182,45 +184,6 @@ export const BottomSheet = React.forwardRef<RefHandles, Props>(
       toSnapPoint,
       maxHeight,
     ])
-
-    // @TODO move these to custom hooks
-    useEffect(() => {
-      const container = containerRef.current
-      const overlay = overlayRef.current
-
-      if (ready && on && blocking && container && overlay) {
-        const trap = createFocusTrap(container, {
-          onActivate:
-            process.env.NODE_ENV !== 'production'
-              ? () => {
-                  console.log('focus activate')
-                }
-              : undefined,
-          // If initialFocusRef is manually specified we don't want the first tabbable element to receive focus if initialFocusRef can't be found
-          initialFocus: initialFocusRef
-            ? () => initialFocusRef?.current || overlay
-            : undefined,
-          fallbackFocus: overlay,
-          escapeDeactivates: false,
-          clickOutsideDeactivates: false,
-        })
-        focusTrapRef.current = {
-          activate: async () => {
-            await trap.activate()
-            return new Promise((resolve) =>
-              requestAnimationFrame(() => resolve(void 1))
-            )
-          },
-          deactivate: () => trap.deactivate(),
-        }
-        ariaHiderRef.current = createAriaHider(container)
-
-        return () => {
-          focusTrapRef.current.deactivate()
-          focusTrapRef.current = null
-        }
-      }
-    }, [on, blocking, initialFocusRef, ready])
 
     // Handle closed to open transition
     useEffect(() => {
