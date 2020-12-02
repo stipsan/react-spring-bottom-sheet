@@ -16,10 +16,10 @@ import {
   useViewportHeight,
 } from './hooks'
 import type {
-  initialSnapPointArg,
+  defaultSnapProps,
   setSnapPoint,
   SharedProps,
-  SnapPointArg,
+  SnapPointProps,
 } from './types'
 import { clamp, createAriaHider, createScrollLocker, isNumber } from './utils'
 
@@ -586,9 +586,9 @@ export const BottomSheet = React.forwardRef(
   }
 )
 
-function defaultSnap({ snapPoints, lastSnap }: initialSnapPointArg) {
+function defaultSnap({ snapPoints, lastSnap }: defaultSnapProps) {
   return lastSnap ?? Math.min(...snapPoints)
 }
-function defaultSnapShots({ minHeight }: SnapPointArg) {
+function defaultSnapShots({ minHeight }: SnapPointProps) {
   return minHeight
 }

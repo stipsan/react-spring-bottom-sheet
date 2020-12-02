@@ -1,4 +1,4 @@
-export type SnapPointArg = {
+export type SnapPointProps = {
   /** The height of the sticky footer, if there's one */
   headerHeight: number
   /** The height of the sticky footer, if there's one */
@@ -11,15 +11,15 @@ export type SnapPointArg = {
   viewportHeight: number
 }
 
-export type snapPoints = (args: SnapPointArg) => number[] | number
+export type snapPoints = (props: SnapPointProps) => number[] | number
 
-export type initialSnapPointArg = {
+export type defaultSnapProps = {
   snapPoints: number[]
   /** The last snap point the user dragged to, if any. 0 if the user haven't interacted */
   lastSnap: number | null
-} & SnapPointArg
+} & SnapPointProps
 
-type initialSnapPoint = (args: initialSnapPointArg) => number
+type defaultSnap = (props: defaultSnapProps) => number
 
 /* Might make sense to expose a preventDefault method here */
 type SpringEvent = {
@@ -87,16 +87,17 @@ export type SharedProps = {
   snapPoints?: snapPoints
 
   /** Handler that is called to get the initial height of the bottom sheet when it's opened (or when the viewport is resized). */
-  initialSnapPoint?: initialSnapPoint
+  initialSnapPoint?: defaultSnap
 } & Omit<React.PropsWithoutRef<JSX.IntrinsicElements['div']>, 'children'>
 
-type snapPointSetter = (state: initialSnapPointArg) => number
 /**
  * When given a number it'll find the closest snap point, so you don't need to know the exact value,
  * Use the callback method to access what snap points you can choose from.
  *
  */
-export type setSnapPoint = (fuzzySnapPoint: number | snapPointSetter) => void
+export type setSnapPoint = (
+  fuzzySnapPoint: number | ((state: defaultSnapProps) => number)
+) => void
 
 // Typings for the forwarded ref, useful as TS can't infer that `setSnapPoint` is available by itself
 export type ForwardedRefType = {

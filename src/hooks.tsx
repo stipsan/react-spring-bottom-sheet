@@ -7,7 +7,7 @@ import React, {
   useState,
 } from 'react'
 import ResizeObserver from 'resize-observer-polyfill'
-import type { SnapPointArg, snapPoints } from './types'
+import type { SnapPointProps, snapPoints } from './types'
 import { clamp, roundAndCheckForNaN } from './utils'
 
 /**
@@ -106,7 +106,7 @@ export function useReducedMotion() {
 type UseSnapPointsProps = {
   getSnapPoints: snapPoints
   contentHeight: number
-} & SnapPointArg
+} & SnapPointProps
 export const useSnapPoints = ({
   getSnapPoints,
   minHeight,
