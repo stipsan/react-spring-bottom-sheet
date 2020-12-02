@@ -20,6 +20,7 @@ import type {
   Props,
   SnapPointProps,
   RefHandles,
+  SpringEvent,
 } from './types'
 import { clamp, createAriaHider, createScrollLocker, isNumber } from './utils'
 
@@ -44,6 +45,9 @@ export const BottomSheet = React.forwardRef<RefHandles, Props>(
       blocking = true,
       scrollLocking = true,
       style,
+      onSpringStart = (event) => console.warn('onSpringStart', event),
+      onSpringCancel = (event) => console.warn('onSpringCancel', event),
+      onSpringEnd = (event) => console.warn('onSpringEnd', event),
       ...props
     },
     forwardRef
@@ -52,11 +56,20 @@ export const BottomSheet = React.forwardRef<RefHandles, Props>(
     // but confusing as heck when transitioning between touch gestures and spring animations
     const on = _open
     const off = !_open
+    const startOnRef = useRef(on)
+    const startOffRef = useRef(off)
     const dismissable = !!onDismiss
+    const springTypeRef = useRef<SpringEvent['type']>(null)
+    // Controls the drag handler, used by spring operations that happen outside the render loop in React
+    const canDragRef = useRef(false)
 
     // Behold, the engine of it all!
     const [spring, set] = useSpring(() => ({
       from: { y: 0, opacity: 0, backdrop: 0 },
+      onStart: (...args) => console.debug('onStart', ...args),
+      onFrame: (...args) => console.debug('onFrame', ...args),
+      onRest: (...args) => console.debug('onRest', ...args),
+      immediate: true,
     }))
     // @ts-expect-error
     const { y } = spring
@@ -162,13 +175,7 @@ export const BottomSheet = React.forwardRef<RefHandles, Props>(
     useEffect(() => {
       const container = containerRef.current
       const overlay = overlayRef.current
-      console.log({
-        requestedOpen: on,
-        blocking,
-        container,
-        overlay,
-        initialFocusRef,
-      })
+
       if (on && blocking && container && overlay) {
         const trap = createFocusTrap(container, {
           onActivate:
@@ -205,11 +212,17 @@ export const BottomSheet = React.forwardRef<RefHandles, Props>(
 
     // Handle closed to open transition
     useEffect(() => {
-      if (!on) return
-
+      if (off) return
       set({
         // @ts-expect-error
         to: async (next, cancel) => {
+          console.info('before onSpringStart[OPEN]', springTypeRef.current)
+
+          springTypeRef.current = 'OPEN'
+          await onSpringStart?.({ type: 'OPEN' })
+
+          console.log('animate on', { startOffRef: startOnRef.current })
+
           await next({
             y: defaultSnap,
             backdrop: 0,
@@ -234,21 +247,32 @@ export const BottomSheet = React.forwardRef<RefHandles, Props>(
             opacity: 1,
             immediate: prefersReducedMotion.current,
           })
+          await onSpringEnd?.({ type: 'OPEN' })
+
+          springTypeRef.current = null
         },
       })
-    }, [defaultSnap, prefersReducedMotion, on, set])
+
+      return () => {
+        console.log('it was open but now it closed!')
+      }
+    }, [defaultSnap, prefersReducedMotion, set, off])
 
     // Handle open to closed animations
     useEffect(() => {
-      if (on) return
-
+      if (on || startOffRef.current) return
       heightRef.current = 0
+      console.log('animate off')
       set({
         // @ts-expect-error
         y: 0,
         backdrop: 0,
         immediate: prefersReducedMotion.current,
       })
+
+      return () => {
+        console.log('it was closed but now it opened!')
+      }
     }, [prefersReducedMotion, on, set])
 
     useImperativeHandle(forwardRef, () => ({
@@ -344,11 +368,15 @@ export const BottomSheet = React.forwardRef<RefHandles, Props>(
       first,
       last,
       movement: [, my],
+      cancel,
     }) => {
-      // Prevent a drag from accidentally stop a close transition due to calling set()
-      if (shouldCloseRef.current) {
+      console.log('handleDrag')
+      // Cancel the drag operation if the canDrag state changed
+      if (!canDragRef.current) {
+        console.log('called cancel')
         draggingRef.current = false
-        return memo
+        cancel()
+        return
       }
 
       let newY = getY({
