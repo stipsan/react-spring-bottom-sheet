@@ -14,6 +14,7 @@ export type SnapPointProps = {
 export type snapPoints = (props: SnapPointProps) => number[] | number
 
 export type defaultSnapProps = {
+  /** The snap points currently in use, this can be controlled by providing a `snapPoints` function on the bottom sheet. */
   snapPoints: number[]
   /** The last snap point the user dragged to, if any. 0 if the user haven't interacted */
   lastSnap: number | null

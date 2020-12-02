@@ -139,24 +139,17 @@ export const useSnapPoints = ({
       )
       .map(roundAndCheckForNaN)
 
-    // @TODO detect if invalid snap points in levels, only arrays or numbers allowed.
-    // And arrays must have at least 1 item. for now silently fix it
-
-    const validSnapPoints: number[] = []
-    massagedSnapPoints.forEach((snapPoint) => {
-      const validSnapPoint = clamp(snapPoint, 0, maxHeight)
-      if (validSnapPoints.indexOf(validSnapPoint) === -1) {
-        validSnapPoints.push(validSnapPoint)
-      }
-    })
-    validSnapPoints.sort((a, b) => a - b)
-
-    const lastIndex = validSnapPoints.length - 1
+    const snapPoints = [
+      ...massagedSnapPoints.reduce((acc, snapPoint) => {
+        acc.add(clamp(snapPoint, 0, maxHeight))
+        return acc
+      }, new Set<number>()),
+    ]
 
     return {
-      snapPoints: validSnapPoints,
-      minSnap: validSnapPoints[0],
-      maxSnap: validSnapPoints[lastIndex],
+      snapPoints,
+      minSnap: Math.min(...snapPoints),
+      maxSnap: Math.max(...snapPoints),
     }
   }
 
