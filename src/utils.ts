@@ -13,27 +13,20 @@ import { disableBodyScroll, enableBodyScroll } from 'body-scroll-lock'
  * the bottom sheet drag interaction.
  */
 export const createScrollLocker = (ref: HTMLElement) => {
-  let restored = false
+  let active = false
 
   return {
     activate: () => {
+      if (active) return
+      active = true
       disableBodyScroll(ref, {
         allowTouchMove: (el) => el.closest('[data-body-scroll-lock-ignore]'),
       })
     },
     deactivate: () => {
-      // Ensure it's only run once, since this function is usually called twice:
-      // 1.When the exit transition starts, usually in response to an onDismiss event from a user interaction
-      // 2. When the component is unmounted.
-      // Step 1 can sometimes be skipped, while step 2 always happens. One example where step 1 can be skipped is when
-      // a parent component is unmounted, taking its children with it. In this case the exit transition never get a chance to happen.
-      if (restored) {
-        return
-      }
-
+      if (!active) return
+      active = false
       enableBodyScroll(ref)
-
-      restored = true
     },
   }
 }

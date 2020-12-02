@@ -38,6 +38,10 @@ if (JSON.stringify(arr1) === JSON.stringify(arr2)) {
 }
 ```
 
+# useState bad, bad bad bad and useViewportHeight and useElementSizeObserver both use it
+
+Rewrite to refs, the nextTick system. Create an initial step for getting all dimensions. Then setup observers that set refs.
+
 Faux plugin architecture. "Plugins" or "hooks" can register in an es6 map if they want to do work before the animation starts, while the bottom sheet is resting in the final state but opacity: 0. This allows setting up focus lock, scroll lock and more ahead of time. Hopefully alleviating a lot of jank.
 
 a transition to close can be cancelled if the open state is changed back to `true`.

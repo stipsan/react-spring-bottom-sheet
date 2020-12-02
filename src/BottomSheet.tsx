@@ -6,7 +6,13 @@
 // cause race conditions.
 
 import { createFocusTrap } from 'focus-trap'
-import React, { useEffect, useImperativeHandle, useMemo, useRef } from 'react'
+import React, {
+  useEffect,
+  useImperativeHandle,
+  useMemo,
+  useRef,
+  useState,
+} from 'react'
 import { animated, interpolate, useSpring } from 'react-spring'
 import { useDrag } from 'react-use-gesture'
 import {
@@ -46,7 +52,7 @@ export const BottomSheet = React.forwardRef<RefHandles, Props>(
       scrollLocking = true,
       style,
       onSpringStart = (event) => console.warn('onSpringStart', event),
-      onSpringCancel = (event) => console.warn('onSpringCancel', event),
+      onSpringCancel = (event) => console.error('onSpringCancel', event),
       onSpringEnd = (event) => console.warn('onSpringEnd', event),
       ...props
     },
@@ -56,15 +62,20 @@ export const BottomSheet = React.forwardRef<RefHandles, Props>(
     // but confusing as heck when transitioning between touch gestures and spring animations
     const on = _open
     const off = !_open
+    // Keep track of their initial states, to detect if the bottom sheet should animate or use immediate
     const startOnRef = useRef(on)
     const startOffRef = useRef(off)
+    // Before any animations can start we need to measure a few things, like the viewport and the dimensions of content, and header + footer if they exist
+    const [ready, setReady] = useState(false)
+
     const dismissable = !!onDismiss
     const springTypeRef = useRef<SpringEvent['type']>(null)
     // Controls the drag handler, used by spring operations that happen outside the render loop in React
     const canDragRef = useRef(false)
 
     // Behold, the engine of it all!
-    const [spring, set] = useSpring(() => ({
+    // @ts-expect-error
+    const [spring, set, stop] = useSpring(() => ({
       from: { y: 0, opacity: 0, backdrop: 0 },
       onStart: (...args) => console.debug('onStart', ...args),
       onFrame: (...args) => console.debug('onFrame', ...args),
@@ -120,7 +131,7 @@ export const BottomSheet = React.forwardRef<RefHandles, Props>(
       if (scrollLocking && content) {
         scrollLockRef.current = createScrollLocker(content)
       }
-    }, [on, scrollLocking])
+    }, [scrollLocking])
 
     const {
       contentHeight,
@@ -133,6 +144,13 @@ export const BottomSheet = React.forwardRef<RefHandles, Props>(
       contentRef: contentContainerRef,
       footerRef,
     })
+
+    // Monitor if we got all dimensions ready and good to go
+    useEffect(() => {
+      if (!ready && maxHeight && contentHeight) {
+        setReady(true)
+      }
+    }, [ready, contentHeight, maxHeight])
 
     const { snapPoints, minSnap, maxSnap, toSnapPoint } = useSnapPoints({
       getSnapPoints,
@@ -176,7 +194,7 @@ export const BottomSheet = React.forwardRef<RefHandles, Props>(
       const container = containerRef.current
       const overlay = overlayRef.current
 
-      if (on && blocking && container && overlay) {
+      if (ready && on && blocking && container && overlay) {
         const trap = createFocusTrap(container, {
           onActivate:
             process.env.NODE_ENV !== 'production'
@@ -208,18 +226,42 @@ export const BottomSheet = React.forwardRef<RefHandles, Props>(
           focusTrapRef.current = null
         }
       }
-    }, [on, blocking, initialFocusRef])
+    }, [on, blocking, initialFocusRef, ready])
 
     // Handle closed to open transition
     useEffect(() => {
-      if (off) return
+      if (!ready || off) return
+
+      let cancelled = false
+      const cleanup = () => {
+        scrollLockRef.current?.deactivate()
+        focusTrapRef.current?.deactivate()
+        ariaHiderRef.current?.deactivate()
+
+        springTypeRef.current = null
+        canDragRef.current = false
+      }
+      const maybeCancel = () => {
+        if (cancelled) {
+          cleanup()
+          if (onSpringCancel) {
+            onSpringCancel({ type: 'OPEN' })
+          }
+        }
+        return cancelled
+      }
+
       set({
         // @ts-expect-error
         to: async (next, cancel) => {
+          if (maybeCancel()) return
+
           console.info('before onSpringStart[OPEN]', springTypeRef.current)
 
           springTypeRef.current = 'OPEN'
           await onSpringStart?.({ type: 'OPEN' })
+
+          if (maybeCancel()) return
 
           console.log('animate on', { startOffRef: startOnRef.current })
 
@@ -229,17 +271,27 @@ export const BottomSheet = React.forwardRef<RefHandles, Props>(
             opacity: 0,
             immediate: true,
           })
+
+          if (maybeCancel()) return
+
           await Promise.all([
             scrollLockRef.current?.activate(),
             focusTrapRef.current?.activate(),
             ariaHiderRef.current?.activate(),
           ])
+
+          if (maybeCancel()) return
+
           await next({
             y: 0,
             backdrop: 0,
             opacity: 1,
             immediate: true,
           })
+
+          if (maybeCancel()) return
+
+          canDragRef.current = true
           heightRef.current = defaultSnap
           await next({
             y: defaultSnap,
@@ -247,20 +299,28 @@ export const BottomSheet = React.forwardRef<RefHandles, Props>(
             opacity: 1,
             immediate: prefersReducedMotion.current,
           })
-          await onSpringEnd?.({ type: 'OPEN' })
+
+          if (maybeCancel()) return
 
           springTypeRef.current = null
+          await onSpringEnd?.({ type: 'OPEN' })
+
+          console.log('async open transition done', { cancelled })
         },
       })
 
       return () => {
-        console.log('it was open but now it closed!')
+        // Start signalling to the async flow that we have to abort
+        cancelled = true
+        console.log('it was open but now it closed!', springTypeRef.current)
+        // And proceed to optimistic cleanup
+        cleanup()
       }
-    }, [defaultSnap, prefersReducedMotion, set, off])
+    }, [defaultSnap, prefersReducedMotion, set, off, ready])
 
     // Handle open to closed animations
     useEffect(() => {
-      if (on || startOffRef.current) return
+      if (!ready || on || startOffRef.current) return
       heightRef.current = 0
       console.log('animate off')
       set({
@@ -273,7 +333,7 @@ export const BottomSheet = React.forwardRef<RefHandles, Props>(
       return () => {
         console.log('it was closed but now it opened!')
       }
-    }, [prefersReducedMotion, on, set])
+    }, [prefersReducedMotion, on, set, ready])
 
     useImperativeHandle(forwardRef, () => ({
       snapTo: (maybeHeightUpdater) => {
@@ -373,7 +433,7 @@ export const BottomSheet = React.forwardRef<RefHandles, Props>(
       console.log('handleDrag')
       // Cancel the drag operation if the canDrag state changed
       if (!canDragRef.current) {
-        console.log('called cancel')
+        console.log('handleDrag cancelled dragging because canDragRef is false')
         draggingRef.current = false
         cancel()
         return
@@ -422,19 +482,19 @@ export const BottomSheet = React.forwardRef<RefHandles, Props>(
     useDrag(handleDrag, {
       domTarget: backdropRef,
       eventOptions: { capture: true },
-      enabled: on,
+      enabled: ready && on,
       axis: 'y',
     })
     useDrag(handleDrag, {
       domTarget: headerRef,
       eventOptions: { capture: true },
-      enabled: on,
+      enabled: ready && on,
       axis: 'y',
     })
     useDrag(handleDrag, {
       domTarget: footerRef,
       eventOptions: { capture: true },
-      enabled: on,
+      enabled: ready && on,
       axis: 'y',
     })
 
@@ -511,7 +571,7 @@ export const BottomSheet = React.forwardRef<RefHandles, Props>(
           // @ts-expect-error
           opacity: spring.opacity,
           // Allows interactions on the rest of the page before the close transition is finished
-          pointerEvents: off ? 'none' : undefined,
+          pointerEvents: !ready || off ? 'none' : undefined,
           // Fancy content fade-in effect
           // @ts-ignore
           ['--rsbs-content-opacity' as any]: y?.interpolate({
