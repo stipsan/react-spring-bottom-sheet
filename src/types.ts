@@ -102,7 +102,7 @@ export interface RefHandles {
    * Use the callback method to access what snap points you can choose from.
    *
    */
-  setSnapPoint: (
+  snapTo: (
     fuzzySnapPoint: number | ((state: defaultSnapProps) => number)
   ) => void
 }

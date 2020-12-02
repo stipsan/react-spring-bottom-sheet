@@ -252,7 +252,7 @@ export const BottomSheet = React.forwardRef<RefHandles, Props>(
     }, [prefersReducedMotion, on, set])
 
     useImperativeHandle(forwardRef, () => ({
-      setSnapPoint: (maybeHeightUpdater) => {
+      snapTo: (maybeHeightUpdater) => {
         if (shouldCloseRef.current || off) return
         let nextHeight: number
         if (typeof maybeHeightUpdater === 'function') {

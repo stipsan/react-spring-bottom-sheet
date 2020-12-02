@@ -3,20 +3,6 @@ Stop relying on memo stuff.
 If react's render loop triggers, communicate to outside fn's via refs and the like.
 A change to snap points affects how far one can drag.
 
-```
-max-content
-  The intrinsic preferred width.
-min-content
-  The intrinsic minimum width.
-fit-content(<length-percentage>)
-  Uses the fit-content formula with the available space replaced by the specified argument, i.e. min(max-content, max(min-content, <length-percentage>)).
-
-```
-
-hmmmm
-
-- setHeight => setSnapPoint => setSnap => snapTo
-
 fix uneven icon that is being animated, the corner is driving me crazy...
 
 ## package.json stuffs
