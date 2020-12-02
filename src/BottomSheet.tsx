@@ -43,8 +43,8 @@ export const BottomSheet = React.forwardRef(
       open: _open,
       initialFocusRef,
       onDismiss,
-      initialSnapPoint: _getInitialSnapPoint = defaultSnap,
-      snapPoints: getSnapPoints = defaultSnapShots,
+      defaultSnap: getDefaultSnap = _defaultSnap,
+      snapPoints: getSnapPoints = _snapPoints,
       blocking = true,
       scrollLocking = true,
       style,
@@ -135,13 +135,13 @@ export const BottomSheet = React.forwardRef(
       viewportHeight,
     })
 
-    const initialHeight = useMemo(() => {
+    const defaultSnap = useMemo(() => {
       // If we're firing before the dom is mounted then contentHeight will be 0 and we should return default values
       if (contentHeight === 0) {
         return 0
       }
 
-      const nextHeight = _getInitialSnapPoint({
+      const nextHeight = getDefaultSnap({
         height: heightRef.current,
         headerHeight,
         footerHeight,
@@ -152,7 +152,7 @@ export const BottomSheet = React.forwardRef(
       })
       return toSnapPoint(nextHeight)
     }, [
-      _getInitialSnapPoint,
+      getDefaultSnap,
       contentHeight,
       footerHeight,
       headerHeight,
@@ -215,7 +215,7 @@ export const BottomSheet = React.forwardRef(
         // @ts-expect-error
         to: async (next, cancel) => {
           await next({
-            y: initialHeight,
+            y: defaultSnap,
             backdrop: 0,
             opacity: 0,
             immediate: true,
@@ -231,16 +231,16 @@ export const BottomSheet = React.forwardRef(
             opacity: 1,
             immediate: true,
           })
-          heightRef.current = initialHeight
+          heightRef.current = defaultSnap
           await next({
-            y: initialHeight,
+            y: defaultSnap,
             backdrop: 1,
             opacity: 1,
             immediate: prefersReducedMotion.current,
           })
         },
       })
-    }, [initialHeight, prefersReducedMotion, on, set])
+    }, [defaultSnap, prefersReducedMotion, on, set])
 
     // Handle open to closed animations
     useEffect(() => {
@@ -586,9 +586,10 @@ export const BottomSheet = React.forwardRef(
   }
 )
 
-function defaultSnap({ snapPoints, lastSnap }: defaultSnapProps) {
+// Default prop values that are callbacks, and it's nice to save some memory and reuse their instances since they're pure
+function _defaultSnap({ snapPoints, lastSnap }: defaultSnapProps) {
   return lastSnap ?? Math.min(...snapPoints)
 }
-function defaultSnapShots({ minHeight }: SnapPointProps) {
+function _snapPoints({ minHeight }: SnapPointProps) {
   return minHeight
 }

@@ -76,11 +76,8 @@ function Two() {
             Dismiss
           </Button>
         }
-        initialSnapPoint={({ footerHeight }) => footerHeight}
-        snapPoints={({ minHeight, footerHeight }) => [
-          footerHeight,
-          minHeight,
-        ]}
+        defaultSnap={({ footerHeight }) => footerHeight}
+        snapPoints={({ minHeight, footerHeight }) => [footerHeight, minHeight]}
       >
         <SheetContent>
           <p>
@@ -115,10 +112,7 @@ function Three() {
             Dismiss
           </Button>
         }
-        snapPoints={({ minHeight, headerHeight }) => [
-          headerHeight,
-          minHeight,
-        ]}
+        snapPoints={({ minHeight, headerHeight }) => [headerHeight, minHeight]}
       >
         <SheetContent>
           <p>
@@ -173,7 +167,7 @@ function Five() {
         open={open}
         footer={<strong>Sticky footer</strong>}
         onDismiss={onDismiss}
-        initialSnapPoint={({ lastSnap }) => lastSnap}
+        defaultSnap={({ lastSnap }) => lastSnap}
         snapPoints={({ minHeight, headerHeight, footerHeight }) => [
           headerHeight,
           headerHeight + footerHeight,

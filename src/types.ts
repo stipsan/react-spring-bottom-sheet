@@ -87,7 +87,7 @@ export type SharedProps = {
   snapPoints?: snapPoints
 
   /** Handler that is called to get the initial height of the bottom sheet when it's opened (or when the viewport is resized). */
-  initialSnapPoint?: defaultSnap
+  defaultSnap?: defaultSnap
 } & Omit<React.PropsWithoutRef<JSX.IntrinsicElements['div']>, 'children'>
 
 /**

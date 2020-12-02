@@ -16,7 +16,6 @@ fit-content(<length-percentage>)
 hmmmm
 
 - viewportHeight => maxHeight
-- initialHeight => initialSnapPoint => initialSnap => defaultSnap
 - setHeight => setSnapPoint => setSnap => snapTo
 
 fix uneven icon that is being animated, the corner is driving me crazy...
@@ -59,14 +58,6 @@ Faux plugin architecture. "Plugins" or "hooks" can register in an es6 map if the
 a transition to close can be cancelled if the open state is changed back to `true`.
 open/close is fairly easy and stabl. snap to snap on the other hand, require diligence in making sure whoever cancels a snap transition, makes sure to send the animation on the right direction.
 
-## Changes that can happen from React's side of things at any time by means of a prop change
-
-And that may affect side effects that are running atm
-
-- isOpen
-- snapPoints
-- initialHeight
-
 ## Big picture state machines
 
 - transitioning from closed to open.
@@ -90,8 +81,4 @@ tailwind rsbs
 - blue gray shades on content below header
 
 important:
-lastSnap on initialSnap, to make it persist your choice.
-only fade out when dismissable
 show inertia location to predict where sheet slides on release
-don't fade in if not dismissable
-show resize cursor instead of pointer when not dismissable
