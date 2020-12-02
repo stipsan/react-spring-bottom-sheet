@@ -109,7 +109,7 @@ type UseSnapPointsProps = {
 } & SnapPointArg
 export const useSnapPoints = ({
   getSnapPoints,
-  minHeight: maxHeight,
+  minHeight,
   footerHeight,
   headerHeight,
   contentHeight,
@@ -129,7 +129,7 @@ export const useSnapPoints = ({
           height,
           footerHeight,
           headerHeight,
-          minHeight: maxHeight,
+          minHeight: minHeight,
           viewportHeight,
         })
       )
@@ -193,9 +193,9 @@ export const useDimensions = ({
     contentDimensions.height
   )
 
-  const maxHeight = contentHeight + headerHeight + footerHeight
+  const minHeight = contentHeight + headerHeight + footerHeight
   return {
-    maxHeight,
+    minHeight: minHeight,
     contentHeight: contentDimensions.height,
     headerHeight,
     footerHeight,

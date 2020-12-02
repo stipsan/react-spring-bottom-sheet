@@ -23,7 +23,7 @@ export default function SimpleFixturePage() {
         <BottomSheet
           open={open}
           onDismiss={onDismiss}
-          snapPoints={({ minHeight: maxHeight }) => maxHeight}
+          snapPoints={({ minHeight }) => minHeight}
         >
           <SheetContent>
             <p>

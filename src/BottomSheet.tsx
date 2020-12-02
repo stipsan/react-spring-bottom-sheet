@@ -7,7 +7,7 @@
 
 import { createFocusTrap } from 'focus-trap'
 import React, { useEffect, useImperativeHandle, useMemo, useRef } from 'react'
-import { animated, useSpring, interpolate } from 'react-spring'
+import { animated, interpolate, useSpring } from 'react-spring'
 import { useDrag } from 'react-use-gesture'
 import {
   useDimensions,
@@ -15,7 +15,12 @@ import {
   useSnapPoints,
   useViewportHeight,
 } from './hooks'
-import type { setSnapPoint, SharedProps } from './types'
+import type {
+  initialSnapPointArg,
+  setSnapPoint,
+  SharedProps,
+  SnapPointArg,
+} from './types'
 import { clamp, createAriaHider, createScrollLocker, isNumber } from './utils'
 
 type BottomSheetProps = {
@@ -38,9 +43,8 @@ export const BottomSheet = React.forwardRef(
       open: _open,
       initialFocusRef,
       onDismiss,
-      initialSnapPoint: _getInitialSnapPoint = ({ snapPoints, lastSnap }) =>
-        lastSnap ?? Math.min(...snapPoints),
-      snapPoints: getSnapPoints = ({ minHeight: maxHeight }) => [maxHeight],
+      initialSnapPoint: _getInitialSnapPoint = defaultSnap,
+      snapPoints: getSnapPoints = defaultSnapShots,
       blocking = true,
       scrollLocking = true,
       style,
@@ -111,7 +115,7 @@ export const BottomSheet = React.forwardRef(
 
     const {
       contentHeight,
-      maxHeight,
+      minHeight,
       headerHeight,
       footerHeight,
     } = useDimensions({
@@ -127,7 +131,7 @@ export const BottomSheet = React.forwardRef(
       footerHeight,
       headerHeight,
       height: heightRef.current,
-      minHeight: maxHeight,
+      minHeight: minHeight,
       viewportHeight,
     })
 
@@ -141,7 +145,7 @@ export const BottomSheet = React.forwardRef(
         height: heightRef.current,
         headerHeight,
         footerHeight,
-        minHeight: maxHeight,
+        minHeight: minHeight,
         viewportHeight,
         lastSnap: lastSnapRef.current,
         snapPoints,
@@ -152,7 +156,7 @@ export const BottomSheet = React.forwardRef(
       contentHeight,
       footerHeight,
       headerHeight,
-      maxHeight,
+      minHeight,
       snapPoints,
       toSnapPoint,
       viewportHeight,
@@ -260,7 +264,7 @@ export const BottomSheet = React.forwardRef(
             footerHeight,
             headerHeight,
             height: heightRef.current,
-            minHeight: maxHeight,
+            minHeight: minHeight,
             viewportHeight,
             snapPoints,
             lastSnap: lastSnapRef.current,
@@ -581,3 +585,10 @@ export const BottomSheet = React.forwardRef(
     )
   }
 )
+
+function defaultSnap({ snapPoints, lastSnap }: initialSnapPointArg) {
+  return lastSnap ?? Math.min(...snapPoints)
+}
+function defaultSnapShots({ minHeight }: SnapPointArg) {
+  return minHeight
+}

@@ -15,17 +15,9 @@ fit-content(<length-percentage>)
 
 hmmmm
 
-- maxHeight => minHeight, includes header and footer heights, it tries to avoid a scrollbar
 - viewportHeight => maxHeight
 - initialHeight => initialSnapPoint => initialSnap => defaultSnap
 - setHeight => setSnapPoint => setSnap => snapTo
-
-footerHeight
-headerHeight
-height
-lastSnap
-maxHeight
-minHeight
 
 fix uneven icon that is being animated, the corner is driving me crazy...
 
