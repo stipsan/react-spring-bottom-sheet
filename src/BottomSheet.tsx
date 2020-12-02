@@ -96,6 +96,7 @@ export const BottomSheet = React.forwardRef(
 
     const prefersReducedMotion = useReducedMotion()
     const viewportHeight = useViewportHeight()
+    const maxHeight = viewportHeight
 
     // "Plugins" huhuhu
     const scrollLockRef = useRef<ReturnType<typeof createScrollLocker>>()
@@ -119,7 +120,7 @@ export const BottomSheet = React.forwardRef(
       headerHeight,
       footerHeight,
     } = useDimensions({
-      viewportHeight,
+      maxHeight,
       headerRef,
       contentRef: contentContainerRef,
       footerRef,
@@ -132,7 +133,7 @@ export const BottomSheet = React.forwardRef(
       headerHeight,
       height: heightRef.current,
       minHeight,
-      viewportHeight,
+      maxHeight,
     })
 
     const defaultSnap = useMemo(() => {
@@ -146,7 +147,7 @@ export const BottomSheet = React.forwardRef(
         headerHeight,
         footerHeight,
         minHeight,
-        viewportHeight,
+        maxHeight,
         lastSnap: lastSnapRef.current,
         snapPoints,
       })
@@ -159,7 +160,7 @@ export const BottomSheet = React.forwardRef(
       minHeight,
       snapPoints,
       toSnapPoint,
-      viewportHeight,
+      maxHeight,
     ])
 
     // @TODO move these to custom hooks
@@ -265,7 +266,7 @@ export const BottomSheet = React.forwardRef(
             headerHeight,
             height: heightRef.current,
             minHeight,
-            viewportHeight,
+            maxHeight,
             snapPoints,
             lastSnap: lastSnapRef.current,
           })
@@ -315,7 +316,7 @@ export const BottomSheet = React.forwardRef(
       }
 
       if (down) {
-        const scale = viewportHeight * 0.38196601124999996
+        const scale = maxHeight * 0.38196601124999996
 
         // If dragging beyond maxSnap it should decay so the user can feel its out of bounds
         if (rawY > maxSnap) {
@@ -416,10 +417,10 @@ export const BottomSheet = React.forwardRef(
 
     // @TODO the ts-ignore comments are because the `extrapolate` param isn't in the TS defs for some reason
     const interpolateBorderRadius =
-      viewportHeight !== maxSnap
+      maxHeight !== maxSnap
         ? undefined
         : y?.interpolate({
-            range: [viewportHeight - 16, viewportHeight],
+            range: [maxHeight - 16, maxHeight],
             output: ['16px', '0px'],
             extrapolate: 'clamp',
             map: Math.round,

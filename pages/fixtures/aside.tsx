@@ -26,10 +26,7 @@ export default function AsideFixturePage() {
           open={open}
           onDismiss={() => setOpen(false)}
           blocking={false}
-          snapPoints={({ viewportHeight }) => [
-            viewportHeight / 4,
-            viewportHeight * 0.6,
-          ]}
+          snapPoints={({ maxHeight }) => [maxHeight / 4, maxHeight * 0.6]}
         >
           <SheetContent>
             <p>

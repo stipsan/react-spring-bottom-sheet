@@ -72,10 +72,10 @@ export default function ScrollableFixturePage() {
           ref={sheetRef}
           initialFocusRef={focusRef}
           defaultSnap={({ snapPoints: [, _] }) => _}
-          snapPoints={({ viewportHeight }) => [
-            viewportHeight - viewportHeight / 10,
-            viewportHeight / 4,
-            viewportHeight * 0.6,
+          snapPoints={({ maxHeight }) => [
+            maxHeight - maxHeight / 10,
+            maxHeight / 4,
+            maxHeight * 0.6,
           ]}
         >
           <SheetContent>

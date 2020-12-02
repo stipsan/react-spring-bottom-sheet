@@ -114,7 +114,7 @@ export const useSnapPoints = ({
   headerHeight,
   contentHeight,
   height,
-  viewportHeight,
+  maxHeight,
 }: UseSnapPointsProps) => {
   // @TODO cleanup
   function _getSnaps() {
@@ -130,7 +130,7 @@ export const useSnapPoints = ({
           footerHeight,
           headerHeight,
           minHeight,
-          viewportHeight,
+          maxHeight,
         })
       )
       .map(roundAndCheckForNaN)
@@ -140,7 +140,7 @@ export const useSnapPoints = ({
 
     const validSnapPoints: number[] = []
     massagedSnapPoints.forEach((snapPoint) => {
-      const validSnapPoint = clamp(snapPoint, 0, viewportHeight)
+      const validSnapPoint = clamp(snapPoint, 0, maxHeight)
       if (validSnapPoints.indexOf(validSnapPoint) === -1) {
         validSnapPoints.push(validSnapPoint)
       }
@@ -172,13 +172,13 @@ export const useSnapPoints = ({
 }
 
 type UseDimensionsProps = {
-  viewportHeight: number
+  maxHeight: number
   headerRef: React.RefObject<Element>
   contentRef: React.RefObject<Element>
   footerRef: React.RefObject<Element>
 }
 export const useDimensions = ({
-  viewportHeight,
+  maxHeight,
   headerRef,
   contentRef,
   footerRef,
@@ -189,7 +189,7 @@ export const useDimensions = ({
   const { height: footerHeight } = useElementSizeObserver(footerRef)
 
   const contentHeight = Math.min(
-    viewportHeight - headerHeight - footerHeight,
+    maxHeight - headerHeight - footerHeight,
     contentDimensions.height
   )
 

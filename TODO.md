@@ -15,7 +15,6 @@ fit-content(<length-percentage>)
 
 hmmmm
 
-- viewportHeight => maxHeight
 - setHeight => setSnapPoint => setSnap => snapTo
 
 fix uneven icon that is being animated, the corner is driving me crazy...

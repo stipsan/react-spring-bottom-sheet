@@ -7,8 +7,8 @@ export type SnapPointProps = {
   height: number
   /** Minimum height needed to avoid scroll overflow in the content area, if possible. */
   minHeight: number
-  /** Use this instead of reading from window.innerHeight yourself, this helps prevent unnecessary reflows. */
-  viewportHeight: number
+  /** Max height the sheet can be, your snap points are capped to this value. It's window.innerHeight by default but can be overriden using the maxHeight prop. */
+  maxHeight: number
 }
 
 export type snapPoints = (props: SnapPointProps) => number[] | number

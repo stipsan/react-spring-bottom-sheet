@@ -24,9 +24,9 @@ export default function StickyFixturePage() {
           defaultSnap={({ snapPoints, lastSnap }) =>
             lastSnap ?? Math.max(...snapPoints)
           }
-          snapPoints={({ viewportHeight }) => [
-            viewportHeight - viewportHeight / 10,
-            viewportHeight * 0.6,
+          snapPoints={({ maxHeight }) => [
+            maxHeight - maxHeight / 10,
+            maxHeight * 0.6,
           ]}
           header={
             <h1 className="flex items-center text-xl justify-center font-bold text-gray-800">
