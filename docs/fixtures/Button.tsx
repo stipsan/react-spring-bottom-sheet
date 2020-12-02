@@ -19,9 +19,9 @@ const Button = forwardRef<HTMLButtonElement, Props>(
         textSize,
         padding,
         'rounded-2xl border-solid border-gray-300 border-2',
-        'transition-colors duration-150 focus:duration-0',
-        'bg-gray-100 text-gray-900 hover:bg-gray-300 focus:bg-gray-300',
-        'focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-white focus:ring-gray-300',
+        'transition-colors duration-150 focus-visible:duration-0',
+        'bg-gray-100 text-gray-900 hover:bg-gray-300 focus-visible:bg-gray-300',
+        'focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-white focus-visible:ring-gray-300',
         className
       )}
       {...props}

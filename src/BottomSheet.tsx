@@ -7,7 +7,7 @@
 
 import { createFocusTrap } from 'focus-trap'
 import React, { useEffect, useImperativeHandle, useMemo, useRef } from 'react'
-import { animated, useSpring } from 'react-spring'
+import { animated, interpolate, useSpring } from 'react-spring'
 import { useDrag } from 'react-use-gesture'
 import {
   useDimensions,
@@ -15,7 +15,12 @@ import {
   useSnapPoints,
   useViewportHeight,
 } from './hooks'
-import type { setSnapPoint, SharedProps } from './types'
+import type {
+  initialSnapPointArg,
+  setSnapPoint,
+  SharedProps,
+  SnapPointArg,
+} from './types'
 import { clamp, createAriaHider, createScrollLocker, isNumber } from './utils'
 
 type BottomSheetProps = {
@@ -25,6 +30,8 @@ type BottomSheetProps = {
 
 // How many pixels above the viewport height the user is allowed to drag the bottom sheet
 const MAX_OVERFLOW = 120
+// Toggle new experimental algo for animating snap states that avoid animating the `height` property, staying in FLIP bounds
+const EXPERIMENTAL_FAST_TRANSITION = false
 
 export const BottomSheet = React.forwardRef(
   (
@@ -36,28 +43,43 @@ export const BottomSheet = React.forwardRef(
       open: _open,
       initialFocusRef,
       onDismiss,
-      initialSnapPoint: _getInitialSnapPoint = ({ snapPoints }) =>
-        Math.min(...snapPoints),
-      snapPoints: getSnapPoints = ({ maxHeight }) => [maxHeight],
+      initialSnapPoint: _getInitialSnapPoint = defaultSnap,
+      snapPoints: getSnapPoints = defaultSnapShots,
       blocking = true,
       scrollLocking = true,
       style,
-      tabIndex,
       ...props
     }: BottomSheetProps,
     forwardRef: React.Ref<HTMLDivElement>
   ) => {
     // Just to aid my ADHD brain here and keep track, short names are sweet for public APIs
     // but confusing as heck when transitioning between touch gestures and spring animations
-    const requestedOpen = _open
-    const requestedClose = !_open
+    const on = _open
+    const off = !_open
+    const dismissable = !!onDismiss
+
+    // Behold, the engine of it all!
+    const [spring, set] = useSpring(() => ({
+      from: { y: 0, opacity: 0, backdrop: 0 },
+    }))
+    // @ts-expect-error
+    const { y } = spring
+
+    // Dev convenience, consider exposing on docs page
+    if (
+      process.env.NODE_ENV !== 'production' &&
+      typeof window !== 'undefined'
+    ) {
+      // @ts-ignore
+      window.set = set
+    }
 
     // Rules:
     // useDrag and interpolate functions capture values in the scope and is refreshed when rerender
     // @TODO check if same is true for spring events as onRest and those events
 
-    const shouldCloseRef = useRef(requestedClose)
-    shouldCloseRef.current = requestedClose
+    const shouldCloseRef = useRef(off)
+    shouldCloseRef.current = off
     const containerRef = useRef<HTMLDivElement>(null)
     const backdropRef = useRef<HTMLDivElement>(null)
     const contentRef = useRef<HTMLDivElement>(null)
@@ -65,7 +87,12 @@ export const BottomSheet = React.forwardRef(
     const headerRef = useRef<HTMLDivElement>(null)
     const footerRef = useRef<HTMLDivElement>(null)
     const overlayRef = useRef<HTMLDivElement | null>(null)
+
+    const draggingRef = useRef(false)
+    // Keeps track of the current height, or the height transitioning to
     const heightRef = useRef(0)
+    // The last point that the user snapped to, useful for open/closed toggling and the user defined height is remembered
+    const lastSnapRef = useRef(null)
 
     const prefersReducedMotion = useReducedMotion()
     const viewportHeight = useViewportHeight()
@@ -84,18 +111,11 @@ export const BottomSheet = React.forwardRef(
       if (scrollLocking && content) {
         scrollLockRef.current = createScrollLocker(content)
       }
-    }, [requestedOpen, scrollLocking])
-
-    // Drag interaction states
-    const [spring, set] = useSpring(() => ({
-      from: { y: 0, opacity: 0, backdrop: 0 },
-    }))
-    // @ts-expect-error
-    const { y } = spring
+    }, [on, scrollLocking])
 
     const {
       contentHeight,
-      maxHeight,
+      minHeight,
       headerHeight,
       footerHeight,
     } = useDimensions({
@@ -110,8 +130,8 @@ export const BottomSheet = React.forwardRef(
       contentHeight,
       footerHeight,
       headerHeight,
-      currentHeight: heightRef.current,
-      maxHeight,
+      height: heightRef.current,
+      minHeight: minHeight,
       viewportHeight,
     })
 
@@ -122,11 +142,12 @@ export const BottomSheet = React.forwardRef(
       }
 
       const nextHeight = _getInitialSnapPoint({
-        currentHeight: heightRef.current,
+        height: heightRef.current,
         headerHeight,
         footerHeight,
-        maxHeight,
+        minHeight: minHeight,
         viewportHeight,
+        lastSnap: lastSnapRef.current,
         snapPoints,
       })
       return toSnapPoint(nextHeight)
@@ -135,7 +156,7 @@ export const BottomSheet = React.forwardRef(
       contentHeight,
       footerHeight,
       headerHeight,
-      maxHeight,
+      minHeight,
       snapPoints,
       toSnapPoint,
       viewportHeight,
@@ -145,8 +166,14 @@ export const BottomSheet = React.forwardRef(
     useEffect(() => {
       const container = containerRef.current
       const overlay = overlayRef.current
-
-      if (requestedOpen && blocking && container && overlay) {
+      console.log({
+        requestedOpen: on,
+        blocking,
+        container,
+        overlay,
+        initialFocusRef,
+      })
+      if (on && blocking && container && overlay) {
         const trap = createFocusTrap(container, {
           onActivate:
             process.env.NODE_ENV !== 'production'
@@ -155,7 +182,9 @@ export const BottomSheet = React.forwardRef(
                 }
               : undefined,
           // If initialFocusRef is manually specified we don't want the first tabbable element to receive focus if initialFocusRef can't be found
-          initialFocus: initialFocusRef ? overlay : undefined,
+          initialFocus: initialFocusRef
+            ? () => initialFocusRef?.current || overlay
+            : undefined,
           fallbackFocus: overlay,
           escapeDeactivates: false,
           clickOutsideDeactivates: false,
@@ -176,10 +205,11 @@ export const BottomSheet = React.forwardRef(
           focusTrapRef.current = null
         }
       }
-    }, [requestedOpen, blocking, initialFocusRef])
+    }, [on, blocking, initialFocusRef])
 
+    // Handle closed to open transition
     useEffect(() => {
-      if (!requestedOpen) return
+      if (!on) return
 
       set({
         // @ts-expect-error
@@ -210,10 +240,11 @@ export const BottomSheet = React.forwardRef(
           })
         },
       })
-    }, [initialHeight, prefersReducedMotion, requestedOpen, set, tabIndex])
+    }, [initialHeight, prefersReducedMotion, on, set])
 
+    // Handle open to closed animations
     useEffect(() => {
-      if (requestedOpen) return
+      if (on) return
 
       heightRef.current = 0
       set({
@@ -222,20 +253,21 @@ export const BottomSheet = React.forwardRef(
         backdrop: 0,
         immediate: prefersReducedMotion.current,
       })
-    }, [prefersReducedMotion, requestedOpen, set])
+    }, [prefersReducedMotion, on, set])
 
     useImperativeHandle<{}, { setSnapPoint: setSnapPoint }>(forwardRef, () => ({
       setSnapPoint: (maybeHeightUpdater) => {
-        if (shouldCloseRef.current || requestedClose) return
+        if (shouldCloseRef.current || off) return
         let nextHeight: number
         if (typeof maybeHeightUpdater === 'function') {
           nextHeight = maybeHeightUpdater({
             footerHeight,
             headerHeight,
-            currentHeight: heightRef.current,
-            maxHeight,
+            height: heightRef.current,
+            minHeight: minHeight,
             viewportHeight,
             snapPoints,
+            lastSnap: lastSnapRef.current,
           })
         } else {
           nextHeight = maybeHeightUpdater
@@ -251,7 +283,6 @@ export const BottomSheet = React.forwardRef(
 
         nextHeight = toSnapPoint(nextHeight)
 
-        heightRef.current = nextHeight
         set({
           // @ts-expect-error
           y: nextHeight,
@@ -318,7 +349,11 @@ export const BottomSheet = React.forwardRef(
       last,
       movement: [, my],
     }) => {
-      if (shouldCloseRef.current) return memo
+      // Prevent a drag from accidentally stop a close transition due to calling set()
+      if (shouldCloseRef.current) {
+        draggingRef.current = false
+        return memo
+      }
 
       let newY = getY({
         down: !!down,
@@ -333,6 +368,7 @@ export const BottomSheet = React.forwardRef(
       if (last) {
         newY = toSnapPoint(newY)
         heightRef.current = newY
+        lastSnapRef.current = newY
       }
 
       set({
@@ -349,28 +385,34 @@ export const BottomSheet = React.forwardRef(
         },
       })
 
+      if (first) {
+        draggingRef.current = true
+      }
+      if (last) {
+        draggingRef.current = false
+      }
+
       return memo
     }
-    ///*
+
     useDrag(handleDrag, {
       domTarget: backdropRef,
       eventOptions: { capture: true },
-      enabled: requestedOpen,
+      enabled: on,
       axis: 'y',
     })
     useDrag(handleDrag, {
       domTarget: headerRef,
       eventOptions: { capture: true },
-      enabled: requestedOpen,
+      enabled: on,
       axis: 'y',
     })
     useDrag(handleDrag, {
       domTarget: footerRef,
       eventOptions: { capture: true },
-      enabled: requestedOpen,
+      enabled: on,
       axis: 'y',
     })
-    //*/
 
     // @TODO the ts-ignore comments are because the `extrapolate` param isn't in the TS defs for some reason
     const interpolateBorderRadius =
@@ -382,35 +424,60 @@ export const BottomSheet = React.forwardRef(
             extrapolate: 'clamp',
             map: Math.round,
           })
-    const interpolateHeight = y?.interpolate({
+    const interpolateHeightLegacy = y?.interpolate({
       range: [minSnap, maxSnap],
       output: [minSnap, maxSnap],
       extrapolate: 'clamp',
     })
-    const interpolateY = y?.interpolate({
+    const interpolateHeight =
+      EXPERIMENTAL_FAST_TRANSITION && interpolateHeightLegacy
+        ? interpolate(
+            [
+              y.interpolate({
+                // @TODO optimize
+                range: [heightRef.current, heightRef.current],
+                output: [heightRef.current, heightRef.current],
+                extrapolate: 'clamp',
+              }),
+              interpolateHeightLegacy,
+            ],
+            (a, b) => (draggingRef.current ? b : a)
+          )
+        : interpolateHeightLegacy
+    const interpolateYLegacy = y?.interpolate({
       range: [0, minSnap, maxSnap, maxSnap + MAX_OVERFLOW],
       output: [`${minSnap}px`, '0px', '0px', `${-MAX_OVERFLOW}px`],
     })
+    const interpolateY =
+      EXPERIMENTAL_FAST_TRANSITION && interpolateYLegacy
+        ? interpolate(
+            [
+              y.interpolate({
+                range: [
+                  0,
+                  minSnap,
+                  heightRef.current,
+                  heightRef.current + MAX_OVERFLOW,
+                ],
+                output: [`${minSnap}px`, '0px', '0px', `${-MAX_OVERFLOW}px`],
+              }),
+              interpolateYLegacy,
+            ],
+            (a, b) => (draggingRef.current ? b : a)
+          )
+        : interpolateYLegacy
     const interpolateFiller = y?.interpolate({
       range: [0, maxSnap, maxSnap + MAX_OVERFLOW],
       output: ['scaleY(0)', 'scaleY(0)', `scaleY(${MAX_OVERFLOW})`],
       map: Math.ceil,
     })
-    if (
-      process.env.NODE_ENV !== 'production' &&
-      typeof window !== 'undefined'
-    ) {
-      // @ts-ignore
-      window.set = set
-    }
 
-    const fadeInContentThreshold = Math.min(260, minSnap)
     return (
       <animated.div
         {...props}
         data-rsbs-root
         data-rsbs-is-blocking={blocking}
-        data-rsbs-is-dismissable={!!onDismiss}
+        data-rsbs-is-dismissable={dismissable}
         data-rsbs-has-header={!!header}
         data-rsbs-has-footer={!!footer}
         className={className}
@@ -420,27 +487,31 @@ export const BottomSheet = React.forwardRef(
           // @ts-expect-error
           opacity: spring.opacity,
           // Allows interactions on the rest of the page before the close transition is finished
-          pointerEvents: requestedClose ? 'none' : undefined,
+          pointerEvents: off ? 'none' : undefined,
           // Fancy content fade-in effect
           // @ts-ignore
           ['--rsbs-content-opacity' as any]: y?.interpolate({
-            range: [0, fadeInContentThreshold / 2, fadeInContentThreshold],
-            output: [0, 0, 1],
+            range: [
+              0,
+              Math.max(minSnap / 2 - 45, 0),
+              Math.min(minSnap / 2 + 45, minSnap),
+              minSnap,
+            ],
+            output: [0, 0, 1, 1],
             extrapolate: 'clamp',
           }),
+          // Fading in the backdrop, done here so the effect can be controlled through CSS
+          // @ts-expect-error
+          ['--rsbs-backdrop-opacity' as any]: spring.backdrop,
         }}
       >
         {blocking ? (
           <animated.div
-            key="backdrop"
-            ref={backdropRef}
-            data-rsbs-backdrop
             // This component needs to be placed outside bottom-sheet, as bottom-sheet uses transform and thus creates a new context
             // that clips this element to the container, not allowing it to cover the full page.
-            style={{
-              // @ts-expect-error
-              opacity: spring.backdrop,
-            }}
+            key="backdrop"
+            data-rsbs-backdrop
+            ref={backdropRef}
             onClickCapture={(event) => {
               if (onDismiss) {
                 event.preventDefault()
@@ -514,3 +585,10 @@ export const BottomSheet = React.forwardRef(
     )
   }
 )
+
+function defaultSnap({ snapPoints, lastSnap }: initialSnapPointArg) {
+  return lastSnap ?? Math.min(...snapPoints)
+}
+function defaultSnapShots({ minHeight }: SnapPointArg) {
+  return minHeight
+}

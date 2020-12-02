@@ -39,7 +39,7 @@ export default function StickyNugget({
           ))}
 
           <Link href={example}>
-            <a className="px-2 py-0 rounded-full transition-colors duration-150 focus:duration-0 bg-hero-lighter text-hero hover:bg-hero hover:text-hero-lighter focus:outline-none focus:bg-hero focus:text-hero-lighter focus:ring-2 focus:ring-offset-2 focus:ring-offset-white focus:ring-hero">
+            <a className="px-2 py-0 rounded-full transition-colors duration-150 focus-visible:duration-0 bg-hero-lighter text-hero hover:bg-hero hover:text-hero-lighter focus:outline-none focus-visible:bg-hero focus-visible:text-hero-lighter focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-white focus-visible:ring-hero">
               Open example
             </a>
           </Link>
@@ -78,7 +78,7 @@ export default function StickyNugget({
                 styles.loader,
                 loading
                   ? 'z-0 transition-all bg-white text-gray-900'
-                  : 'z-10 bg-black text-gray-200 hover:text-gray-900 hover:bg-gray-100 focus:text-gray-900 focus:bg-gray-100 active:bg-white',
+                  : 'z-10 bg-black text-gray-200 hover:text-gray-900 hover:bg-gray-100 focus-visible:text-gray-900 focus-visible:bg-gray-100 active:bg-white',
                 loaded && 'opacity-0',
                 'flex justify-center items-center flex-col absolute',
                 'focus:outline-none transition-colors duration-150 group'

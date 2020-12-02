@@ -109,16 +109,16 @@ type UseSnapPointsProps = {
 } & SnapPointArg
 export const useSnapPoints = ({
   getSnapPoints,
-  maxHeight,
+  minHeight,
   footerHeight,
   headerHeight,
   contentHeight,
-  currentHeight,
+  height,
   viewportHeight,
 }: UseSnapPointsProps) => {
   // @TODO cleanup
   function _getSnaps() {
-    // If we're firing before the dom is mounted then minHeight will be 0 and we should return default values
+    // If we're firing before the dom is mounted then height will be 0 and we should return default values
     if (contentHeight === 0) {
       return { snapPoints: [0], minSnap: 0, maxSnap: 0 }
     }
@@ -126,10 +126,10 @@ export const useSnapPoints = ({
     const massagedSnapPoints = []
       .concat(
         getSnapPoints({
-          currentHeight,
+          height,
           footerHeight,
           headerHeight,
-          maxHeight,
+          minHeight: minHeight,
           viewportHeight,
         })
       )
@@ -193,9 +193,9 @@ export const useDimensions = ({
     contentDimensions.height
   )
 
-  const maxHeight = contentHeight + headerHeight + footerHeight
+  const minHeight = contentHeight + headerHeight + footerHeight
   return {
-    maxHeight,
+    minHeight: minHeight,
     contentHeight: contentDimensions.height,
     headerHeight,
     footerHeight,

@@ -1,20 +1,22 @@
 export type SnapPointArg = {
   /** The height of the sticky footer, if there's one */
-  footerHeight: number
-  /** The height of the sticky footer, if there's one */
   headerHeight: number
-  /** If the bottom sheet is animating to a snap point the currentHeight will be the destination height, not the height the bottom sheet might have in the middle of the animation. */
-  currentHeight: number
-  /** How tall the sheet can be based on the content heights. Viewport height also affects this number. */
-  maxHeight: number
+  /** The height of the sticky footer, if there's one */
+  footerHeight: number
+  /** If the bottom sheet is animating to a snap point the height will match the destination height, not the height the bottom sheet might have in the middle of the animation. It includes the header and footer heights. */
+  height: number
+  /** Minimum height needed to avoid scroll overflow in the content area, if possible. */
+  minHeight: number
   /** Use this instead of reading from window.innerHeight yourself, this helps prevent unnecessary reflows. */
   viewportHeight: number
 }
 
-export type snapPoints = (args: SnapPointArg) => number[]
+export type snapPoints = (args: SnapPointArg) => number[] | number
 
-type initialSnapPointArg = {
+export type initialSnapPointArg = {
   snapPoints: number[]
+  /** The last snap point the user dragged to, if any. 0 if the user haven't interacted */
+  lastSnap: number | null
 } & SnapPointArg
 
 type initialSnapPoint = (args: initialSnapPointArg) => number
@@ -81,10 +83,10 @@ export type SharedProps = {
    */
   scrollLocking?: boolean
 
-  /** Handler that is called to get the height values that the bottom sheet can *snap* to when the user stops dragging. The function is given `minHeight`, `maxHeight`, `viewportHeight` and `currentHeight` as arguments. */
+  /** Handler that is called to get the height values that the bottom sheet can *snap* to when the user stops dragging. */
   snapPoints?: snapPoints
 
-  /** Handler that is called to get the initial height of the bottom sheet when it's opened (or when the viewport is resized). The function is given `minHeight`, `maxHeight`, `viewportHeight`,`currentHeight` and `snappoints` as arguments. */
+  /** Handler that is called to get the initial height of the bottom sheet when it's opened (or when the viewport is resized). */
   initialSnapPoint?: initialSnapPoint
 } & Omit<React.PropsWithoutRef<JSX.IntrinsicElements['div']>, 'children'>
 

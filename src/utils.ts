@@ -113,7 +113,7 @@ export function roundAndCheckForNaN(unrounded) {
   const rounded = Math.round(unrounded)
   if (Number.isNaN(unrounded)) {
     throw new TypeError(
-      'Found a NaN! Check your snapPoints / initialSnapPoint / setSnapPoint '
+      'Found a NaN! Check your snapPoints / defaultSnap / snapTo '
     )
   }
 

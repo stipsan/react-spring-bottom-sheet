@@ -1,24 +1,28 @@
 @tailwind base;
-
-:root {
-  --rsbs-backdrop-bg: rgba(15, 23, 42, 0.7);
-}
-
-html,
-body {
-  @apply font-body overscroll-y-none;
-}
-
-.is-window {
-  --rsbs-max-w: 640px;
-  --rsbs-ml: auto;
-  --rsbs-mr: auto;
-}
-.is-iframe {
-  --rsbs-ml: 0px;
-  --rsbs-mr: 0px;
-}
-
 @tailwind components;
-
 @tailwind utilities;
+
+@layer base {
+  html,
+  body {
+    @apply font-body overscroll-y-none;
+  }
+}
+
+/* Bottom Sheet styling used in the docs */
+@layer base {
+  :root {
+    --rsbs-backdrop-bg: rgba(15, 23, 42, 0.7);
+  }
+}
+@layer utilities {
+  .is-window {
+    --rsbs-max-w: 640px;
+    --rsbs-ml: auto;
+    --rsbs-mr: auto;
+  }
+  .is-iframe {
+    --rsbs-ml: 0px;
+    --rsbs-mr: 0px;
+  }
+}
