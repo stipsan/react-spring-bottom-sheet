@@ -131,7 +131,7 @@ export const BottomSheet = React.forwardRef(
       footerHeight,
       headerHeight,
       height: heightRef.current,
-      minHeight: minHeight,
+      minHeight,
       viewportHeight,
     })
 
@@ -145,7 +145,7 @@ export const BottomSheet = React.forwardRef(
         height: heightRef.current,
         headerHeight,
         footerHeight,
-        minHeight: minHeight,
+        minHeight,
         viewportHeight,
         lastSnap: lastSnapRef.current,
         snapPoints,
@@ -264,7 +264,7 @@ export const BottomSheet = React.forwardRef(
             footerHeight,
             headerHeight,
             height: heightRef.current,
-            minHeight: minHeight,
+            minHeight,
             viewportHeight,
             snapPoints,
             lastSnap: lastSnapRef.current,

@@ -129,7 +129,7 @@ export const useSnapPoints = ({
           height,
           footerHeight,
           headerHeight,
-          minHeight: minHeight,
+          minHeight,
           viewportHeight,
         })
       )
@@ -195,7 +195,7 @@ export const useDimensions = ({
 
   const minHeight = contentHeight + headerHeight + footerHeight
   return {
-    minHeight: minHeight,
+    minHeight,
     contentHeight: contentDimensions.height,
     headerHeight,
     footerHeight,
