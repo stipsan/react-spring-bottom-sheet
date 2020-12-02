@@ -1,3 +1,4 @@
+import { createFocusTrap } from 'focus-trap'
 import { disableBodyScroll, enableBodyScroll } from 'body-scroll-lock'
 import React, {
   useCallback,
@@ -239,10 +240,13 @@ export function usePrevious<T>(value: T): T {
  * When it's in between two toolbar states it causes the framerate to drop way below 60fps on
  * the bottom sheet drag interaction.
  */
-export const useScrollLock = (
-  targetRef: React.RefObject<Element>,
-  { enabled }
-) => {
+export const useScrollLock = ({
+  targetRef,
+  enabled,
+}: {
+  targetRef: React.RefObject<Element>
+  enabled: boolean
+}) => {
   const ref = useRef<{ activate: () => void; deactivate: () => void }>({
     activate: () => {
       throw new TypeError('Tried to activate scroll lock too early')
@@ -280,10 +284,13 @@ export const useScrollLock = (
 }
 
 // Handle hiding and restoring aria-hidden attributes
-export const useAriaHider = (
-  targetRef: React.RefObject<Element>,
-  { enabled }
-) => {
+export const useAriaHider = ({
+  targetRef,
+  enabled,
+}: {
+  targetRef: React.RefObject<Element>
+  enabled: boolean
+}) => {
   const ref = useRef<{ activate: () => void; deactivate: () => void }>({
     activate: () => {
       throw new TypeError('Tried to activate aria hider too early')
@@ -345,11 +352,18 @@ export const useAriaHider = (
   return ref
 }
 
-export const useFocusTrap = (
-  targetRef: React.RefObject<Element>,
-  { enabled }
-) => {
-  const _ref = useRef<{ activate: () => void; deactivate: () => void }>({
+export const useFocusTrap = ({
+  targetRef,
+  fallbackRef,
+  initialFocusRef,
+  enabled,
+}: {
+  targetRef: React.RefObject<HTMLElement>
+  fallbackRef: React.RefObject<HTMLElement>
+  initialFocusRef?: React.RefObject<HTMLElement>
+  enabled: boolean
+}) => {
+  const ref = useRef<{ activate: () => void; deactivate: () => void }>({
     activate: () => {
       throw new TypeError('Tried to activate focus trap too early')
     },
@@ -358,56 +372,47 @@ export const useFocusTrap = (
 
   useEffect(() => {
     if (!enabled) {
-      _ref.current.deactivate()
-      _ref.current = { activate: () => {}, deactivate: () => {} }
+      ref.current.deactivate()
+      ref.current = { activate: () => {}, deactivate: () => {} }
       return
     }
 
-    const target = targetRef.current
+    const fallback = fallbackRef.current
+    const trap = createFocusTrap(targetRef.current, {
+      onActivate:
+        process.env.NODE_ENV !== 'production'
+          ? () => {
+              console.log('focus activate')
+            }
+          : undefined,
+      // If initialFocusRef is manually specified we don't want the first tabbable element to receive focus if initialFocusRef can't be found
+      initialFocus: initialFocusRef
+        ? () => initialFocusRef?.current || fallback
+        : undefined,
+      fallbackFocus: fallback,
+      escapeDeactivates: false,
+      clickOutsideDeactivates: false,
+    })
     let active = false
 
-    _ref.current = {
-      activate: () => {
+    ref.current = {
+      activate: async () => {
         if (active) return
         active = true
 
-        //
+        await trap.activate()
+        return new Promise((resolve) =>
+          requestAnimationFrame(() => resolve(void 1))
+        )
       },
       deactivate: () => {
         if (!active) return
         active = false
 
-        //
+        trap.deactivate()
       },
     }
-  }, [targetRef, enabled])
+  }, [targetRef, enabled, fallbackRef, initialFocusRef])
 
-  return _ref
+  return ref
 }
-/*
-
- const trap = createFocusTrap(container, {
-          onActivate:
-            process.env.NODE_ENV !== 'production'
-              ? () => {
-                  console.log('focus activate')
-                }
-              : undefined,
-          // If initialFocusRef is manually specified we don't want the first tabbable element to receive focus if initialFocusRef can't be found
-          initialFocus: initialFocusRef
-            ? () => initialFocusRef?.current || overlay
-            : undefined,
-          fallbackFocus: overlay,
-          escapeDeactivates: false,
-          clickOutsideDeactivates: false,
-        })
-        focusTrapRef.current = {
-          activate: async () => {
-            await trap.activate()
-            return new Promise((resolve) =>
-              requestAnimationFrame(() => resolve(void 1))
-            )
-          },
-          deactivate: () => trap.deactivate(),
-        }
-*/

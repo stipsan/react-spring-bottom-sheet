@@ -76,13 +76,11 @@ export const BottomSheet = React.forwardRef<RefHandles, Props>(
     const canDragRef = useRef(false)
 
     // Behold, the engine of it all!
-    // @ts-expect-error
-    const [spring, set, stop] = useSpring(() => ({
+    const [spring, set] = useSpring(() => ({
       from: { y: 0, opacity: 0, backdrop: 0 },
       onStart: (...args) => console.debug('onStart', ...args),
       onFrame: (...args) => console.debug('onFrame', ...args),
       onRest: (...args) => console.debug('onRest', ...args),
-      immediate: true,
     }))
     // @ts-expect-error
     const { y } = spring
@@ -120,14 +118,20 @@ export const BottomSheet = React.forwardRef<RefHandles, Props>(
     const maxHeight = useViewportHeight(controlledMaxHeight)
 
     // "Plugins" huhuhu
-    const scrollLockRef = useScrollLock(contentRef, {
+    const scrollLockRef = useScrollLock({
+      targetRef: contentRef,
       enabled: ready && scrollLocking,
     })
-    const ariaHiderRef = useAriaHider(containerRef, {
+    const ariaHiderRef = useAriaHider({
+      targetRef: containerRef,
       enabled: ready && blocking,
     })
-    //ready && on && blocking && containerRef.current && overlayRef.current
-    const focusTrapRef = useFocusTrap()
+    const focusTrapRef = useFocusTrap({
+      targetRef: containerRef,
+      fallbackRef: overlayRef,
+      initialFocusRef,
+      enabled: ready && blocking,
+    })
 
     const {
       contentHeight,
