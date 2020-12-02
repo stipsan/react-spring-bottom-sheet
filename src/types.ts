@@ -27,7 +27,7 @@ type SpringEvent = {
 }
 
 // Rename to Props! Woohoo!
-export type SharedProps = {
+export type Props = {
   children: React.ReactNode
 
   /**
@@ -77,6 +77,12 @@ export type SharedProps = {
   blocking?: boolean
 
   /**
+   * By default the maxHeight is set to window.innerHeight to match 100vh, and responds to window resize events.
+   * You can override it by giving maxHeight a number, just make sure you handle things like resize events when needed.
+   */
+  maxHeight?: number
+
+  /**
    * Ensures that drag interactions works properly on iOS and Android.
    * If setting this to `false`make sure you test on real iOS and Android devices to ensure the dragging interactions don't break.
    * @default true
@@ -90,16 +96,13 @@ export type SharedProps = {
   defaultSnap?: defaultSnap
 } & Omit<React.PropsWithoutRef<JSX.IntrinsicElements['div']>, 'children'>
 
-/**
- * When given a number it'll find the closest snap point, so you don't need to know the exact value,
- * Use the callback method to access what snap points you can choose from.
- *
- */
-export type setSnapPoint = (
-  fuzzySnapPoint: number | ((state: defaultSnapProps) => number)
-) => void
-
-// Typings for the forwarded ref, useful as TS can't infer that `setSnapPoint` is available by itself
-export type ForwardedRefType = {
-  setSnapPoint: setSnapPoint
-} & HTMLDivElement
+export interface RefHandles {
+  /**
+   * When given a number it'll find the closest snap point, so you don't need to know the exact value,
+   * Use the callback method to access what snap points you can choose from.
+   *
+   */
+  setSnapPoint: (
+    fuzzySnapPoint: number | ((state: defaultSnapProps) => number)
+  ) => void
+}

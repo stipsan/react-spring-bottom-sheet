@@ -9,7 +9,7 @@ import SheetContent from '../../docs/fixtures/SheetContent'
 import SnapMarker from '../../docs/fixtures/SnapMarker'
 import { scrollable } from '../../docs/headings'
 import HeadTitle from '../../docs/HeadTitle'
-import { BottomSheet, ForwardedRefType } from '../../src'
+import { BottomSheet, BottomSheetRef } from '../../src'
 
 const rand = (_) => _[~~(Math.random() * _.length)]
 const colors = [
@@ -46,7 +46,7 @@ const rows = Array.from(Array(20), (_, x) => ({
 
 export default function ScrollableFixturePage() {
   const focusRef = useRef<HTMLButtonElement>()
-  const sheetRef = useRef<ForwardedRefType>()
+  const sheetRef = useRef<BottomSheetRef>()
 
   return (
     <>

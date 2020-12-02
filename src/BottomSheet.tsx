@@ -17,23 +17,18 @@ import {
 } from './hooks'
 import type {
   defaultSnapProps,
-  setSnapPoint,
-  SharedProps,
+  Props,
   SnapPointProps,
+  RefHandles,
 } from './types'
 import { clamp, createAriaHider, createScrollLocker, isNumber } from './utils'
-
-type BottomSheetProps = {
-  /** Handler that is called after the close transition has ended. Use this to know when it's safe to unmount hte bottom sheet. */
-  onCloseTransitionEnd?: () => void
-} & SharedProps
 
 // How many pixels above the viewport height the user is allowed to drag the bottom sheet
 const MAX_OVERFLOW = 120
 // Toggle new experimental algo for animating snap states that avoid animating the `height` property, staying in FLIP bounds
 const EXPERIMENTAL_FAST_TRANSITION = false
 
-export const BottomSheet = React.forwardRef(
+export const BottomSheet = React.forwardRef<RefHandles, Props>(
   (
     {
       children,
@@ -49,8 +44,8 @@ export const BottomSheet = React.forwardRef(
       scrollLocking = true,
       style,
       ...props
-    }: BottomSheetProps,
-    forwardRef: React.Ref<HTMLDivElement>
+    },
+    forwardRef
   ) => {
     // Just to aid my ADHD brain here and keep track, short names are sweet for public APIs
     // but confusing as heck when transitioning between touch gestures and spring animations
@@ -256,7 +251,7 @@ export const BottomSheet = React.forwardRef(
       })
     }, [prefersReducedMotion, on, set])
 
-    useImperativeHandle<{}, { setSnapPoint: setSnapPoint }>(forwardRef, () => ({
+    useImperativeHandle(forwardRef, () => ({
       setSnapPoint: (maybeHeightUpdater) => {
         if (shouldCloseRef.current || off) return
         let nextHeight: number
@@ -528,18 +523,7 @@ export const BottomSheet = React.forwardRef(
           aria-modal="true"
           data-rsbs-overlay
           tabIndex={-1}
-          // Support both our own ref and any forwarded ref
-          ref={(node) => {
-            overlayRef.current = node
-            if (forwardRef) {
-              if (typeof forwardRef === 'function') {
-                forwardRef(node)
-              } else {
-                // @ts-expect-error FIXME: Remove when this gets fixed https://github.com/DefinitelyTyped/DefinitelyTyped/issues/31065
-                forwardRef.current = node
-              }
-            }
-          }}
+          ref={overlayRef}
           style={{
             height: interpolateHeight,
             ['--rsbs-y' as any]: interpolateY,
