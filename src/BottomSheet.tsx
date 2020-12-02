@@ -18,6 +18,7 @@ import { useDrag } from 'react-use-gesture'
 import {
   useDimensions,
   useReducedMotion,
+  useScrollLock,
   useSnapPoints,
   useViewportHeight,
 } from './hooks'
@@ -118,20 +119,13 @@ export const BottomSheet = React.forwardRef<RefHandles, Props>(
     const maxHeight = useViewportHeight(controlledMaxHeight)
 
     // "Plugins" huhuhu
-    const scrollLockRef = useRef<ReturnType<typeof createScrollLocker>>()
+    const scrollLockRef = useScrollLock(contentRef, { enabled: scrollLocking })
     const focusTrapRef = useRef<
       {
         activate: () => Promise<any>
       } & Pick<ReturnType<typeof createFocusTrap>, 'deactivate'>
     >()
     const ariaHiderRef = useRef<ReturnType<typeof createAriaHider>>()
-
-    useEffect(() => {
-      const content = contentRef.current
-      if (scrollLocking && content) {
-        scrollLockRef.current = createScrollLocker(content)
-      }
-    }, [scrollLocking])
 
     const {
       contentHeight,
@@ -234,9 +228,9 @@ export const BottomSheet = React.forwardRef<RefHandles, Props>(
 
       let cancelled = false
       const cleanup = () => {
-        scrollLockRef.current?.deactivate()
-        focusTrapRef.current?.deactivate()
-        ariaHiderRef.current?.deactivate()
+        scrollLockRef.current.deactivate()
+        focusTrapRef.current.deactivate()
+        ariaHiderRef.current.deactivate()
 
         springTypeRef.current = null
         canDragRef.current = false
@@ -247,6 +241,8 @@ export const BottomSheet = React.forwardRef<RefHandles, Props>(
           if (onSpringCancel) {
             onSpringCancel({ type: 'OPEN' })
           }
+
+          console.groupEnd()
         }
         return cancelled
       }
@@ -254,6 +250,7 @@ export const BottomSheet = React.forwardRef<RefHandles, Props>(
       set({
         // @ts-expect-error
         to: async (next, cancel) => {
+          console.group('OPEN')
           if (maybeCancel()) return
 
           console.info('before onSpringStart[OPEN]', springTypeRef.current)
@@ -275,9 +272,9 @@ export const BottomSheet = React.forwardRef<RefHandles, Props>(
           if (maybeCancel()) return
 
           await Promise.all([
-            scrollLockRef.current?.activate(),
-            focusTrapRef.current?.activate(),
-            ariaHiderRef.current?.activate(),
+            scrollLockRef.current.activate(),
+            focusTrapRef.current.activate(),
+            ariaHiderRef.current.activate(),
           ])
 
           if (maybeCancel()) return
@@ -306,6 +303,9 @@ export const BottomSheet = React.forwardRef<RefHandles, Props>(
           await onSpringEnd?.({ type: 'OPEN' })
 
           console.log('async open transition done', { cancelled })
+          if (!cancelled) {
+            console.groupEnd()
+          }
         },
       })
 
@@ -316,7 +316,7 @@ export const BottomSheet = React.forwardRef<RefHandles, Props>(
         // And proceed to optimistic cleanup
         cleanup()
       }
-    }, [defaultSnap, prefersReducedMotion, set, off, ready])
+    }, [defaultSnap, prefersReducedMotion, set, off, ready, scrollLockRef])
 
     // Handle open to closed animations
     useEffect(() => {
