@@ -10,12 +10,12 @@ import { animated, interpolate, useSpring } from 'react-spring'
 import { useDrag } from 'react-use-gesture'
 import {
   useAriaHider,
-  useDimensions,
   useFocusTrap,
   useReducedMotion,
   useScrollLock,
   useSnapPoints,
   useViewportHeight,
+  useDimensions,
 } from './hooks'
 import type {
   defaultSnapProps,

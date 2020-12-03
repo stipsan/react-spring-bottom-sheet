@@ -1,7 +1,6 @@
 import { disableBodyScroll, enableBodyScroll } from 'body-scroll-lock'
 import { createFocusTrap } from 'focus-trap'
 import React, {
-  useCallback,
   useDebugValue,
   useEffect,
   useLayoutEffect as useLayoutEffectSafely,
@@ -9,47 +8,9 @@ import React, {
   useRef,
   useState,
 } from 'react'
-import ResizeObserver from 'resize-observer-polyfill'
-import type { SnapPointProps, snapPoints } from './types'
-import { clamp, roundAndCheckForNaN } from './utils'
-
-/**
- * Hook for determining the size of an element using the Resize Observer API.
- *
- * @param ref - A React ref to an element
- */
-export default function useElementSizeObserver(
-  ref: React.RefObject<Element>
-): { width: number; height: number } {
-  let [size, setSize] = useState(() => ({ width: 0, height: 0 }))
-
-  const handleResize = useCallback((entries: ResizeObserverEntry[]) => {
-    setSize({
-      // we only observe one element, so accessing the first entry here is fine
-      width: entries[0].contentRect.width,
-      height: entries[0].contentRect.height,
-    })
-  }, [])
-
-  useLayoutEffect(() => {
-    if (!ref.current) {
-      return
-    }
-
-    // Set initial size here, as the one from the observer fires too late on iOS safari
-    const { width, height } = ref.current.getBoundingClientRect()
-    setSize({ width, height })
-
-    const resizeObserver = new ResizeObserver(handleResize)
-    resizeObserver.observe(ref.current)
-
-    return () => {
-      resizeObserver.disconnect()
-    }
-  }, [ref, handleResize])
-
-  return size
-}
+import type { SnapPointProps, snapPoints } from '../types'
+import { clamp, roundAndCheckForNaN } from '../utils'
+export { useDimensions } from './useDimensions'
 
 // Blazingly keep track of the current viewport height without blocking the thread, keeping that sweet 60fps on smartphones
 export const useViewportHeight = (controlledMaxHeight) => {
@@ -171,40 +132,6 @@ export const useSnapPoints = ({
   useDebugValue(snapPoints, (snapPoints) => snapPoints.sort())
 
   return { snapPoints, minSnap, maxSnap, toSnapPoint }
-}
-
-type UseDimensionsProps = {
-  maxHeight: number
-  headerRef: React.RefObject<Element>
-  contentRef: React.RefObject<Element>
-  footerRef: React.RefObject<Element>
-}
-export const useDimensions = ({
-  maxHeight,
-  headerRef,
-  contentRef,
-  footerRef,
-}: UseDimensionsProps) => {
-  // Rewrite these to set refs and use nextTick
-  const { height: headerHeight } = useElementSizeObserver(headerRef)
-  const { height: contentHeight } = useElementSizeObserver(contentRef)
-  const { height: footerHeight } = useElementSizeObserver(footerRef)
-  const minHeight =
-    Math.min(maxHeight - headerHeight - footerHeight, contentHeight) +
-    headerHeight +
-    footerHeight
-
-  useDebugValue(`minHeight: ${minHeight}`)
-  useDebugValue(`contentHeight: ${contentHeight}`)
-  useDebugValue(`headerHeight: ${headerHeight}`)
-  useDebugValue(`footerHeight: ${footerHeight}`)
-
-  return {
-    minHeight,
-    contentHeight,
-    headerHeight,
-    footerHeight,
-  }
 }
 
 export function usePrevious<T>(value: T): T {

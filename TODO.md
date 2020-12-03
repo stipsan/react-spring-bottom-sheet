@@ -5,6 +5,15 @@ A change to snap points affects how far one can drag.
 
 fix uneven icon that is being animated, the corner is driving me crazy...
 
+# Remaining critical stuff
+
+- respond to viewport height changes
+- respond to snapTo callback
+- fire events when stopping the dragging and transition to snap.
+- respond to changes to snapPoints output
+- don't respond to changes to defaultSnap, it shouldn't act like controlled height.
+- optimize element resize observers, perhaps run them all in a chain.
+
 ## package.json stuffs
 
 - add description.
