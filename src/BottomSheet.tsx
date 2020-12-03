@@ -155,13 +155,6 @@ export const BottomSheet = React.forwardRef<
     footerRef,
   })
 
-  // Monitor if we got all dimensions ready and good to go
-  useEffect(() => {
-    if (!ready && maxHeight && contentHeight) {
-      setReady(true)
-    }
-  }, [ready, contentHeight, maxHeight])
-
   const { snapPoints, minSnap, maxSnap, toSnapPoint } = useSnapPoints({
     getSnapPoints,
     contentHeight,
@@ -172,10 +165,13 @@ export const BottomSheet = React.forwardRef<
     maxHeight,
   })
 
-  const defaultSnap = useMemo(() => {
+  const defaultSnapRef = useRef(0)
+  useEffect(() => {
     // If we're firing before the dom is mounted then contentHeight will be 0 and we should return default values
     if (contentHeight === 0) {
-      return 0
+      console.error('oh danm oh no')
+      defaultSnapRef.current = 0
+      return
     }
 
     const nextHeight = getDefaultSnap({
@@ -187,21 +183,30 @@ export const BottomSheet = React.forwardRef<
       lastSnap: lastSnapRef.current,
       snapPoints,
     })
-    return toSnapPoint(nextHeight)
+    defaultSnapRef.current = toSnapPoint(nextHeight)
   }, [
-    getDefaultSnap,
     contentHeight,
     footerHeight,
+    getDefaultSnap,
     headerHeight,
+    maxHeight,
     minHeight,
     snapPoints,
     toSnapPoint,
-    maxHeight,
   ])
+
+  // Monitor if we got all dimensions ready and good to go
+  useEffect(() => {
+    if (!ready && maxHeight && contentHeight) {
+      setReady(true)
+    }
+  }, [ready, contentHeight, maxHeight])
 
   // Handle closed to open transition
   useEffect(() => {
     if (!ready || off) return
+
+    console.error('OPEN_START')
 
     let cancelled = false
     const cleanup = () => {
@@ -209,6 +214,11 @@ export const BottomSheet = React.forwardRef<
       focusTrapRef.current.deactivate()
       ariaHiderRef.current.deactivate()
 
+      if (springTypeRef.current !== null) {
+        console.error(
+          `Possible race condition during OPEN cleanup, expected null but got ${springTypeRef.current}`
+        )
+      }
       springTypeRef.current = null
       canDragRef.current = false
     }
@@ -229,21 +239,23 @@ export const BottomSheet = React.forwardRef<
         console.group('OPEN')
         if (maybeCancel()) return
 
-        console.info('before onSpringStart[OPEN]', springTypeRef.current)
+        if (springTypeRef.current !== null) {
+          console.error(
+            `Possible race condition during OPEN startup, expected null but got ${springTypeRef.current}`
+          )
+        }
 
         springTypeRef.current = 'OPEN'
         await onSpringStartRef.current?.({ type: 'OPEN' })
 
         if (maybeCancel()) return
 
-        console.log('animate on', { startOnRef: startOnRef.current })
-
         if (startOnRef.current) {
           console.log('open by default, no animation')
 
-          heightRef.current = defaultSnap
+          heightRef.current = defaultSnapRef.current
           await next({
-            y: defaultSnap,
+            y: defaultSnapRef.current,
             backdrop: 1,
             opacity: 1,
             immediate: true,
@@ -263,7 +275,7 @@ export const BottomSheet = React.forwardRef<
         } else {
           console.log('starting animation')
           await next({
-            y: defaultSnap,
+            y: defaultSnapRef.current,
             backdrop: 0,
             opacity: 0,
             immediate: true,
@@ -289,9 +301,9 @@ export const BottomSheet = React.forwardRef<
           if (maybeCancel()) return
 
           canDragRef.current = true
-          heightRef.current = defaultSnap
+          heightRef.current = defaultSnapRef.current
           await next({
-            y: defaultSnap,
+            y: defaultSnapRef.current,
             backdrop: 1,
             opacity: 1,
             immediate: prefersReducedMotion.current,
@@ -300,6 +312,11 @@ export const BottomSheet = React.forwardRef<
 
         if (maybeCancel()) return
 
+        if (springTypeRef.current !== 'OPEN') {
+          console.error(
+            `Possible race condition, expected OPEN but got ${springTypeRef.current}`
+          )
+        }
         springTypeRef.current = null
         await onSpringEndRef.current?.({ type: 'OPEN' })
 
@@ -311,6 +328,7 @@ export const BottomSheet = React.forwardRef<
     })
 
     return () => {
+      console.error('OPEN_END')
       startOnRef.current = false
       // Start signalling to the async flow that we have to abort
       cancelled = true
@@ -319,7 +337,6 @@ export const BottomSheet = React.forwardRef<
       cleanup()
     }
   }, [
-    defaultSnap,
     prefersReducedMotion,
     set,
     off,
@@ -331,21 +348,89 @@ export const BottomSheet = React.forwardRef<
 
   // Handle open to closed animations
   useEffect(() => {
-    if (!ready || on) {
-      console.log('cancelled closing!', { ready, on, startOffRef, startOnRef })
+    if (!ready || on) return
+
+    if (startOffRef.current) {
+      startOffRef.current = false
       return
     }
-    heightRef.current = 0
-    console.log('animate off')
+    console.error('CLOSE_START')
+
+    let cancelled = false
+    const cleanup = () => {
+      if (springTypeRef.current !== null) {
+        console.error(
+          `Possible race condition during CLOSE cleanup, expected null but got ${springTypeRef.current}`
+        )
+      }
+      springTypeRef.current = null
+    }
+    const maybeCancel = () => {
+      if (cancelled) {
+        cleanup()
+        onSpringCancelRef.current?.({ type: 'CLOSE' })
+
+        console.groupEnd()
+      }
+      return cancelled
+    }
+
     set({
       // @ts-expect-error
-      y: 0,
-      backdrop: 0,
-      immediate: prefersReducedMotion.current,
+      to: async (next) => {
+        console.group('CLOSE')
+        if (maybeCancel()) return
+
+        if (springTypeRef.current !== null) {
+          console.error(
+            `Possible race condition during CLOSE startup, expected null but got ${springTypeRef.current}`
+          )
+        }
+
+        springTypeRef.current = 'CLOSE'
+        await onSpringStartRef.current?.({ type: 'CLOSE' })
+
+        if (maybeCancel()) return
+
+        heightRef.current = 0
+        if (startOffRef.current) {
+          console.log('closed by default, no animation')
+
+          await next({ y: 0, backdrop: 0, opacity: 0, immediate: true })
+        } else {
+          console.log('starting animation')
+
+          await next({
+            y: 0,
+            backdrop: 0,
+            immediate: prefersReducedMotion.current,
+          })
+        }
+        if (maybeCancel()) return
+
+        if (springTypeRef.current !== 'CLOSE') {
+          console.error(
+            `Possible race condition, expected CLOSE but got ${springTypeRef.current}`
+          )
+        }
+        springTypeRef.current = null
+        await onSpringEndRef.current?.({ type: 'CLOSE' })
+
+        console.log('async close transition done', { cancelled })
+        if (!cancelled) {
+          console.groupEnd()
+        }
+      },
     })
 
     return () => {
-      console.log('it was closed but now it opened!')
+      console.error('CLOSE_END')
+      startOffRef.current = false
+      // Start signalling to the async flow that we have to abort
+      cancelled = true
+      console.log('it was closed but now it open!', springTypeRef.current)
+      // And proceed to optimistic cleanup
+      cleanup()
     }
   }, [prefersReducedMotion, on, set, ready])
 
