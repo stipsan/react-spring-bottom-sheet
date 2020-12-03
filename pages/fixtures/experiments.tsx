@@ -1,5 +1,5 @@
 import useInterval from '@use-it/interval'
-import { memo, useCallback, useEffect, useMemo, useState } from 'react'
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import Button from '../../docs/fixtures/Button'
 import Code from '../../docs/fixtures/Code'
 import Container from '../../docs/fixtures/Container'
@@ -42,6 +42,14 @@ function One() {
     }
   }, 100)
 
+  useEffect(() => {
+    if (open) {
+      return () => {
+        setSeconds(1)
+      }
+    }
+  }, [open])
+
   return (
     <>
       <Button onClick={() => setOpen(true)}>{seconds}</Button>
@@ -59,6 +67,7 @@ function One() {
 
 function Two() {
   const [open, setOpen] = useState(false)
+  const [header, setHeader] = useState(false)
 
   function onDismiss() {
     setOpen(false)
@@ -69,7 +78,7 @@ function Two() {
       <BottomSheet
         style={{ ['--rsbs-bg' as any]: '#EFF6FF' }}
         open={open}
-        header={false}
+        header={header}
         onDismiss={onDismiss}
         footer={
           <Button
@@ -79,15 +88,21 @@ function Two() {
             Dismiss
           </Button>
         }
-        defaultSnap={({ footerHeight }) => footerHeight}
-        snapPoints={({ minHeight, footerHeight }) => [footerHeight, minHeight]}
+        defaultSnap={({ headerHeight, footerHeight }) =>
+          headerHeight + footerHeight
+        }
+        snapPoints={({ minHeight, headerHeight, footerHeight }) => [
+          headerHeight + footerHeight,
+          minHeight,
+        ]}
       >
         <SheetContent>
-          <p>
-            Using <Code>onDismiss</Code> lets users close the sheet by swiping
-            it down, tapping on the backdrop or by hitting <Kbd>esc</Kbd> on
-            their keyboard.
-          </p>
+          <Button
+            onClick={() => setHeader((header) => !header)}
+            className="w-full focus-visible:ring-offset-rsbs-bg"
+          >
+            header: {header ? 'true' : 'false'}
+          </Button>
         </SheetContent>
       </BottomSheet>
     </>
@@ -207,11 +222,17 @@ function Six() {
     setMaxHeight(half ? window.innerHeight / 2 : window.innerHeight)
   }, [half])
 
+  const style = { ['--rsbs-bg' as any]: '#EFF6FF' }
+  if (half) {
+    // setting it to undefined removes it, so we don't have to hardcode the default rounding we want in this component
+    style['--rsbs-overlay-rounded' as any] = undefined
+  }
+
   return (
     <>
       <Button onClick={() => setOpen(true)}>6</Button>
       <BottomSheet
-        style={{ ['--rsbs-bg' as any]: '#EFF6FF' }}
+        style={style}
         open={open}
         maxHeight={maxHeight}
         onDismiss={() => setOpen(false)}
@@ -227,17 +248,100 @@ function Six() {
   )
 }
 
-export default function ExperimentsFixturePage() {
+function Seven() {
+  const [open, setOpen] = useState(false)
+  const [shift, setShift] = useState(false)
+
+  useInterval(() => {
+    if (open) {
+      setShift((shift) => !shift)
+    }
+  }, 3000)
+
   return (
     <>
-      <Container>
-        <One />
-        <Two />
-        <Three />
-        <Four />
-        <Five />
-        <Six />
-      </Container>
+      <Button onClick={() => setOpen(true)}>7</Button>
+      <BottomSheet
+        open={open}
+        maxHeight={
+          typeof window !== 'undefined'
+            ? shift
+              ? window.innerHeight / 2
+              : window.innerHeight
+            : 0
+        }
+        onDismiss={() => setOpen(false)}
+        snapPoints={({ maxHeight }) => [maxHeight]}
+      >
+        <SheetContent>maxHeight {shift ? 'shifted' : 'normal'}</SheetContent>
+      </BottomSheet>
     </>
+  )
+}
+
+function Eight() {
+  const [open, setOpen] = useState(false)
+  const [defaultSnap, setDefaultSnap] = useState(200)
+  const reopenRef = useRef(false)
+
+  return (
+    <>
+      <Button onClick={() => setOpen(true)}>8</Button>
+      <BottomSheet
+        open={open}
+        onDismiss={() => setOpen(false)}
+        defaultSnap={defaultSnap}
+        snapPoints={({ minHeight, maxHeight }) => [minHeight, maxHeight]}
+        onSpringEnd={(event) => {
+          if (reopenRef.current && event.type === 'CLOSE') {
+            reopenRef.current = false
+            setOpen(true)
+          }
+        }}
+        // @TODO investigate missing opacity fade out on close if onDismiss isn't used
+        /*
+        footer={
+          <Button
+            
+            className="w-full focus-visible:ring-offset-rsbs-bg"
+          >
+            Dismiss
+          </Button>
+        }
+        //*/
+      >
+        <SheetContent>
+          <Button
+            onClick={() => {
+              reopenRef.current = true
+              setDefaultSnap((defaultSnap) => (defaultSnap === 200 ? 800 : 200))
+              setOpen(false)
+            }}
+          >
+            defaultSnap: {defaultSnap}
+          </Button>
+        </SheetContent>
+      </BottomSheet>
+    </>
+  )
+}
+
+export default function ExperimentsFixturePage() {
+  return (
+    <Container
+      className={[
+        { 'bg-white': false },
+        'bg-gray-200 grid-cols-3 place-items-center',
+      ]}
+    >
+      <One />
+      <Two />
+      <Three />
+      <Four />
+      <Five />
+      <Six />
+      <Seven />
+      <Eight />
+    </Container>
   )
 }

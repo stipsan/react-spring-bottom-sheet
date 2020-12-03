@@ -1,13 +1,13 @@
 import React, { useDebugValue, useEffect, useRef } from 'react'
 
 // Handle hiding and restoring aria-hidden attributes
-export const useAriaHider = ({
+export function useAriaHider({
   targetRef,
   enabled,
 }: {
   targetRef: React.RefObject<Element>
   enabled: boolean
-}) => {
+}) {
   const ref = useRef<{ activate: () => void; deactivate: () => void }>({
     activate: () => {
       throw new TypeError('Tried to activate aria hider too early')

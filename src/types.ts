@@ -97,7 +97,10 @@ export type Props = {
   snapPoints?: snapPoints
 
   /** Handler that is called to get the initial height of the bottom sheet when it's opened (or when the viewport is resized). */
-  defaultSnap?: defaultSnap
+  defaultSnap?: defaultSnap | number
+
+  /* Configures body-scroll-lock to reserve scrollbar gap by setting padding on <body>, clears when closing the bottom sheet. on by default iff blocking=true  */
+  reserveScrollBarGap?: boolean
 } & Omit<React.PropsWithoutRef<JSX.IntrinsicElements['div']>, 'children'>
 
 export interface RefHandles {
@@ -107,6 +110,6 @@ export interface RefHandles {
    *
    */
   snapTo: (
-    fuzzySnapPoint: number | ((state: defaultSnapProps) => number)
+    numberOrCallback: number | ((state: defaultSnapProps) => number)
   ) => void
 }

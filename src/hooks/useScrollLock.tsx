@@ -12,13 +12,15 @@ import { useDebugValue, useEffect, useRef } from 'react'
  * When it's in between two toolbar states it causes the framerate to drop way below 60fps on
  * the bottom sheet drag interaction.
  */
-export const useScrollLock = ({
+export function useScrollLock({
   targetRef,
   enabled,
+  reserveScrollBarGap,
 }: {
   targetRef: React.RefObject<Element>
   enabled: boolean
-}) => {
+  reserveScrollBarGap: boolean
+}) {
   const ref = useRef<{ activate: () => void; deactivate: () => void }>({
     activate: () => {
       throw new TypeError('Tried to activate scroll lock too early')
@@ -44,6 +46,7 @@ export const useScrollLock = ({
         active = true
         disableBodyScroll(target, {
           allowTouchMove: (el) => el.closest('[data-body-scroll-lock-ignore]'),
+          reserveScrollBarGap,
         })
       },
       deactivate: () => {
@@ -52,7 +55,7 @@ export const useScrollLock = ({
         enableBodyScroll(target)
       },
     }
-  }, [enabled, targetRef])
+  }, [enabled, targetRef, reserveScrollBarGap])
 
   return ref
 }

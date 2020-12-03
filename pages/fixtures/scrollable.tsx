@@ -81,8 +81,10 @@ export default function ScrollableFixturePage() {
           <SheetContent>
             <div className="grid grid-cols-3 w-full gap-4">
               <Button
-                textSize="text-sm"
-                padding="px2 py-1"
+                className={[
+                  ' text-sm px2 py-1',
+                  { 'text-xl': false, 'px-7': false, 'py-3': false },
+                ]}
                 onClick={() =>
                   sheetRef.current.snapTo(({ snapPoints }) =>
                     Math.max(...snapPoints)
@@ -93,8 +95,10 @@ export default function ScrollableFixturePage() {
               </Button>
               <Button
                 ref={focusRef}
-                textSize="text-sm"
-                padding="px2 py-1"
+                className={[
+                  ' text-sm px2 py-1',
+                  { 'text-xl': false, 'px-7': false, 'py-3': false },
+                ]}
                 onClick={() =>
                   sheetRef.current.snapTo(({ maxHeight }) => maxHeight / 2)
                 }
@@ -102,8 +106,10 @@ export default function ScrollableFixturePage() {
                 Middle
               </Button>
               <Button
-                textSize="text-sm"
-                padding="px2 py-1"
+                className={[
+                  ' text-sm px2 py-1',
+                  { 'text-xl': false, 'px-7': false, 'py-3': false },
+                ]}
                 onClick={() =>
                   sheetRef.current.snapTo(({ snapPoints }) =>
                     Math.min(...snapPoints)

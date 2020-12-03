@@ -15,11 +15,16 @@
     --rsbs-backdrop-bg: rgba(15, 23, 42, 0.7);
   }
 }
-@layer utilities {
+@layer components {
   .is-window {
     --rsbs-max-w: 640px;
     --rsbs-ml: auto;
     --rsbs-mr: auto;
+    @screen sm {
+      & [data-rsbs-overlay] {
+        --rsbs-overlay-rounded: 16px;
+      }
+    }
   }
   .is-iframe {
     --rsbs-ml: 0px;
