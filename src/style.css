@@ -1,11 +1,12 @@
 [data-rsbs-overlay] {
-  border-top-left-radius: var(--rsbs-rounded);
-  border-top-right-radius: var(--rsbs-rounded);
+  border-top-left-radius: var(--rsbs-overlay-rounded);
+  border-top-right-radius: var(--rsbs-overlay-rounded);
   display: flex;
   background: var(--rsbs-bg);
   flex-direction: column;
-  transform: translate3d(0, var(--rsbs-y), 0);
-  will-change: --rsbs-rounded, --rsbs-y, height;
+  height: var(--rsbs-overlay-h);
+  transform: translate3d(0, var(--rsbs-overlay-translate-y), 0);
+  will-change: height;
 }
 [data-rsbs-overlay]:focus {
   outline: none;
@@ -54,6 +55,7 @@
   background: var(--rsbs-bg);
   height: 1px;
   transform-origin: bottom;
+  transform: scale3d(1, var(--rsbs-antigap-scale-y), 1);
   will-change: transform;
 }
 [data-rsbs-footer],

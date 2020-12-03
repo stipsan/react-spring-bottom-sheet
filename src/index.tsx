@@ -2,7 +2,7 @@
 import Portal from '@reach/portal'
 import React, { forwardRef, useRef, useState } from 'react'
 import { BottomSheet as _BottomSheet } from './BottomSheet'
-import type { Props, RefHandles } from './types'
+import type { Props, RefHandles, SpringEvent } from './types'
 import { useLayoutEffect } from './hooks'
 
 export type { RefHandles as BottomSheetRef } from './types'
@@ -12,19 +12,41 @@ export const BottomSheet = forwardRef<RefHandles, Props>(function BottomSheet(
   props,
   ref
 ) {
+  // Mounted state, helps SSR but also ensures you can't tab into the sheet while it's closed, or nav there in a screen reader
   const [mounted, setMounted] = useState(false)
+  const timerRef = useRef<ReturnType<typeof setTimeout>>()
+  // The last point that the user snapped to, useful for open/closed toggling and the user defined height is remembered
+  const lastSnapRef = useRef(null)
   // Workaround annoying race condition
   const openRef = useRef(props.open)
 
   // Using layout effect to support cases where the bottom sheet have to appear already open, no transition
   useLayoutEffect(() => {
-    setMounted(true)
-  }, [])
+    if (props.open) {
+      clearTimeout(timerRef.current)
+      setMounted(true)
+    }
+  }, [props.open])
+
+  function onSpringEnd(event: SpringEvent) {
+    // Forward the event
+    props.onSpringEnd?.(event)
+
+    if (event.type === 'CLOSE') {
+      timerRef.current = setTimeout(() => setMounted(false), 1000)
+    }
+  }
 
   return (
     <Portal data-rsbs-portal>
       {mounted && (
-        <_BottomSheet key="mounted" {...props} openRef={openRef} ref={ref} />
+        <_BottomSheet
+          {...props}
+          openRef={openRef}
+          lastSnapRef={lastSnapRef}
+          ref={ref}
+          onSpringEnd={onSpringEnd}
+        />
       )}
     </Portal>
   )

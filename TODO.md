@@ -20,6 +20,11 @@ fix uneven icon that is being animated, the corner is driving me crazy...
 - add keywords.
 - update readme.
 
+# A11y improvements
+
+- support these: aria-labelledby="dialog1Title" aria-describedby="dialog1Desc"
+- autoset aria-labbeledby if header is set and have content, figure this out
+
 # Credits
 
 - Play icon: https://fontawesome.com/icons/play-circle?style=regular
@@ -55,6 +60,10 @@ Faux plugin architecture. "Plugins" or "hooks" can register in an es6 map if the
 
 a transition to close can be cancelled if the open state is changed back to `true`.
 open/close is fairly easy and stabl. snap to snap on the other hand, require diligence in making sure whoever cancels a snap transition, makes sure to send the animation on the right direction.
+
+# Not important but don't forget
+
+- openRef probably don't need to be passed down
 
 ## Big picture state machines
 

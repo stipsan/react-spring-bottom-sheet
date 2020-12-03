@@ -2,7 +2,7 @@ import { useDebugValue } from 'react'
 import type { SnapPointProps, snapPoints } from '../types'
 import { clamp, roundAndCheckForNaN } from '../utils'
 
-export const useSnapPoints = ({
+export function useSnapPoints({
   getSnapPoints,
   minHeight,
   footerHeight,
@@ -13,7 +13,7 @@ export const useSnapPoints = ({
 }: {
   getSnapPoints: snapPoints
   contentHeight: number
-} & SnapPointProps) => {
+} & SnapPointProps) {
   // @TODO cleanup
   function _getSnaps() {
     // If we're firing before the dom is mounted then height will be 0 and we should return default values

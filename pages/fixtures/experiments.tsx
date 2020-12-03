@@ -42,6 +42,14 @@ function One() {
     }
   }, 100)
 
+  useEffect(() => {
+    if (open) {
+      return () => {
+        setSeconds(1)
+      }
+    }
+  }, [open])
+
   return (
     <>
       <Button onClick={() => setOpen(true)}>{seconds}</Button>
@@ -59,6 +67,7 @@ function One() {
 
 function Two() {
   const [open, setOpen] = useState(false)
+  const [header, setHeader] = useState(false)
 
   function onDismiss() {
     setOpen(false)
@@ -69,7 +78,7 @@ function Two() {
       <BottomSheet
         style={{ ['--rsbs-bg' as any]: '#EFF6FF' }}
         open={open}
-        header={false}
+        header={header}
         onDismiss={onDismiss}
         footer={
           <Button
@@ -79,15 +88,21 @@ function Two() {
             Dismiss
           </Button>
         }
-        defaultSnap={({ footerHeight }) => footerHeight}
-        snapPoints={({ minHeight, footerHeight }) => [footerHeight, minHeight]}
+        defaultSnap={({ headerHeight, footerHeight }) =>
+          headerHeight + footerHeight
+        }
+        snapPoints={({ minHeight, headerHeight, footerHeight }) => [
+          headerHeight + footerHeight,
+          minHeight,
+        ]}
       >
         <SheetContent>
-          <p>
-            Using <Code>onDismiss</Code> lets users close the sheet by swiping
-            it down, tapping on the backdrop or by hitting <Kbd>esc</Kbd> on
-            their keyboard.
-          </p>
+          <Button
+            onClick={() => setHeader((header) => !header)}
+            className="w-full focus-visible:ring-offset-rsbs-bg"
+          >
+            header: {header ? 'true' : 'false'}
+          </Button>
         </SheetContent>
       </BottomSheet>
     </>
@@ -207,11 +222,17 @@ function Six() {
     setMaxHeight(half ? window.innerHeight / 2 : window.innerHeight)
   }, [half])
 
+  const style = { ['--rsbs-bg' as any]: '#EFF6FF' }
+  if (half) {
+    // setting it to undefined removes it, so we don't have to hardcode the default rounding we want in this component
+    style['--rsbs-overlay-rounded' as any] = undefined
+  }
+
   return (
     <>
       <Button onClick={() => setOpen(true)}>6</Button>
       <BottomSheet
-        style={{ ['--rsbs-bg' as any]: '#EFF6FF' }}
+        style={style}
         open={open}
         maxHeight={maxHeight}
         onDismiss={() => setOpen(false)}
@@ -227,17 +248,52 @@ function Six() {
   )
 }
 
-export default function ExperimentsFixturePage() {
+function Seven() {
+  const [open, setOpen] = useState(false)
+  const [shift, setShift] = useState(false)
+
+  useInterval(() => {
+    if (open) {
+      setShift((shift) => !shift)
+    }
+  }, 1000)
+
   return (
     <>
-      <Container>
-        <One />
-        <Two />
-        <Three />
-        <Four />
-        <Five />
-        <Six />
-      </Container>
+      <Button onClick={() => setOpen(true)}>7</Button>
+      <BottomSheet
+        open={open}
+        maxHeight={
+          typeof window !== 'undefined'
+            ? shift
+              ? window.innerHeight / 2
+              : window.innerHeight
+            : 0
+        }
+        onDismiss={() => setOpen(false)}
+        snapPoints={({ minHeight, maxHeight }) => [minHeight, maxHeight]}
+      >
+        <SheetContent>maxHeight {shift ? 'shifted' : 'normal'}</SheetContent>
+      </BottomSheet>
     </>
+  )
+}
+
+export default function ExperimentsFixturePage() {
+  return (
+    <Container
+      className={[
+        { 'bg-white': false },
+        'bg-gray-200 grid-cols-3 place-items-center',
+      ]}
+    >
+      <One />
+      <Two />
+      <Three />
+      <Four />
+      <Five />
+      <Six />
+      <Seven />
+    </Container>
   )
 }

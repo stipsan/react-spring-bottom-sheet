@@ -1,8 +1,14 @@
-import cx from 'classnames'
+import cx from 'classnames/dedupe'
 import { useEffect } from 'react'
 import { useDetectEnv } from './hooks'
 
-export default function Container({ children }: { children: React.ReactNode }) {
+export default function Container({
+  children,
+  className,
+}: {
+  children: React.ReactNode
+  className?: Parameters<typeof cx>[0]
+}) {
   const env = useDetectEnv()
   useEffect(() => {
     const className = cx({
@@ -16,7 +22,12 @@ export default function Container({ children }: { children: React.ReactNode }) {
   }, [env])
 
   return (
-    <main className="grid place-content-evenly min-h-screen bg-white">
+    <main
+      className={cx(
+        'grid place-content-evenly min-h-screen bg-white',
+        className
+      )}
+    >
       {children}
     </main>
   )

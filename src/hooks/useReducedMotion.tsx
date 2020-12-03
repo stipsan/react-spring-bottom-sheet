@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef } from 'react'
+import { useDebugValue, useEffect, useMemo, useRef } from 'react'
 
 // @TODO refactor to addEventListener
 export function useReducedMotion() {
@@ -10,6 +10,8 @@ export function useReducedMotion() {
     []
   )
   const ref = useRef(mql?.matches)
+
+  useDebugValue(ref.current ? 'reduce' : 'no-preference')
 
   useEffect(() => {
     const handler = (event) => {

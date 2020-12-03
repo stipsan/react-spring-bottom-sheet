@@ -1,7 +1,7 @@
 import { createFocusTrap } from 'focus-trap'
 import { useDebugValue, useEffect, useRef } from 'react'
 
-export const useFocusTrap = ({
+export function useFocusTrap({
   targetRef,
   fallbackRef,
   initialFocusRef,
@@ -11,7 +11,7 @@ export const useFocusTrap = ({
   fallbackRef: React.RefObject<HTMLElement>
   initialFocusRef?: React.RefObject<HTMLElement>
   enabled: boolean
-}) => {
+}) {
   const ref = useRef<{ activate: () => void; deactivate: () => void }>({
     activate: () => {
       throw new TypeError('Tried to activate focus trap too early')
