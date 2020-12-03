@@ -1,3 +1,10 @@
+## [1.0.4](https://github.com/stipsan/react-spring-bottom-sheet/compare/v1.0.3...v1.0.4) (2020-12-03)
+
+
+### Bug Fixes
+
+* v2 api ready, just need to clean up and write docs ([96f158e](https://github.com/stipsan/react-spring-bottom-sheet/commit/96f158e6167e997a02e6a57f0b9395c47f0265fa))
+
 ## [1.0.3](https://github.com/stipsan/react-spring-bottom-sheet/compare/v1.0.2...v1.0.3) (2020-12-02)
 
 
