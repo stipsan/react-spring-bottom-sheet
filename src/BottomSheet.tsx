@@ -409,7 +409,7 @@ export const BottomSheet = React.forwardRef<
       down: !!down,
       movement: isNaN(my) ? 0 : my,
       velocity,
-      temp: memo,
+      temp: memo as number,
     })
 
     const relativeVelocity = Math.max(1, velocity)
@@ -485,7 +485,7 @@ export const BottomSheet = React.forwardRef<
         })
 
   const interpolateHeight = spring.y.interpolate(
-    (y) => `${clamp(y, minSnapRef.current, maxSnapRef.current)}px`
+    (y: number) => `${clamp(y, minSnapRef.current, maxSnapRef.current)}px`
   )
 
   const interpolateY = spring.y.interpolate({
