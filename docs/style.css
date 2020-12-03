@@ -15,7 +15,7 @@
     --rsbs-backdrop-bg: rgba(15, 23, 42, 0.7);
   }
 }
-@layer utilities {
+@layer components {
   .is-window {
     --rsbs-max-w: 640px;
     --rsbs-ml: auto;

@@ -1,5 +1,7 @@
 /* eslint-disable no-self-compare */
 
+import type { defaultSnapProps, SnapPointProps, snapPoints } from './types'
+
 // stolen from lodash
 export function clamp(number: number, lower: number, upper: number) {
   number = +number
@@ -30,4 +32,22 @@ export function roundAndCheckForNaN(unrounded) {
   }
 
   return rounded
+}
+
+// Validate, sanitize, round and dedupe snap points, as well as extracting the minSnap and maxSnap points
+export function processSnapPoints(unsafeSnaps: number | number[], maxHeight) {
+  const safeSnaps = [].concat(unsafeSnaps).map(roundAndCheckForNaN)
+
+  const snapPoints = [
+    ...safeSnaps.reduce((acc, snapPoint) => {
+      acc.add(clamp(snapPoint, 0, maxHeight))
+      return acc
+    }, new Set<number>()),
+  ]
+
+  return {
+    snapPoints,
+    minSnap: Math.min(...snapPoints),
+    maxSnap: Math.max(...snapPoints),
+  }
 }

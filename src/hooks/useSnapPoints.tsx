@@ -1,56 +1,36 @@
 import { useDebugValue } from 'react'
 import type { defaultSnapProps, SnapPointProps, snapPoints } from '../types'
-import { clamp, roundAndCheckForNaN } from '../utils'
+import { processSnapPoints, roundAndCheckForNaN } from '../utils'
 
 export function useSnapPoints({
   getSnapPoints,
   minHeight,
   footerHeight,
   headerHeight,
-  contentHeight,
   heightRef,
   lastSnapRef,
   maxHeight,
+  ready,
 }: {
   getSnapPoints: snapPoints
-  contentHeight: number
   heightRef: React.RefObject<number>
   lastSnapRef: React.RefObject<number>
+  // If ready then all the elements that need measuring is done and ready for computing
+  ready: boolean
 } & Omit<SnapPointProps, 'height'>) {
-  // @TODO cleanup
-  function _getSnaps() {
-    // If we're firing before the dom is mounted then height will be 0 and we should return default values
-    if (contentHeight === 0) {
-      return { snapPoints: [0], minSnap: 0, maxSnap: 0 }
-    }
-
-    const massagedSnapPoints = []
-      .concat(
-        getSnapPoints({
+  const { snapPoints, minSnap, maxSnap } = processSnapPoints(
+    ready
+      ? getSnapPoints({
           height: heightRef.current,
           footerHeight,
           headerHeight,
           minHeight,
           maxHeight,
         })
-      )
-      .map(roundAndCheckForNaN)
-
-    const snapPoints = [
-      ...massagedSnapPoints.reduce((acc, snapPoint) => {
-        acc.add(clamp(snapPoint, 0, maxHeight))
-        return acc
-      }, new Set<number>()),
-    ]
-
-    return {
-      snapPoints,
-      minSnap: Math.min(...snapPoints),
-      maxSnap: Math.max(...snapPoints),
-    }
-  }
-
-  const { snapPoints, minSnap, maxSnap } = _getSnaps()
+      : [0],
+    maxHeight
+  )
+  console.log({ snapPoints, minSnap, maxSnap })
 
   function findSnap(
     numberOrCallback: number | ((state: defaultSnapProps) => number)
@@ -77,5 +57,5 @@ export function useSnapPoints({
 
   useDebugValue(snapPoints, (snapPoints) => snapPoints.sort())
 
-  return { snapPoints, minSnap, maxSnap, findSnap }
+  return { minSnap, maxSnap, findSnap }
 }
