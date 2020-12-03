@@ -60,9 +60,8 @@ export const BottomSheet = React.forwardRef<
   // but confusing as heck when transitioning between touch gestures and spring animations
   const on = _open
   const off = !_open
-  // Keep track of their initial states, to detect if the bottom sheet should animate or use immediate
+  // Keep track of the initial states, to detect if the bottom sheet should animate or use immediate
   const startOnRef = useRef(openRef.current)
-  const startOffRef = useRef(!openRef.current)
   // Before any animations can start we need to measure a few things, like the viewport and the dimensions of content, and header + footer if they exist
   const [ready, setReady] = useState(false)
 
@@ -317,11 +316,6 @@ export const BottomSheet = React.forwardRef<
   useEffect(() => {
     if (!ready || on) return
 
-    if (startOffRef.current) {
-      startOffRef.current = false
-      return
-    }
-
     let cancelled = false
     const maybeCancel = () => {
       if (cancelled) {
@@ -344,19 +338,18 @@ export const BottomSheet = React.forwardRef<
         if (maybeCancel()) return
 
         heightRef.current = 0
-        if (startOffRef.current) {
-          console.log('closed by default, no animation')
 
-          await next({ y: 0, backdrop: 0, opacity: 0, immediate: true })
-        } else {
-          console.log('starting animation')
+        console.log('starting animation')
 
-          await next({
-            y: 0,
-            backdrop: 0,
-            immediate: prefersReducedMotion.current,
-          })
-        }
+        await next({
+          y: 0,
+          backdrop: 0,
+          immediate: prefersReducedMotion.current,
+        })
+        if (maybeCancel()) return
+
+        await next({ opacity: 0, immediate: true })
+
         if (maybeCancel()) return
 
         await onSpringEndRef.current?.({ type: 'CLOSE' })
@@ -369,8 +362,7 @@ export const BottomSheet = React.forwardRef<
     })
 
     return () => {
-      startOffRef.current = false
-      // Start signalling to the async flow that we have to abort
+      // Set to false so the async flow can detect if it got cancelled
       cancelled = true
     }
   }, [on, prefersReducedMotion, ready, set])
