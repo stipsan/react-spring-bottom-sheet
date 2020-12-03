@@ -32,16 +32,19 @@ export type Props = {
   children: React.ReactNode
 
   /**
-   * Start a transition from closed to open, open to closed, or snap to snap
+   * Start a transition from closed to open, open to closed, or snap to snap.
+   * Return a promise or async to delay the start of the transition, just remember it can be cancelled.
    */
   onSpringStart?: (event: SpringEvent) => void
   /**
-   * A running transition didn't finish or got stopped
+   * A running transition didn't finish or got stopped, this event isn't awaited on and might happen
+   * after the sheet is unmounted (if it were in the middle of something).
    */
   onSpringCancel?: (event: SpringEvent) => void
   /**
    * The transition ended successfully. Handy to know when it's safe to unmount
    * the sheet without interrupting the closing animation.
+   * Return a promise or async to delay the start of the transition, just remember it can be cancelled.
    */
   onSpringEnd?: (event: SpringEvent) => void
 

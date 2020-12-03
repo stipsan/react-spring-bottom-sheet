@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import Button from '../../docs/fixtures/Button'
 import Code from '../../docs/fixtures/Code'
 import Container from '../../docs/fixtures/Container'
@@ -9,7 +9,12 @@ import HeadTitle from '../../docs/HeadTitle'
 import { BottomSheet } from '../../src'
 
 export default function SimpleFixturePage() {
-  const [open, setOpen] = useState(true)
+  const [open, setOpen] = useState(false)
+
+  // Ensure it animates in when loaded
+  useEffect(() => {
+    setOpen(true)
+  }, [])
 
   function onDismiss() {
     setOpen(false)

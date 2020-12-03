@@ -37,7 +37,10 @@ const MAX_OVERFLOW = 120
 // Toggle new experimental algo for animating snap states that avoid animating the `height` property, staying in FLIP bounds
 const EXPERIMENTAL_FAST_TRANSITION = false
 
-export const BottomSheet = React.forwardRef<RefHandles, Props>(
+export const BottomSheet = React.forwardRef<
+  RefHandles,
+  { openRef: React.RefObject<boolean> } & Props
+>(
   (
     {
       children,
@@ -45,6 +48,7 @@ export const BottomSheet = React.forwardRef<RefHandles, Props>(
       footer,
       header,
       open: _open,
+      openRef,
       initialFocusRef,
       onDismiss,
       maxHeight: controlledMaxHeight,
@@ -65,8 +69,8 @@ export const BottomSheet = React.forwardRef<RefHandles, Props>(
     const on = _open
     const off = !_open
     // Keep track of their initial states, to detect if the bottom sheet should animate or use immediate
-    const startOnRef = useRef(on)
-    const startOffRef = useRef(off)
+    const startOnRef = useRef(openRef.current)
+    const startOffRef = useRef(!openRef.current)
     // Before any animations can start we need to measure a few things, like the viewport and the dimensions of content, and header + footer if they exist
     const [ready, setReady] = useState(false)
 
@@ -215,8 +219,9 @@ export const BottomSheet = React.forwardRef<RefHandles, Props>(
       }
 
       set({
+        // until we got better typing, hopefully in react-spring v9
         // @ts-expect-error
-        to: async (next, cancel) => {
+        to: async (next) => {
           console.group('OPEN')
           if (maybeCancel()) return
 
@@ -227,42 +232,67 @@ export const BottomSheet = React.forwardRef<RefHandles, Props>(
 
           if (maybeCancel()) return
 
-          console.log('animate on', { startOffRef: startOnRef.current })
+          console.log('animate on', { startOnRef: startOnRef.current })
 
-          await next({
-            y: defaultSnap,
-            backdrop: 0,
-            opacity: 0,
-            immediate: true,
-          })
+          if (startOnRef.current) {
+            console.log('open by default, no animation')
 
-          if (maybeCancel()) return
+            heightRef.current = defaultSnap
+            await next({
+              y: defaultSnap,
+              backdrop: 1,
+              opacity: 1,
+              immediate: true,
+            })
 
-          await Promise.all([
-            scrollLockRef.current.activate(),
-            focusTrapRef.current.activate(),
-            ariaHiderRef.current.activate(),
-          ])
+            if (maybeCancel()) return
 
-          if (maybeCancel()) return
+            await Promise.all([
+              scrollLockRef.current.activate(),
+              focusTrapRef.current.activate(),
+              ariaHiderRef.current.activate(),
+            ])
 
-          await next({
-            y: 0,
-            backdrop: 0,
-            opacity: 1,
-            immediate: true,
-          })
+            if (maybeCancel()) return
 
-          if (maybeCancel()) return
+            canDragRef.current = true
+          } else {
+            console.log('starting animation')
+            await next({
+              y: defaultSnap,
+              backdrop: 0,
+              opacity: 0,
+              immediate: true,
+            })
 
-          canDragRef.current = true
-          heightRef.current = defaultSnap
-          await next({
-            y: defaultSnap,
-            backdrop: 1,
-            opacity: 1,
-            immediate: prefersReducedMotion.current,
-          })
+            if (maybeCancel()) return
+
+            await Promise.all([
+              scrollLockRef.current.activate(),
+              focusTrapRef.current.activate(),
+              ariaHiderRef.current.activate(),
+            ])
+
+            if (maybeCancel()) return
+
+            await next({
+              y: 0,
+              backdrop: 0,
+              opacity: 1,
+              immediate: true,
+            })
+
+            if (maybeCancel()) return
+
+            canDragRef.current = true
+            heightRef.current = defaultSnap
+            await next({
+              y: defaultSnap,
+              backdrop: 1,
+              opacity: 1,
+              immediate: prefersReducedMotion.current,
+            })
+          }
 
           if (maybeCancel()) return
 
@@ -277,17 +307,30 @@ export const BottomSheet = React.forwardRef<RefHandles, Props>(
       })
 
       return () => {
+        startOnRef.current = false
         // Start signalling to the async flow that we have to abort
         cancelled = true
         console.log('it was open but now it closed!', springTypeRef.current)
         // And proceed to optimistic cleanup
         cleanup()
       }
-    }, [defaultSnap, prefersReducedMotion, set, off, ready, scrollLockRef])
+    }, [
+      defaultSnap,
+      prefersReducedMotion,
+      set,
+      off,
+      ready,
+      scrollLockRef,
+      ariaHiderRef,
+      focusTrapRef,
+    ])
 
     // Handle open to closed animations
     useEffect(() => {
-      if (!ready || on || startOffRef.current) return
+      if (!ready || on || startOffRef.current) {
+        console.log('cancelled closing!!')
+        return
+      }
       heightRef.current = 0
       console.log('animate off')
       set({

@@ -3,10 +3,10 @@ import { disableBodyScroll, enableBodyScroll } from 'body-scroll-lock'
 import React, {
   useCallback,
   useEffect,
-  useLayoutEffect,
   useMemo,
   useRef,
   useState,
+  useLayoutEffect as useLayoutEffectSafely,
 } from 'react'
 import ResizeObserver from 'resize-observer-polyfill'
 import type { SnapPointProps, snapPoints } from './types'
@@ -416,3 +416,7 @@ export const useFocusTrap = ({
 
   return ref
 }
+
+// Ensure the name used in components is useLayoutEffect so the eslint react hooks plugin works
+export const useLayoutEffect =
+  typeof window !== 'undefined' ? useLayoutEffectSafely : useEffect
