@@ -61,12 +61,16 @@ const SvgText: React.FC<{ x?: string; y?: string; className?: string }> = ({
   </g>
 )
 
+let immediate = false
 export default function Hero({ className }: { className?: string }) {
-  const [open, setOpen] = useState(false)
+  const [mounted, setMounted] = useState(false)
+  const skip = !mounted && immediate ? true : false
+  const [open, setOpen] = useState(true)
   const openClassRef = useRef(false)
   const classNameRef = useRef(null)
   const { y, state } = useSpring<any>({
     config: config.stiff,
+    immediate: skip,
     from: { y: '208px', state: 0 },
     to: {
       y: open ? '0px' : '208px',
@@ -75,20 +79,28 @@ export default function Hero({ className }: { className?: string }) {
     onFrame: ({ state }) => {
       if (state > 0) {
         if (!openClassRef.current) {
-          classNameRef.current.classList.add(styles.open)
+          classNameRef.current.classList.add(
+            styles.open,
+            skip ? styles.skip : undefined
+          )
           openClassRef.current = true
         }
       } else {
         if (openClassRef.current) {
-          classNameRef.current.classList.remove(styles.open)
+          classNameRef.current.classList.remove(styles.open, styles.skip)
           openClassRef.current = false
         }
+      }
+    },
+    onRest: () => {
+      if (mounted) {
+        immediate = true
       }
     },
   })
 
   useEffect(() => {
-    setOpen(true)
+    setMounted(true)
   }, [])
 
   return (

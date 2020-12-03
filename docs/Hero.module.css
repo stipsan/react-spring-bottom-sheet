@@ -31,12 +31,12 @@
   opacity: 0;
 }
 .open .text {
-  transition-duration: 300ms;
   --tw-translate-y: 0px;
   opacity: 1;
 }
 /* Only set delay while open to avoid weird artifacts with fast toggling */
-.open .text {
+.open:not(.skip) .text {
+  transition-duration: 300ms;
   transition-delay: calc(150ms + 80ms * var(--index, 0));
 }
 .text + .text {
