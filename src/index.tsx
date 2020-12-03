@@ -8,7 +8,10 @@ import { useLayoutEffect } from './hooks'
 export type { RefHandles as BottomSheetRef } from './types'
 
 // Because SSR is annoying to deal with, and all the million complaints about window, navigator and dom elenents!
-export const BottomSheet = forwardRef<RefHandles, Props>((props, ref) => {
+export const BottomSheet = forwardRef<RefHandles, Props>(function BottomSheet(
+  props,
+  ref
+) {
   const [mounted, setMounted] = useState(false)
   // Workaround annoying race condition
   const openRef = useRef(props.open)

@@ -5,19 +5,13 @@
 // It also ensures that when transitioning to open on mount the state is always clean, not affected by previous states that could
 // cause race conditions.
 
-import React, {
-  useEffect,
-  useImperativeHandle,
-  useMemo,
-  useRef,
-  useState,
-} from 'react'
+import React, { useEffect, useImperativeHandle, useRef, useState } from 'react'
 import { animated, interpolate, useSpring } from 'react-spring'
 import { useDrag } from 'react-use-gesture'
 import {
-  useFocusTrap,
   useAriaHider,
   useDimensions,
+  useFocusTrap,
   useReducedMotion,
   useScrollLock,
   useSnapPoints,
@@ -26,11 +20,10 @@ import {
 import type {
   defaultSnapProps,
   Props,
-  SnapPointProps,
   RefHandles,
-  SpringEvent,
+  SnapPointProps,
 } from './types'
-import { clamp, isNumber } from './utils'
+import { clamp } from './utils'
 
 // How many pixels above the viewport height the user is allowed to drag the bottom sheet
 const MAX_OVERFLOW = 120
@@ -40,7 +33,7 @@ const EXPERIMENTAL_FAST_TRANSITION = false
 export const BottomSheet = React.forwardRef<
   RefHandles,
   { openRef: React.RefObject<boolean> } & Props
->(function BottomSheet(
+>(function BottomSheetInternal(
   {
     children,
     className,
@@ -74,7 +67,6 @@ export const BottomSheet = React.forwardRef<
   const [ready, setReady] = useState(false)
 
   const dismissable = !!onDismiss
-  const springTypeRef = useRef<SpringEvent['type']>(null)
   // Controls the drag handler, used by spring operations that happen outside the render loop in React
   const canDragRef = useRef(false)
 
@@ -169,7 +161,6 @@ export const BottomSheet = React.forwardRef<
   useEffect(() => {
     // If we're firing before the dom is mounted then contentHeight will be 0 and we should return default values
     if (contentHeight === 0) {
-      console.error('oh danm oh no')
       defaultSnapRef.current = 0
       return
     }
@@ -200,26 +191,17 @@ export const BottomSheet = React.forwardRef<
     if (!ready && maxHeight && contentHeight) {
       setReady(true)
     }
-  }, [ready, contentHeight, maxHeight])
+  }, [contentHeight, maxHeight, ready])
 
   // Handle closed to open transition
   useEffect(() => {
     if (!ready || off) return
-
-    console.error('OPEN_START')
 
     let cancelled = false
     const cleanup = () => {
       scrollLockRef.current.deactivate()
       focusTrapRef.current.deactivate()
       ariaHiderRef.current.deactivate()
-
-      if (springTypeRef.current !== null) {
-        console.error(
-          `Possible race condition during OPEN cleanup, expected null but got ${springTypeRef.current}`
-        )
-      }
-      springTypeRef.current = null
       canDragRef.current = false
     }
     const maybeCancel = () => {
@@ -239,13 +221,6 @@ export const BottomSheet = React.forwardRef<
         console.group('OPEN')
         if (maybeCancel()) return
 
-        if (springTypeRef.current !== null) {
-          console.error(
-            `Possible race condition during OPEN startup, expected null but got ${springTypeRef.current}`
-          )
-        }
-
-        springTypeRef.current = 'OPEN'
         await onSpringStartRef.current?.({ type: 'OPEN' })
 
         if (maybeCancel()) return
@@ -312,12 +287,6 @@ export const BottomSheet = React.forwardRef<
 
         if (maybeCancel()) return
 
-        if (springTypeRef.current !== 'OPEN') {
-          console.error(
-            `Possible race condition, expected OPEN but got ${springTypeRef.current}`
-          )
-        }
-        springTypeRef.current = null
         await onSpringEndRef.current?.({ type: 'OPEN' })
 
         console.log('async open transition done', { cancelled })
@@ -328,22 +297,20 @@ export const BottomSheet = React.forwardRef<
     })
 
     return () => {
-      console.error('OPEN_END')
       startOnRef.current = false
       // Start signalling to the async flow that we have to abort
       cancelled = true
-      console.log('it was open but now it closed!', springTypeRef.current)
       // And proceed to optimistic cleanup
       cleanup()
     }
   }, [
-    prefersReducedMotion,
-    set,
-    off,
-    ready,
-    scrollLockRef,
     ariaHiderRef,
     focusTrapRef,
+    off,
+    prefersReducedMotion,
+    ready,
+    scrollLockRef,
+    set,
   ])
 
   // Handle open to closed animations
@@ -354,20 +321,10 @@ export const BottomSheet = React.forwardRef<
       startOffRef.current = false
       return
     }
-    console.error('CLOSE_START')
 
     let cancelled = false
-    const cleanup = () => {
-      if (springTypeRef.current !== null) {
-        console.error(
-          `Possible race condition during CLOSE cleanup, expected null but got ${springTypeRef.current}`
-        )
-      }
-      springTypeRef.current = null
-    }
     const maybeCancel = () => {
       if (cancelled) {
-        cleanup()
         onSpringCancelRef.current?.({ type: 'CLOSE' })
 
         console.groupEnd()
@@ -381,13 +338,7 @@ export const BottomSheet = React.forwardRef<
         console.group('CLOSE')
         if (maybeCancel()) return
 
-        if (springTypeRef.current !== null) {
-          console.error(
-            `Possible race condition during CLOSE startup, expected null but got ${springTypeRef.current}`
-          )
-        }
-
-        springTypeRef.current = 'CLOSE'
+        canDragRef.current = false
         await onSpringStartRef.current?.({ type: 'CLOSE' })
 
         if (maybeCancel()) return
@@ -408,12 +359,6 @@ export const BottomSheet = React.forwardRef<
         }
         if (maybeCancel()) return
 
-        if (springTypeRef.current !== 'CLOSE') {
-          console.error(
-            `Possible race condition, expected CLOSE but got ${springTypeRef.current}`
-          )
-        }
-        springTypeRef.current = null
         await onSpringEndRef.current?.({ type: 'CLOSE' })
 
         console.log('async close transition done', { cancelled })
@@ -424,15 +369,11 @@ export const BottomSheet = React.forwardRef<
     })
 
     return () => {
-      console.error('CLOSE_END')
       startOffRef.current = false
       // Start signalling to the async flow that we have to abort
       cancelled = true
-      console.log('it was closed but now it open!', springTypeRef.current)
-      // And proceed to optimistic cleanup
-      cleanup()
     }
-  }, [prefersReducedMotion, on, set, ready])
+  }, [on, prefersReducedMotion, ready, set])
 
   useImperativeHandle(
     forwardRef,
@@ -454,16 +395,9 @@ export const BottomSheet = React.forwardRef<
           nextHeight = maybeHeightUpdater
         }
 
-        if (process.env.NODE_ENV !== 'production' && !isNumber(nextHeight)) {
-          console.error(
-            'setSnapPoint expects valid numbers, instead it got: ',
-            nextHeight
-          )
-          return
-        }
-
         nextHeight = toSnapPoint(nextHeight)
 
+        // @TODO refactor to setState and useEffect hooks to easier track cancel events
         set({
           // @ts-expect-error
           y: nextHeight,

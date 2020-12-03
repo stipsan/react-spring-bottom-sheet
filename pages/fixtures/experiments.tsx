@@ -1,11 +1,14 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import useInterval from '@use-it/interval'
+import { memo, useCallback, useEffect, useMemo, useState } from 'react'
 import Button from '../../docs/fixtures/Button'
 import Code from '../../docs/fixtures/Code'
 import Container from '../../docs/fixtures/Container'
 import Kbd from '../../docs/fixtures/Kbd'
 import SheetContent from '../../docs/fixtures/SheetContent'
 import { BottomSheet } from '../../src'
-import { useInterval } from '../../src/hooks'
+
+// Just to test we can stop re-renders with this pattern when necessary
+const MemoBottomSheet = memo(BottomSheet)
 
 function One() {
   const [open, setOpen] = useState(false)
@@ -37,19 +40,19 @@ function One() {
     if (open) {
       setSeconds(seconds + 1)
     }
-  }, 10000)
+  }, 100)
 
   return (
     <>
       <Button onClick={() => setOpen(true)}>{seconds}</Button>
-      <BottomSheet
+      <MemoBottomSheet
         style={style}
         open={open}
         header={false}
         onDismiss={onDismiss}
       >
         {children}
-      </BottomSheet>
+      </MemoBottomSheet>
     </>
   )
 }

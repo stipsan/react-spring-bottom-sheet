@@ -1,7 +1,5 @@
 /* eslint-disable no-self-compare */
 
-export const isNumber = (n: any) => !isNaN(parseFloat(n)) && isFinite(n)
-
 // stolen from lodash
 export function clamp(number: number, lower: number, upper: number) {
   number = +number

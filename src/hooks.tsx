@@ -1,13 +1,13 @@
-import { createFocusTrap } from 'focus-trap'
 import { disableBodyScroll, enableBodyScroll } from 'body-scroll-lock'
+import { createFocusTrap } from 'focus-trap'
 import React, {
   useCallback,
+  useDebugValue,
   useEffect,
+  useLayoutEffect as useLayoutEffectSafely,
   useMemo,
   useRef,
   useState,
-  useLayoutEffect as useLayoutEffectSafely,
-  useDebugValue,
 } from 'react'
 import ResizeObserver from 'resize-observer-polyfill'
 import type { SnapPointProps, snapPoints } from './types'
@@ -207,24 +207,6 @@ export const useDimensions = ({
   }
 }
 
-export const useInterval = (callback, delay) => {
-  const savedCallback = useRef<() => any>()
-
-  useEffect(() => {
-    savedCallback.current = callback
-  }, [callback])
-
-  useEffect(() => {
-    function tick() {
-      savedCallback.current()
-    }
-    if (delay !== null) {
-      let id = setInterval(tick, delay)
-      return () => clearInterval(id)
-    }
-  }, [delay])
-}
-
 export function usePrevious<T>(value: T): T {
   const ref = useRef<T>(value)
 
@@ -286,7 +268,7 @@ export const useScrollLock = ({
         enableBodyScroll(target)
       },
     }
-  }, [targetRef, enabled])
+  }, [enabled, targetRef])
 
   return ref
 }
@@ -424,7 +406,7 @@ export const useFocusTrap = ({
         trap.deactivate()
       },
     }
-  }, [targetRef, enabled, fallbackRef, initialFocusRef])
+  }, [enabled, fallbackRef, initialFocusRef, targetRef])
 
   return ref
 }
