@@ -78,6 +78,16 @@ export const BottomSheet = React.forwardRef<
   // Controls the drag handler, used by spring operations that happen outside the render loop in React
   const canDragRef = useRef(false)
 
+  // This way apps don't have to remember to wrap their callbacks in useCallback to avoid breaking the sheet
+  const onSpringStartRef = useRef(onSpringStart)
+  const onSpringCancelRef = useRef(onSpringCancel)
+  const onSpringEndRef = useRef(onSpringEnd)
+  useEffect(() => {
+    onSpringStartRef.current = onSpringStart
+    onSpringCancelRef.current = onSpringCancel
+    onSpringEndRef.current = onSpringEnd
+  }, [onSpringCancel, onSpringStart, onSpringEnd])
+
   // Behold, the engine of it all!
   const [spring, set] = useSpring(() => ({
     from: { y: 0, opacity: 0, backdrop: 0 },
@@ -205,9 +215,7 @@ export const BottomSheet = React.forwardRef<
     const maybeCancel = () => {
       if (cancelled) {
         cleanup()
-        if (onSpringCancel) {
-          onSpringCancel({ type: 'OPEN' })
-        }
+        onSpringCancelRef.current?.({ type: 'OPEN' })
 
         console.groupEnd()
       }
@@ -224,7 +232,7 @@ export const BottomSheet = React.forwardRef<
         console.info('before onSpringStart[OPEN]', springTypeRef.current)
 
         springTypeRef.current = 'OPEN'
-        await onSpringStart?.({ type: 'OPEN' })
+        await onSpringStartRef.current?.({ type: 'OPEN' })
 
         if (maybeCancel()) return
 
@@ -293,7 +301,7 @@ export const BottomSheet = React.forwardRef<
         if (maybeCancel()) return
 
         springTypeRef.current = null
-        await onSpringEnd?.({ type: 'OPEN' })
+        await onSpringEndRef.current?.({ type: 'OPEN' })
 
         console.log('async open transition done', { cancelled })
         if (!cancelled) {
@@ -323,8 +331,8 @@ export const BottomSheet = React.forwardRef<
 
   // Handle open to closed animations
   useEffect(() => {
-    if (!ready || on || startOffRef.current) {
-      console.log('cancelled closing!!', { ready, on, startOffRef })
+    if (!ready || on) {
+      console.log('cancelled closing!', { ready, on, startOffRef, startOnRef })
       return
     }
     heightRef.current = 0
