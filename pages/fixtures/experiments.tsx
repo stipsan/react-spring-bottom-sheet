@@ -271,7 +271,7 @@ function Seven() {
             : 0
         }
         onDismiss={() => setOpen(false)}
-        snapPoints={({ minHeight, maxHeight }) => [minHeight, maxHeight]}
+        snapPoints={({ maxHeight }) => [maxHeight]}
       >
         <SheetContent>maxHeight {shift ? 'shifted' : 'normal'}</SheetContent>
       </BottomSheet>

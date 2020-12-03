@@ -98,12 +98,6 @@ export const BottomSheet = React.forwardRef<
     window.set = set
   }
 
-  // Rules:
-  // useDrag and interpolate functions capture values in the scope and is refreshed when rerender
-  // @TODO check if same is true for spring events as onRest and those events
-
-  const shouldCloseRef = useRef(off)
-  shouldCloseRef.current = off
   const containerRef = useRef<HTMLDivElement>(null)
   const backdropRef = useRef<HTMLDivElement>(null)
   const contentRef = useRef<HTMLDivElement>(null)
@@ -198,7 +192,7 @@ export const BottomSheet = React.forwardRef<
     forwardRef,
     () => ({
       snapTo: (maybeHeightUpdater) => {
-        if (shouldCloseRef.current || off) return
+        if (off) return
         let nextHeight: number
         if (typeof maybeHeightUpdater === 'function') {
           nextHeight = maybeHeightUpdater({
