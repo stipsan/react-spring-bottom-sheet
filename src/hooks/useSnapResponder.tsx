@@ -62,6 +62,7 @@ export function useSnapResponder({
     tick((_) => ++_)
   }, [])
   const updatedRef = useRef(false)
+  const observeBoundsRef = useRef(false)
 
   const maxHeightRef = useRef(maxHeight)
   const minSnapRef = useRef(minSnap)
@@ -73,38 +74,37 @@ export function useSnapResponder({
       if (maxHeightRef.current !== maxHeight) {
         console.log('maxHeight changed!')
         maxSnapRef.current = maxHeight
-        updateSnap()
       }
       if (maxSnapRef.current !== maxSnap) {
         maxSnapRef.current = maxSnap
         console.log('maxSnap changed!')
-        updateSnap()
       }
       if (minSnapRef.current !== minSnap) {
         console.log('minSnap changed!')
         minSnapRef.current = minSnap
-        updateSnap()
       }
+      updateSnap()
     }
   }, [draggingRef, maxHeight, updateSnap, minSnap, maxSnap])
 
   // Respond to requests to snap
   useEffect(() => {
-    if (tick && !updatedRef.current) {
+    if (tick && observeBoundsRef.current && !draggingRef.current) {
       console.log({ heightRef: heightRef.current })
+
       const snap = findSnap(heightRef.current)
       console.log({ snap })
       heightRef.current = snap
       lastSnapRef.current = snap
       set({ y: snap, immediate: prefersReducedMotion.current })
-      updatedRef.current = true
     }
-  }, [findSnap, heightRef, lastSnapRef, prefersReducedMotion, set])
+  }, [draggingRef, findSnap, heightRef, lastSnapRef, prefersReducedMotion, set])
 
   return {
     maxHeightRef,
     minSnapRef,
     maxSnapRef,
     updateSnap,
+    observeBoundsRef,
   }
 }

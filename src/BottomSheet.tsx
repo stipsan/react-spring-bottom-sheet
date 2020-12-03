@@ -138,19 +138,23 @@ export const BottomSheet = React.forwardRef<
 
     defaultSnapRef.current = findSnap(getDefaultSnap)
   }, [findSnap, getDefaultSnap, ready])
-  const { maxHeightRef, maxSnapRef, minSnapRef, updateSnap } = useSnapResponder(
-    {
-      draggingRef,
-      maxHeight,
-      minSnap,
-      prefersReducedMotion,
-      maxSnap,
-      findSnap,
-      heightRef,
-      lastSnapRef,
-      set,
-    }
-  )
+  const {
+    maxHeightRef,
+    maxSnapRef,
+    minSnapRef,
+    updateSnap,
+    observeBoundsRef,
+  } = useSnapResponder({
+    draggingRef,
+    maxHeight,
+    minSnap,
+    prefersReducedMotion,
+    maxSnap,
+    findSnap,
+    heightRef,
+    lastSnapRef,
+    set,
+  })
   useImperativeHandle(
     forwardRef,
     () => ({
@@ -193,6 +197,7 @@ export const BottomSheet = React.forwardRef<
       // @ts-expect-error
       to: async (next) => {
         console.group('OPEN')
+        observeBoundsRef.current = false
         if (maybeCancel()) return
 
         await onSpringStartRef.current?.({ type: 'OPEN' })
@@ -264,6 +269,7 @@ export const BottomSheet = React.forwardRef<
         onSpringEndRef.current?.({ type: 'OPEN' })
 
         if (!cancelled) {
+          observeBoundsRef.current = true
           console.groupEnd()
         }
       },
@@ -279,6 +285,7 @@ export const BottomSheet = React.forwardRef<
   }, [
     ariaHiderRef,
     focusTrapRef,
+    observeBoundsRef,
     off,
     prefersReducedMotion,
     ready,
@@ -300,6 +307,7 @@ export const BottomSheet = React.forwardRef<
       return cancelled
     }
 
+    observeBoundsRef.current = false
     set({
       // @ts-expect-error
       to: async (next) => {
@@ -329,6 +337,7 @@ export const BottomSheet = React.forwardRef<
         onSpringEndRef.current?.({ type: 'CLOSE' })
 
         if (!cancelled) {
+          observeBoundsRef.current = true
           console.groupEnd()
         }
       },
