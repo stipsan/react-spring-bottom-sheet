@@ -50,9 +50,9 @@ export const BottomSheet = React.forwardRef<
     blocking = true,
     scrollLocking = true,
     style,
-    onSpringStart = (event) => console.warn('onSpringStart', event),
-    onSpringCancel = (event) => console.error('onSpringCancel', event),
-    onSpringEnd = (event) => console.warn('onSpringEnd', event),
+    onSpringStart,
+    onSpringCancel,
+    onSpringEnd,
     ...props
   },
   forwardRef
@@ -83,9 +83,6 @@ export const BottomSheet = React.forwardRef<
   // Behold, the engine of it all!
   const [spring, set] = useSpring(() => ({
     from: { y: 0, opacity: 0, backdrop: 0 },
-    onStart: (...args) => console.debug('onStart', ...args),
-    onFrame: (...args) => console.debug('onFrame', ...args),
-    onRest: (...args) => console.debug('onRest', ...args),
   }))
   // @ts-expect-error
   const { y } = spring

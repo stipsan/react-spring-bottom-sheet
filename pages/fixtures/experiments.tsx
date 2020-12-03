@@ -170,6 +170,9 @@ function Five() {
         open={open}
         footer={<strong>Sticky footer</strong>}
         onDismiss={onDismiss}
+        onSpringStart={(event) => console.warn('onSpringStart', event)}
+        onSpringCancel={(event) => console.error('onSpringCancel', event)}
+        onSpringEnd={(event) => console.warn('onSpringEnd', event)}
         defaultSnap={({ lastSnap }) => lastSnap}
         snapPoints={({ minHeight, headerHeight, footerHeight }) => [
           headerHeight,
