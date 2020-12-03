@@ -4,13 +4,14 @@ import React, {
   useDebugValue,
   useEffect,
   useLayoutEffect as useLayoutEffectSafely,
-  useMemo,
   useRef,
   useState,
 } from 'react'
 import type { SnapPointProps, snapPoints } from '../types'
 import { clamp, roundAndCheckForNaN } from '../utils'
 export { useDimensions } from './useDimensions'
+export { usePrevious } from './usePrevious'
+export { useReducedMotion } from './useReducedMotion'
 
 // Blazingly keep track of the current viewport height without blocking the thread, keeping that sweet 60fps on smartphones
 export const useViewportHeight = (controlledMaxHeight) => {
@@ -46,29 +47,6 @@ export const useViewportHeight = (controlledMaxHeight) => {
   }, [controlledMaxHeight])
 
   return controlledMaxHeight || viewportHeight
-}
-
-// @TODO refactor to useState instead of useRef
-export function useReducedMotion() {
-  const mql = useMemo(
-    () =>
-      typeof window !== 'undefined'
-        ? window.matchMedia('(prefers-reduced-motion: reduce)')
-        : null,
-    []
-  )
-  const ref = useRef(mql?.matches)
-
-  useEffect(() => {
-    const handler = (event) => {
-      ref.current = event.matches
-    }
-    mql?.addListener(handler)
-
-    return () => mql?.removeListener(handler)
-  }, [mql])
-
-  return ref
 }
 
 type UseSnapPointsProps = {
@@ -132,16 +110,6 @@ export const useSnapPoints = ({
   useDebugValue(snapPoints, (snapPoints) => snapPoints.sort())
 
   return { snapPoints, minSnap, maxSnap, toSnapPoint }
-}
-
-export function usePrevious<T>(value: T): T {
-  const ref = useRef<T>(value)
-
-  useEffect(() => {
-    ref.current = value
-  }, [value])
-
-  return ref.current
 }
 
 /**

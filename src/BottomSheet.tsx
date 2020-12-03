@@ -11,12 +11,13 @@ import { useDrag } from 'react-use-gesture'
 import {
   useAriaHider,
   useFocusTrap,
-  useReducedMotion,
   useScrollLock,
   useSnapPoints,
   useViewportHeight,
   useDimensions,
+  useReducedMotion,
 } from './hooks'
+
 import type {
   defaultSnapProps,
   Props,
