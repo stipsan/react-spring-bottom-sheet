@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import Button from '../../docs/fixtures/Button'
 import Container from '../../docs/fixtures/Container'
 import SheetContent from '../../docs/fixtures/SheetContent'
@@ -7,7 +7,11 @@ import HeadTitle from '../../docs/HeadTitle'
 import { BottomSheet } from '../../src'
 
 export default function StickyFixturePage() {
-  const [open, setOpen] = useState(true)
+  const [open, setOpen] = useState(false)
+
+  useEffect(() => {
+    setOpen(true)
+  }, [])
 
   function onDismiss() {
     setOpen(false)
@@ -21,12 +25,12 @@ export default function StickyFixturePage() {
         <BottomSheet
           open={open}
           onDismiss={onDismiss}
-          initialSnapPoint={({ snapPoints, lastSnap }) =>
+          defaultSnap={({ snapPoints, lastSnap }) =>
             lastSnap ?? Math.max(...snapPoints)
           }
-          snapPoints={({ viewportHeight }) => [
-            viewportHeight - viewportHeight / 10,
-            viewportHeight * 0.6,
+          snapPoints={({ maxHeight }) => [
+            maxHeight - maxHeight / 10,
+            maxHeight * 0.6,
           ]}
           header={
             <h1 className="flex items-center text-xl justify-center font-bold text-gray-800">

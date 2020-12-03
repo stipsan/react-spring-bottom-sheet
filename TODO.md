@@ -3,23 +3,16 @@ Stop relying on memo stuff.
 If react's render loop triggers, communicate to outside fn's via refs and the like.
 A change to snap points affects how far one can drag.
 
-```
-max-content
-  The intrinsic preferred width.
-min-content
-  The intrinsic minimum width.
-fit-content(<length-percentage>)
-  Uses the fit-content formula with the available space replaced by the specified argument, i.e. min(max-content, max(min-content, <length-percentage>)).
-
-```
-
-hmmmm
-
-- viewportHeight => maxHeight
-- initialHeight => initialSnapPoint => initialSnap => defaultSnap
-- setHeight => setSnapPoint => setSnap => snapTo
-
 fix uneven icon that is being animated, the corner is driving me crazy...
+
+# Remaining critical stuff
+
+- respond to viewport height changes
+- respond to snapTo callback
+- fire events when stopping the dragging and transition to snap.
+- respond to changes to snapPoints output
+- don't respond to changes to defaultSnap, it shouldn't act like controlled height.
+- optimize element resize observers, perhaps run them all in a chain.
 
 ## package.json stuffs
 
@@ -54,18 +47,14 @@ if (JSON.stringify(arr1) === JSON.stringify(arr2)) {
 }
 ```
 
+# useState bad, bad bad bad and useViewportHeight and useElementSizeObserver both use it
+
+Rewrite to refs, the nextTick system. Create an initial step for getting all dimensions. Then setup observers that set refs.
+
 Faux plugin architecture. "Plugins" or "hooks" can register in an es6 map if they want to do work before the animation starts, while the bottom sheet is resting in the final state but opacity: 0. This allows setting up focus lock, scroll lock and more ahead of time. Hopefully alleviating a lot of jank.
 
 a transition to close can be cancelled if the open state is changed back to `true`.
 open/close is fairly easy and stabl. snap to snap on the other hand, require diligence in making sure whoever cancels a snap transition, makes sure to send the animation on the right direction.
-
-## Changes that can happen from React's side of things at any time by means of a prop change
-
-And that may affect side effects that are running atm
-
-- isOpen
-- snapPoints
-- initialHeight
 
 ## Big picture state machines
 
@@ -90,8 +79,4 @@ tailwind rsbs
 - blue gray shades on content below header
 
 important:
-lastSnap on initialSnap, to make it persist your choice.
-only fade out when dismissable
 show inertia location to predict where sheet slides on release
-don't fade in if not dismissable
-show resize cursor instead of pointer when not dismissable

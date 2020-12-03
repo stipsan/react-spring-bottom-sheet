@@ -9,7 +9,7 @@ import SheetContent from '../../docs/fixtures/SheetContent'
 import SnapMarker from '../../docs/fixtures/SnapMarker'
 import { scrollable } from '../../docs/headings'
 import HeadTitle from '../../docs/HeadTitle'
-import { BottomSheet, ForwardedRefType } from '../../src'
+import { BottomSheet, BottomSheetRef } from '../../src'
 
 const rand = (_) => _[~~(Math.random() * _.length)]
 const colors = [
@@ -46,7 +46,7 @@ const rows = Array.from(Array(20), (_, x) => ({
 
 export default function ScrollableFixturePage() {
   const focusRef = useRef<HTMLButtonElement>()
-  const sheetRef = useRef<ForwardedRefType>()
+  const sheetRef = useRef<BottomSheetRef>()
 
   return (
     <>
@@ -71,11 +71,11 @@ export default function ScrollableFixturePage() {
           open
           ref={sheetRef}
           initialFocusRef={focusRef}
-          initialSnapPoint={({ snapPoints: [, _] }) => _}
-          snapPoints={({ viewportHeight }) => [
-            viewportHeight - viewportHeight / 10,
-            viewportHeight / 4,
-            viewportHeight * 0.6,
+          defaultSnap={({ maxHeight }) => maxHeight / 2}
+          snapPoints={({ maxHeight }) => [
+            maxHeight - maxHeight / 10,
+            maxHeight / 4,
+            maxHeight * 0.6,
           ]}
         >
           <SheetContent>
@@ -84,9 +84,8 @@ export default function ScrollableFixturePage() {
                 textSize="text-sm"
                 padding="px2 py-1"
                 onClick={() =>
-                  sheetRef.current.setSnapPoint(
-                    // the snapPoints are always asc sorted, thus it's safe to pick by index
-                    ({ snapPoints: [, , snapPoint] }) => snapPoint
+                  sheetRef.current.snapTo(({ snapPoints }) =>
+                    Math.max(...snapPoints)
                   )
                 }
               >
@@ -97,9 +96,7 @@ export default function ScrollableFixturePage() {
                 textSize="text-sm"
                 padding="px2 py-1"
                 onClick={() =>
-                  sheetRef.current.setSnapPoint(
-                    ({ snapPoints: [, snapPoint] }) => snapPoint
-                  )
+                  sheetRef.current.snapTo(({ maxHeight }) => maxHeight / 2)
                 }
               >
                 Middle
@@ -108,8 +105,8 @@ export default function ScrollableFixturePage() {
                 textSize="text-sm"
                 padding="px2 py-1"
                 onClick={() =>
-                  sheetRef.current.setSnapPoint(
-                    ({ snapPoints: [snapPoint] }) => snapPoint
+                  sheetRef.current.snapTo(({ snapPoints }) =>
+                    Math.min(...snapPoints)
                   )
                 }
               >

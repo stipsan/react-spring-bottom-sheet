@@ -1,24 +1,31 @@
 /* eslint-disable react/jsx-pascal-case */
 import Portal from '@reach/portal'
-import React, { forwardRef, useEffect, useState } from 'react'
+import React, { forwardRef, useRef, useState } from 'react'
 import { BottomSheet as _BottomSheet } from './BottomSheet'
-import type { SharedProps } from './types'
+import type { Props, RefHandles } from './types'
+import { useLayoutEffect } from './hooks'
 
-export type { ForwardedRefType } from './types'
+export type { RefHandles as BottomSheetRef } from './types'
 
 // Because SSR is annoying to deal with, and all the million complaints about window, navigator and dom elenents!
-export const BottomSheet = forwardRef<HTMLDivElement, SharedProps>(
-  (props, ref) => {
-    const [mounted, setMounted] = useState(false)
+export const BottomSheet = forwardRef<RefHandles, Props>(function BottomSheet(
+  props,
+  ref
+) {
+  const [mounted, setMounted] = useState(false)
+  // Workaround annoying race condition
+  const openRef = useRef(props.open)
 
-    useEffect(() => {
-      setMounted(true)
-    }, [])
+  // Using layout effect to support cases where the bottom sheet have to appear already open, no transition
+  useLayoutEffect(() => {
+    setMounted(true)
+  }, [])
 
-    return (
-      <Portal data-rsbs-portal>
-        {mounted && <_BottomSheet {...props} ref={ref} />}
-      </Portal>
-    )
-  }
-)
+  return (
+    <Portal data-rsbs-portal>
+      {mounted && (
+        <_BottomSheet key="mounted" {...props} openRef={openRef} ref={ref} />
+      )}
+    </Portal>
+  )
+})

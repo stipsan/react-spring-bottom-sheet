@@ -1,4 +1,4 @@
-export type SnapPointArg = {
+export type SnapPointProps = {
   /** The height of the sticky footer, if there's one */
   headerHeight: number
   /** The height of the sticky footer, if there's one */
@@ -7,40 +7,44 @@ export type SnapPointArg = {
   height: number
   /** Minimum height needed to avoid scroll overflow in the content area, if possible. */
   minHeight: number
-  /** Use this instead of reading from window.innerHeight yourself, this helps prevent unnecessary reflows. */
-  viewportHeight: number
+  /** Max height the sheet can be, your snap points are capped to this value. It's window.innerHeight by default but can be overriden using the maxHeight prop. */
+  maxHeight: number
 }
 
-export type snapPoints = (args: SnapPointArg) => number[] | number
+export type snapPoints = (props: SnapPointProps) => number[] | number
 
-export type initialSnapPointArg = {
+export type defaultSnapProps = {
+  /** The snap points currently in use, this can be controlled by providing a `snapPoints` function on the bottom sheet. */
   snapPoints: number[]
   /** The last snap point the user dragged to, if any. 0 if the user haven't interacted */
   lastSnap: number | null
-} & SnapPointArg
+} & SnapPointProps
 
-type initialSnapPoint = (args: initialSnapPointArg) => number
+type defaultSnap = (props: defaultSnapProps) => number
 
 /* Might make sense to expose a preventDefault method here */
-type SpringEvent = {
+export type SpringEvent = {
   type: 'OPEN' | 'SNAP' | 'CLOSE'
 }
 
 // Rename to Props! Woohoo!
-export type SharedProps = {
+export type Props = {
   children: React.ReactNode
 
   /**
-   * Start a transition from closed to open, open to closed, or snap to snap
+   * Start a transition from closed to open, open to closed, or snap to snap.
+   * Return a promise or async to delay the start of the transition, just remember it can be cancelled.
    */
   onSpringStart?: (event: SpringEvent) => void
   /**
-   * A running transition didn't finish or got stopped
+   * A running transition didn't finish or got stopped, this event isn't awaited on and might happen
+   * after the sheet is unmounted (if it were in the middle of something).
    */
   onSpringCancel?: (event: SpringEvent) => void
   /**
    * The transition ended successfully. Handy to know when it's safe to unmount
    * the sheet without interrupting the closing animation.
+   * Return a promise or async to delay the start of the transition, just remember it can be cancelled.
    */
   onSpringEnd?: (event: SpringEvent) => void
 
@@ -77,6 +81,12 @@ export type SharedProps = {
   blocking?: boolean
 
   /**
+   * By default the maxHeight is set to window.innerHeight to match 100vh, and responds to window resize events.
+   * You can override it by giving maxHeight a number, just make sure you handle things like resize events when needed.
+   */
+  maxHeight?: number
+
+  /**
    * Ensures that drag interactions works properly on iOS and Android.
    * If setting this to `false`make sure you test on real iOS and Android devices to ensure the dragging interactions don't break.
    * @default true
@@ -87,18 +97,16 @@ export type SharedProps = {
   snapPoints?: snapPoints
 
   /** Handler that is called to get the initial height of the bottom sheet when it's opened (or when the viewport is resized). */
-  initialSnapPoint?: initialSnapPoint
+  defaultSnap?: defaultSnap
 } & Omit<React.PropsWithoutRef<JSX.IntrinsicElements['div']>, 'children'>
 
-type snapPointSetter = (state: initialSnapPointArg) => number
-/**
- * When given a number it'll find the closest snap point, so you don't need to know the exact value,
- * Use the callback method to access what snap points you can choose from.
- *
- */
-export type setSnapPoint = (fuzzySnapPoint: number | snapPointSetter) => void
-
-// Typings for the forwarded ref, useful as TS can't infer that `setSnapPoint` is available by itself
-export type ForwardedRefType = {
-  setSnapPoint: setSnapPoint
-} & HTMLDivElement
+export interface RefHandles {
+  /**
+   * When given a number it'll find the closest snap point, so you don't need to know the exact value,
+   * Use the callback method to access what snap points you can choose from.
+   *
+   */
+  snapTo: (
+    fuzzySnapPoint: number | ((state: defaultSnapProps) => number)
+  ) => void
+}

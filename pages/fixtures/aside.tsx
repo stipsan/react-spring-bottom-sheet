@@ -12,6 +12,7 @@ export default function AsideFixturePage() {
   const focusRef = useRef<HTMLButtonElement>()
 
   useEffect(() => {
+    // Setting focus is to aid keyboard and screen reader nav when activating this iframe
     focusRef.current.focus()
   }, [])
 
@@ -26,10 +27,7 @@ export default function AsideFixturePage() {
           open={open}
           onDismiss={() => setOpen(false)}
           blocking={false}
-          snapPoints={({ viewportHeight }) => [
-            viewportHeight / 4,
-            viewportHeight * 0.6,
-          ]}
+          snapPoints={({ maxHeight }) => [maxHeight / 4, maxHeight * 0.6]}
         >
           <SheetContent>
             <p>
