@@ -15,9 +15,11 @@ import { useDebugValue, useEffect, useRef } from 'react'
 export function useScrollLock({
   targetRef,
   enabled,
+  reserveScrollBarGap,
 }: {
   targetRef: React.RefObject<Element>
   enabled: boolean
+  reserveScrollBarGap: boolean
 }) {
   const ref = useRef<{ activate: () => void; deactivate: () => void }>({
     activate: () => {
@@ -44,6 +46,7 @@ export function useScrollLock({
         active = true
         disableBodyScroll(target, {
           allowTouchMove: (el) => el.closest('[data-body-scroll-lock-ignore]'),
+          reserveScrollBarGap,
         })
       },
       deactivate: () => {
@@ -52,7 +55,7 @@ export function useScrollLock({
         enableBodyScroll(target)
       },
     }
-  }, [enabled, targetRef])
+  }, [enabled, targetRef, reserveScrollBarGap])
 
   return ref
 }

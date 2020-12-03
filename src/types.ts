@@ -98,6 +98,9 @@ export type Props = {
 
   /** Handler that is called to get the initial height of the bottom sheet when it's opened (or when the viewport is resized). */
   defaultSnap?: defaultSnap
+
+  /* Configures body-scroll-lock to reserve scrollbar gap by setting padding on <body>, clears when closing the bottom sheet. on by default iff blocking=true  */
+  reserveScrollBarGap?: boolean
 } & Omit<React.PropsWithoutRef<JSX.IntrinsicElements['div']>, 'children'>
 
 export interface RefHandles {

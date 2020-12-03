@@ -5,19 +5,19 @@
 // It also ensures that when transitioning to open on mount the state is always clean, not affected by previous states that could
 // cause race conditions.
 
-import React, { useEffect, useImperativeHandle, useRef, useState } from 'react'
+import React, { useEffect, useImperativeHandle, useRef } from 'react'
 import { animated, interpolate, useSpring } from 'react-spring'
 import { useDrag } from 'react-use-gesture'
 import {
   useAriaHider,
+  useDimensions,
   useFocusTrap,
+  useReady,
+  useReducedMotion,
   useScrollLock,
   useSnapPoints,
-  useDimensions,
-  useReducedMotion,
-  useReady,
+  useSnapResponder,
 } from './hooks'
-
 import type {
   defaultSnapProps,
   Props,
@@ -57,6 +57,7 @@ export const BottomSheet = React.forwardRef<
     onSpringStart,
     onSpringCancel,
     onSpringEnd,
+    reserveScrollBarGap = blocking,
     ...props
   },
   forwardRef
@@ -121,6 +122,7 @@ export const BottomSheet = React.forwardRef<
   const scrollLockRef = useScrollLock({
     targetRef: contentRef,
     enabled: ready && scrollLocking,
+    reserveScrollBarGap,
   })
   const ariaHiderRef = useAriaHider({
     targetRef: containerRef,
@@ -186,6 +188,55 @@ export const BottomSheet = React.forwardRef<
     snapPoints,
     toSnapPoint,
   ])
+  const { maxHeightRef, maxSnapRef, minSnapRef } = useSnapResponder({
+    draggingRef,
+    maxHeight,
+    minSnap,
+    maxSnap,
+  })
+  useImperativeHandle(
+    forwardRef,
+    () => ({
+      snapTo: (maybeHeightUpdater) => {
+        if (shouldCloseRef.current || off) return
+        let nextHeight: number
+        if (typeof maybeHeightUpdater === 'function') {
+          nextHeight = maybeHeightUpdater({
+            footerHeight,
+            headerHeight,
+            height: heightRef.current,
+            minHeight,
+            maxHeight,
+            snapPoints,
+            lastSnap: lastSnapRef.current,
+          })
+        } else {
+          nextHeight = maybeHeightUpdater
+        }
+
+        nextHeight = toSnapPoint(nextHeight)
+
+        // @TODO refactor to setState and useEffect hooks to easier track cancel events
+        set({
+          // @ts-expect-error
+          y: nextHeight,
+          immediate: prefersReducedMotion.current,
+        })
+      },
+    }),
+    [
+      footerHeight,
+      headerHeight,
+      lastSnapRef,
+      maxHeight,
+      minHeight,
+      off,
+      prefersReducedMotion,
+      set,
+      snapPoints,
+      toSnapPoint,
+    ]
+  )
 
   // Handle closed to open transition
   useEffect(() => {
@@ -360,50 +411,6 @@ export const BottomSheet = React.forwardRef<
     }
   }, [on, prefersReducedMotion, ready, set])
 
-  useImperativeHandle(
-    forwardRef,
-    () => ({
-      snapTo: (maybeHeightUpdater) => {
-        if (shouldCloseRef.current || off) return
-        let nextHeight: number
-        if (typeof maybeHeightUpdater === 'function') {
-          nextHeight = maybeHeightUpdater({
-            footerHeight,
-            headerHeight,
-            height: heightRef.current,
-            minHeight,
-            maxHeight,
-            snapPoints,
-            lastSnap: lastSnapRef.current,
-          })
-        } else {
-          nextHeight = maybeHeightUpdater
-        }
-
-        nextHeight = toSnapPoint(nextHeight)
-
-        // @TODO refactor to setState and useEffect hooks to easier track cancel events
-        set({
-          // @ts-expect-error
-          y: nextHeight,
-          immediate: prefersReducedMotion.current,
-        })
-      },
-    }),
-    [
-      footerHeight,
-      headerHeight,
-      lastSnapRef,
-      maxHeight,
-      minHeight,
-      off,
-      prefersReducedMotion,
-      set,
-      snapPoints,
-      toSnapPoint,
-    ]
-  )
-
   const getY = ({
     down,
     temp,
@@ -418,32 +425,38 @@ export const BottomSheet = React.forwardRef<
     const rawY = temp - movement
     const predictedDistance = movement * velocity
     const predictedY = Math.max(
-      minSnap,
-      Math.min(maxSnap, rawY - predictedDistance * 2)
+      minSnapRef.current,
+      Math.min(maxSnapRef.current, rawY - predictedDistance * 2)
     )
 
-    if (!down && onDismiss && rawY - predictedDistance < minSnap / 2) {
+    if (
+      !down &&
+      onDismiss &&
+      rawY - predictedDistance < minSnapRef.current / 2
+    ) {
       onDismiss()
       return rawY
     }
 
     if (down) {
-      const scale = maxHeight * 0.38196601124999996
+      const scale = maxHeightRef.current * 0.38196601124999996
 
       // If dragging beyond maxSnap it should decay so the user can feel its out of bounds
-      if (rawY > maxSnap) {
-        const overflow = Math.min(rawY, maxSnap + scale / 2) - maxSnap
+      if (rawY > maxSnapRef.current) {
+        const overflow =
+          Math.min(rawY, maxSnapRef.current + scale / 2) - maxSnapRef.current
         const resistance = Math.min(0.5, overflow / scale) * overflow
 
-        return maxSnap + overflow - resistance
+        return maxSnapRef.current + overflow - resistance
       }
 
       // If onDismiss isn't defined, the user can't flick it out of view and the dragging should decay/slow down
-      if (!onDismiss && rawY < minSnap) {
-        const overflow = minSnap - Math.max(rawY, minSnap - scale / 2)
+      if (!onDismiss && rawY < minSnapRef.current) {
+        const overflow =
+          minSnapRef.current - Math.max(rawY, minSnapRef.current - scale / 2)
         const resistance = Math.min(0.5, overflow / scale) * overflow
 
-        return minSnap - overflow + resistance
+        return minSnapRef.current - overflow + resistance
       }
 
       // apply coordinates as it's being dragged, unless it is out of bounds (in which case a decay should be applied)
@@ -491,7 +504,7 @@ export const BottomSheet = React.forwardRef<
     set({
       // @ts-expect-error
       y: newY,
-      backdrop: clamp(newY / minSnap, 0, 1),
+      backdrop: clamp(newY / minSnapRef.current, 0, 1),
       opacity: 1,
       immediate: prefersReducedMotion.current || down,
       config: {
@@ -533,17 +546,17 @@ export const BottomSheet = React.forwardRef<
 
   // @TODO the ts-ignore comments are because the `extrapolate` param isn't in the TS defs for some reason
   const interpolateBorderRadius =
-    maxHeight !== maxSnap
+    maxHeightRef.current !== maxSnapRef.current
       ? undefined
       : y?.interpolate({
-          range: [maxHeight - 16, maxHeight],
+          range: [maxHeightRef.current - 16, maxHeightRef.current],
           output: ['16px', '0px'],
           extrapolate: 'clamp',
           map: Math.round,
         })
   const interpolateHeightLegacy = y?.interpolate({
-    range: [minSnap, maxSnap],
-    output: [`${minSnap}px`, `${maxSnap}px`],
+    range: [minSnapRef.current, maxSnapRef.current],
+    output: [`${minSnapRef.current}px`, `${maxSnapRef.current}px`],
     extrapolate: 'clamp',
   })
   const interpolateHeight =
@@ -562,8 +575,13 @@ export const BottomSheet = React.forwardRef<
         )
       : interpolateHeightLegacy
   const interpolateYLegacy = y?.interpolate({
-    range: [0, minSnap, maxSnap, maxSnap + MAX_OVERFLOW],
-    output: [`${minSnap}px`, '0px', '0px', `${-MAX_OVERFLOW}px`],
+    range: [
+      0,
+      minSnapRef.current,
+      maxSnapRef.current,
+      maxSnapRef.current + MAX_OVERFLOW,
+    ],
+    output: [`${minSnapRef.current}px`, '0px', '0px', `${-MAX_OVERFLOW}px`],
   })
   const interpolateY =
     EXPERIMENTAL_FAST_TRANSITION && interpolateYLegacy
@@ -572,11 +590,16 @@ export const BottomSheet = React.forwardRef<
             y.interpolate({
               range: [
                 0,
-                minSnap,
+                minSnapRef.current,
                 heightRef.current,
                 heightRef.current + MAX_OVERFLOW,
               ],
-              output: [`${minSnap}px`, '0px', '0px', `${-MAX_OVERFLOW}px`],
+              output: [
+                `${minSnapRef.current}px`,
+                '0px',
+                '0px',
+                `${-MAX_OVERFLOW}px`,
+              ],
             }),
             interpolateYLegacy,
           ],
@@ -584,7 +607,7 @@ export const BottomSheet = React.forwardRef<
         )
       : interpolateYLegacy
   const interpolateFiller = y?.interpolate({
-    range: [0, maxSnap, maxSnap + MAX_OVERFLOW],
+    range: [0, maxSnapRef.current, maxSnapRef.current + MAX_OVERFLOW],
     output: [0, 0, MAX_OVERFLOW],
     map: Math.ceil,
   })
@@ -605,9 +628,9 @@ export const BottomSheet = React.forwardRef<
         ['--rsbs-content-opacity' as any]: y?.interpolate({
           range: [
             0,
-            Math.max(minSnap / 2 - 45, 0),
-            Math.min(minSnap / 2 + 45, minSnap),
-            minSnap,
+            Math.max(minSnapRef.current / 2 - 45, 0),
+            Math.min(minSnapRef.current / 2 + 45, minSnapRef.current),
+            minSnapRef.current,
           ],
           output: [0, 0, 1, 1],
           extrapolate: 'clamp',
@@ -646,7 +669,7 @@ export const BottomSheet = React.forwardRef<
         />
       ) : (
         // backdropRef always needs to be set because of useDrag
-        <div key="backdrop-disabled" ref={backdropRef} />
+        <div key="backdrop" ref={backdropRef} />
       )}
       <div
         key="overlay"
