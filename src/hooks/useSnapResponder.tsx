@@ -33,20 +33,35 @@
  */
 
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { useSnapPoints, useSpring } from './index'
 
 export function useSnapResponder({
   maxHeight,
   minSnap,
   maxSnap,
   draggingRef,
+  heightRef,
+  lastSnapRef,
+  prefersReducedMotion,
+  findSnap,
+  set,
 }: {
   maxHeight: number
   minSnap: number
   maxSnap: number
   draggingRef: React.RefObject<boolean>
+  heightRef: React.MutableRefObject<number>
+  lastSnapRef: React.MutableRefObject<number>
+  prefersReducedMotion: React.MutableRefObject<boolean>
+  findSnap: ReturnType<typeof useSnapPoints>['findSnap']
+  set: ReturnType<typeof useSpring>[1]
 }) {
   const [, tick] = useState(0)
-  const forceRender = useCallback(() => tick((_) => ++_), [])
+  const updateSnap = useCallback(() => {
+    updatedRef.current = false
+    tick((_) => ++_)
+  }, [])
+  const updatedRef = useRef(false)
 
   const maxHeightRef = useRef(maxHeight)
   const minSnapRef = useRef(minSnap)
@@ -54,18 +69,42 @@ export function useSnapResponder({
 
   // Respond to snap point boundaries affecting how the sheet renders
   useEffect(() => {
-    if (!draggingRef.current) {
-      maxHeightRef.current = maxHeight
-      minSnapRef.current = minSnap
-      maxSnapRef.current = maxSnap
-
-      forceRender()
+    if (!draggingRef.current && heightRef.current) {
+      if (maxHeightRef.current !== maxHeight) {
+        console.log('maxHeight changed!')
+        maxSnapRef.current = maxHeight
+        updateSnap()
+      }
+      if (maxSnapRef.current !== maxSnap) {
+        maxSnapRef.current = maxSnap
+        console.log('maxSnap changed!')
+        updateSnap()
+      }
+      if (minSnapRef.current !== minSnap) {
+        console.log('minSnap changed!')
+        minSnapRef.current = minSnap
+        updateSnap()
+      }
     }
-  }, [draggingRef, maxHeight, forceRender, minSnap, maxSnap])
+  }, [draggingRef, maxHeight, updateSnap, minSnap, maxSnap, heightRef])
+
+  // Respond to requests to snap
+  useEffect(() => {
+    if (tick && !updatedRef.current) {
+      console.log({ heightRef: heightRef.current })
+      const snap = findSnap(heightRef.current)
+      console.log({ snap })
+      heightRef.current = snap
+      lastSnapRef.current = snap
+      set({ y: snap, immediate: prefersReducedMotion.current })
+      updatedRef.current = true
+    }
+  }, [findSnap, heightRef, lastSnapRef, prefersReducedMotion, set])
 
   return {
     maxHeightRef,
     minSnapRef,
     maxSnapRef,
+    updateSnap,
   }
 }

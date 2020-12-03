@@ -53,7 +53,7 @@ export const BottomSheet = forwardRef<RefHandles, Props>(function BottomSheet(
       {mounted && (
         <_BottomSheet
           {...props}
-          openRef={openRef}
+          defaultOpen={openRef.current}
           lastSnapRef={lastSnapRef}
           ref={ref}
           onSpringStart={onSpringStart}

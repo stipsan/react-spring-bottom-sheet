@@ -6,17 +6,17 @@
 // cause race conditions.
 
 import React, { useEffect, useImperativeHandle, useRef } from 'react'
-import { animated, interpolate, useSpring } from 'react-spring'
+import { animated } from 'react-spring'
 import { useDrag } from 'react-use-gesture'
 import {
   useAriaHider,
-  useDimensions,
   useFocusTrap,
   useReady,
   useReducedMotion,
   useScrollLock,
   useSnapPoints,
   useSnapResponder,
+  useSpring,
 } from './hooks'
 import type {
   defaultSnapProps,
@@ -33,7 +33,7 @@ const MAX_OVERFLOW = 120
 export const BottomSheet = React.forwardRef<
   RefHandles,
   {
-    openRef: React.RefObject<boolean>
+    defaultOpen: boolean
     lastSnapRef: React.MutableRefObject<number | null>
   } & Props
 >(function BottomSheetInternal(
@@ -43,7 +43,7 @@ export const BottomSheet = React.forwardRef<
     footer,
     header,
     open: _open,
-    openRef,
+    defaultOpen,
     lastSnapRef,
     initialFocusRef,
     onDismiss,
@@ -66,7 +66,7 @@ export const BottomSheet = React.forwardRef<
   const on = _open
   const off = !_open
   // Keep track of the initial states, to detect if the bottom sheet should animate or use immediate
-  const startOnRef = useRef(openRef.current)
+  const startOnRef = useRef(defaultOpen)
   // Before any animations can start we need to measure a few things, like the viewport and the dimensions of content, and header + footer if they exist
   const { ready, registerReady } = useReady()
 
@@ -85,7 +85,7 @@ export const BottomSheet = React.forwardRef<
   }, [onSpringCancel, onSpringStart, onSpringEnd])
 
   // Behold, the engine of it all!
-  const [spring, set] = useSpring(() => ({ y: 0, opacity: 0, backdrop: 0 }))
+  const [spring, set] = useSpring()
 
   const containerRef = useRef<HTMLDivElement>(null)
   const backdropRef = useRef<HTMLDivElement>(null)
@@ -118,23 +118,16 @@ export const BottomSheet = React.forwardRef<
     enabled: ready && blocking,
   })
 
-  const { maxHeight, minHeight, headerHeight, footerHeight } = useDimensions({
-    controlledMaxHeight,
-    headerRef,
-    contentContainerRef,
-    footerRef,
-    registerReady,
-  })
-
-  const { minSnap, maxSnap, findSnap } = useSnapPoints({
+  const { minSnap, maxSnap, maxHeight, findSnap } = useSnapPoints({
     getSnapPoints,
-    footerHeight,
-    headerHeight,
     heightRef,
     lastSnapRef,
-    minHeight,
-    maxHeight,
     ready,
+    contentContainerRef,
+    controlledMaxHeight,
+    registerReady,
+    footerRef,
+    headerRef,
   })
 
   const defaultSnapRef = useRef(0)
@@ -145,12 +138,19 @@ export const BottomSheet = React.forwardRef<
 
     defaultSnapRef.current = findSnap(getDefaultSnap)
   }, [findSnap, getDefaultSnap, ready])
-  const { maxHeightRef, maxSnapRef, minSnapRef } = useSnapResponder({
-    draggingRef,
-    maxHeight,
-    minSnap,
-    maxSnap,
-  })
+  const { maxHeightRef, maxSnapRef, minSnapRef, updateSnap } = useSnapResponder(
+    {
+      draggingRef,
+      maxHeight,
+      minSnap,
+      prefersReducedMotion,
+      maxSnap,
+      findSnap,
+      heightRef,
+      lastSnapRef,
+      set,
+    }
+  )
   useImperativeHandle(
     forwardRef,
     () => ({
@@ -405,14 +405,6 @@ export const BottomSheet = React.forwardRef<
     movement: [, my],
     cancel,
   }) => {
-    // Cancel the drag operation if the canDrag state changed
-    if (!canDragRef.current) {
-      console.log('handleDrag cancelled dragging because canDragRef is false')
-      draggingRef.current = false
-      cancel()
-      return
-    }
-
     let newY = getY({
       down: !!down,
       movement: isNaN(my) ? 0 : my,
@@ -421,13 +413,28 @@ export const BottomSheet = React.forwardRef<
     })
 
     const relativeVelocity = Math.max(1, velocity)
+    console.log({ first, memo })
+    if (first) {
+      console.log('first ', { memo })
+      draggingRef.current = true
+    }
 
-    // Constrict y to a valid snap point
+    // Cancel the drag operation if the canDrag state changed
+    if (!canDragRef.current) {
+      console.log('handleDrag cancelled dragging because canDragRef is false')
+      draggingRef.current = false
+      cancel()
+      return
+    }
+
     if (last) {
-      // @TODO rewrite to handle flaws
-      newY = findSnap(newY)
+      draggingRef.current = false
       heightRef.current = newY
-      lastSnapRef.current = newY
+      console.log('last drag, calling setSnapTo with', { newY })
+      // Restrict y to a valid snap point
+      updateSnap()
+
+      return memo
     }
 
     set({
@@ -442,13 +449,6 @@ export const BottomSheet = React.forwardRef<
         velocity: direction[1] * velocity,
       },
     })
-
-    if (first) {
-      draggingRef.current = true
-    }
-    if (last) {
-      draggingRef.current = false
-    }
 
     return memo
   }
@@ -471,7 +471,6 @@ export const BottomSheet = React.forwardRef<
     enabled: ready && on,
     axis: 'y',
   })
-  console.log('spring.y', spring.y)
 
   // @TODO the ts-ignore comments are because the `extrapolate` param isn't in the TS defs for some reason
   const interpolateBorderRadius =

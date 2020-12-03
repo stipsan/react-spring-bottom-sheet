@@ -1,7 +1,5 @@
 /* eslint-disable no-self-compare */
 
-import type { defaultSnapProps, SnapPointProps, snapPoints } from './types'
-
 // stolen from lodash
 export function clamp(number: number, lower: number, upper: number) {
   number = +number
