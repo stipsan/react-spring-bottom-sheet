@@ -1,5 +1,5 @@
 import useInterval from '@use-it/interval'
-import { memo, useCallback, useEffect, useMemo, useState } from 'react'
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import Button from '../../docs/fixtures/Button'
 import Code from '../../docs/fixtures/Code'
 import Container from '../../docs/fixtures/Container'
@@ -256,7 +256,7 @@ function Seven() {
     if (open) {
       setShift((shift) => !shift)
     }
-  }, 1000)
+  }, 3000)
 
   return (
     <>
@@ -279,6 +279,53 @@ function Seven() {
   )
 }
 
+function Eight() {
+  const [open, setOpen] = useState(false)
+  const [defaultSnap, setDefaultSnap] = useState(200)
+  const reopenRef = useRef(false)
+
+  return (
+    <>
+      <Button onClick={() => setOpen(true)}>8</Button>
+      <BottomSheet
+        open={open}
+        onDismiss={() => setOpen(false)}
+        defaultSnap={defaultSnap}
+        snapPoints={({ minHeight, maxHeight }) => [minHeight, maxHeight]}
+        onSpringEnd={(event) => {
+          if (reopenRef.current && event.type === 'CLOSE') {
+            reopenRef.current = false
+            setOpen(true)
+          }
+        }}
+        // @TODO investigate missing opacity fade out on close if onDismiss isn't used
+        /*
+        footer={
+          <Button
+            
+            className="w-full focus-visible:ring-offset-rsbs-bg"
+          >
+            Dismiss
+          </Button>
+        }
+        //*/
+      >
+        <SheetContent>
+          <Button
+            onClick={() => {
+              reopenRef.current = true
+              setDefaultSnap((defaultSnap) => (defaultSnap === 200 ? 800 : 200))
+              setOpen(false)
+            }}
+          >
+            defaultSnap: {defaultSnap}
+          </Button>
+        </SheetContent>
+      </BottomSheet>
+    </>
+  )
+}
+
 export default function ExperimentsFixturePage() {
   return (
     <Container
@@ -294,6 +341,7 @@ export default function ExperimentsFixturePage() {
       <Five />
       <Six />
       <Seven />
+      <Eight />
     </Container>
   )
 }

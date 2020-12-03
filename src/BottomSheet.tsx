@@ -138,50 +138,30 @@ export const BottomSheet = React.forwardRef<
   } = useDimensions({
     controlledMaxHeight,
     headerRef,
-    contentRef: contentContainerRef,
+    contentContainerRef,
     footerRef,
     registerReady,
   })
 
-  const { snapPoints, minSnap, maxSnap, toSnapPoint } = useSnapPoints({
+  const { snapPoints, minSnap, maxSnap, findSnap } = useSnapPoints({
     getSnapPoints,
     contentHeight,
     footerHeight,
     headerHeight,
-    height: heightRef.current,
+    heightRef,
+    lastSnapRef,
     minHeight,
     maxHeight,
   })
 
   const defaultSnapRef = useRef(0)
   useEffect(() => {
-    // If we're firing before the dom is mounted then contentHeight will be 0 and we should return default values
-    if (contentHeight === 0) {
-      defaultSnapRef.current = 0
-      return
-    }
+    console.count('selecting default snap')
+    // Wait with selectin default snap until element dimensions are measured
+    if (!ready) return
 
-    const nextHeight = getDefaultSnap({
-      height: heightRef.current,
-      headerHeight,
-      footerHeight,
-      minHeight,
-      maxHeight,
-      lastSnap: lastSnapRef.current,
-      snapPoints,
-    })
-    defaultSnapRef.current = toSnapPoint(nextHeight)
-  }, [
-    contentHeight,
-    footerHeight,
-    getDefaultSnap,
-    headerHeight,
-    lastSnapRef,
-    maxHeight,
-    minHeight,
-    snapPoints,
-    toSnapPoint,
-  ])
+    defaultSnapRef.current = findSnap(getDefaultSnap)
+  }, [findSnap, getDefaultSnap, ready])
   const { maxHeightRef, maxSnapRef, minSnapRef } = useSnapResponder({
     draggingRef,
     maxHeight,
@@ -191,45 +171,18 @@ export const BottomSheet = React.forwardRef<
   useImperativeHandle(
     forwardRef,
     () => ({
-      snapTo: (maybeHeightUpdater) => {
+      snapTo: (numberOrCallback) => {
         if (off) return
-        let nextHeight: number
-        if (typeof maybeHeightUpdater === 'function') {
-          nextHeight = maybeHeightUpdater({
-            footerHeight,
-            headerHeight,
-            height: heightRef.current,
-            minHeight,
-            maxHeight,
-            snapPoints,
-            lastSnap: lastSnapRef.current,
-          })
-        } else {
-          nextHeight = maybeHeightUpdater
-        }
-
-        nextHeight = toSnapPoint(nextHeight)
 
         // @TODO refactor to setState and useEffect hooks to easier track cancel events
         set({
           // @ts-expect-error
-          y: nextHeight,
+          y: findSnap(numberOrCallback),
           immediate: prefersReducedMotion.current,
         })
       },
     }),
-    [
-      footerHeight,
-      headerHeight,
-      lastSnapRef,
-      maxHeight,
-      minHeight,
-      off,
-      prefersReducedMotion,
-      set,
-      snapPoints,
-      toSnapPoint,
-    ]
+    [findSnap, off, prefersReducedMotion, set]
   )
 
   // Handle closed to open transition
@@ -490,7 +443,7 @@ export const BottomSheet = React.forwardRef<
 
     // Constrict y to a valid snap point
     if (last) {
-      newY = toSnapPoint(newY)
+      newY = findSnap(newY)
       heightRef.current = newY
       lastSnapRef.current = newY
     }

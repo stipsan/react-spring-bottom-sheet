@@ -12,14 +12,14 @@ import { useReady } from './useReady'
 
 export function useDimensions({
   headerRef,
-  contentRef,
+  contentContainerRef,
   footerRef,
   controlledMaxHeight,
   registerReady,
 }: {
   controlledMaxHeight?: number
   headerRef: React.RefObject<Element>
-  contentRef: React.RefObject<Element>
+  contentContainerRef: React.RefObject<Element>
   footerRef: React.RefObject<Element>
   registerReady: ReturnType<typeof useReady>['registerReady']
 }) {
@@ -30,7 +30,7 @@ export function useDimensions({
 
   // Rewrite these to set refs and use nextTick
   const { height: headerHeight } = useElementSizeObserver(headerRef)
-  const { height: contentHeight } = useElementSizeObserver(contentRef)
+  const { height: contentHeight } = useElementSizeObserver(contentContainerRef)
   const { height: footerHeight } = useElementSizeObserver(footerRef)
   const minHeight =
     Math.min(maxHeight - headerHeight - footerHeight, contentHeight) +

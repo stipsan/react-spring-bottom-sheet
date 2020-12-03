@@ -1,5 +1,5 @@
 import { useDebugValue } from 'react'
-import type { SnapPointProps, snapPoints } from '../types'
+import type { defaultSnapProps, SnapPointProps, snapPoints } from '../types'
 import { clamp, roundAndCheckForNaN } from '../utils'
 
 export function useSnapPoints({
@@ -8,12 +8,15 @@ export function useSnapPoints({
   footerHeight,
   headerHeight,
   contentHeight,
-  height,
+  heightRef,
+  lastSnapRef,
   maxHeight,
 }: {
   getSnapPoints: snapPoints
   contentHeight: number
-} & SnapPointProps) {
+  heightRef: React.RefObject<number>
+  lastSnapRef: React.RefObject<number>
+} & Omit<SnapPointProps, 'height'>) {
   // @TODO cleanup
   function _getSnaps() {
     // If we're firing before the dom is mounted then height will be 0 and we should return default values
@@ -24,7 +27,7 @@ export function useSnapPoints({
     const massagedSnapPoints = []
       .concat(
         getSnapPoints({
-          height,
+          height: heightRef.current,
           footerHeight,
           headerHeight,
           minHeight,
@@ -47,19 +50,32 @@ export function useSnapPoints({
     }
   }
 
-  // @TODO Extract the snap points logic to a separate function that can be unit tested
-  // @TODO replace this with simpler logic: https://stackoverflow.com/a/19277804
   const { snapPoints, minSnap, maxSnap } = _getSnaps()
 
-  const toSnapPoint = (rawY: number) => {
-    const y = roundAndCheckForNaN(rawY)
-    return snapPoints.reduce(
-      (prev, curr) => (Math.abs(curr - y) < Math.abs(prev - y) ? curr : prev),
-      minSnap
+  function findSnap(
+    numberOrCallback: number | ((state: defaultSnapProps) => number)
+  ) {
+    let unsafeSearch: number
+    if (typeof numberOrCallback === 'function') {
+      unsafeSearch = numberOrCallback({
+        footerHeight,
+        headerHeight,
+        height: heightRef.current,
+        minHeight,
+        maxHeight,
+        snapPoints,
+        lastSnap: lastSnapRef.current,
+      })
+    } else {
+      unsafeSearch = numberOrCallback
+    }
+    const querySnap = roundAndCheckForNaN(unsafeSearch)
+    return snapPoints.reduce((prev, curr) =>
+      Math.abs(curr - querySnap) < Math.abs(prev - querySnap) ? curr : prev
     )
   }
 
   useDebugValue(snapPoints, (snapPoints) => snapPoints.sort())
 
-  return { snapPoints, minSnap, maxSnap, toSnapPoint }
+  return { snapPoints, minSnap, maxSnap, findSnap }
 }

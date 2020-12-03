@@ -28,11 +28,22 @@ export const BottomSheet = forwardRef<RefHandles, Props>(function BottomSheet(
     }
   }, [props.open])
 
+  function onSpringStart(event: SpringEvent) {
+    // Forward the event
+    props.onSpringStart?.(event)
+
+    if (event.type === 'OPEN') {
+      // Ensures that when it's opening we abort any pending unmount action
+      clearTimeout(timerRef.current)
+    }
+  }
+
   function onSpringEnd(event: SpringEvent) {
     // Forward the event
     props.onSpringEnd?.(event)
 
     if (event.type === 'CLOSE') {
+      // Unmount from the dom to avoid contents being tabbable or visible to screen readers while closed
       timerRef.current = setTimeout(() => setMounted(false), 1000)
     }
   }
@@ -45,6 +56,7 @@ export const BottomSheet = forwardRef<RefHandles, Props>(function BottomSheet(
           openRef={openRef}
           lastSnapRef={lastSnapRef}
           ref={ref}
+          onSpringStart={onSpringStart}
           onSpringEnd={onSpringEnd}
         />
       )}
