@@ -69,7 +69,7 @@ export function useSnapResponder({
 
   // Respond to snap point boundaries affecting how the sheet renders
   useEffect(() => {
-    if (!draggingRef.current && heightRef.current) {
+    if (!draggingRef.current) {
       if (maxHeightRef.current !== maxHeight) {
         console.log('maxHeight changed!')
         maxSnapRef.current = maxHeight
@@ -86,7 +86,7 @@ export function useSnapResponder({
         updateSnap()
       }
     }
-  }, [draggingRef, maxHeight, updateSnap, minSnap, maxSnap, heightRef])
+  }, [draggingRef, maxHeight, updateSnap, minSnap, maxSnap])
 
   // Respond to requests to snap
   useEffect(() => {
