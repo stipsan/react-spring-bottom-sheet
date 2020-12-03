@@ -1,3 +1,10 @@
+## [1.0.5](https://github.com/stipsan/react-spring-bottom-sheet/compare/v1.0.4...v1.0.5) (2020-12-03)
+
+
+### Bug Fixes
+
+* update readme ([ceb55d3](https://github.com/stipsan/react-spring-bottom-sheet/commit/ceb55d34bea9892e7fc25e063b69dd4e2d155d77))
+
 ## [1.0.4](https://github.com/stipsan/react-spring-bottom-sheet/compare/v1.0.3...v1.0.4) (2020-12-03)
 
 
