@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import Button from '../../docs/fixtures/Button'
 import Container from '../../docs/fixtures/Container'
 import SheetContent from '../../docs/fixtures/SheetContent'
@@ -7,7 +7,11 @@ import HeadTitle from '../../docs/HeadTitle'
 import { BottomSheet } from '../../src'
 
 export default function StickyFixturePage() {
-  const [open, setOpen] = useState(true)
+  const [open, setOpen] = useState(false)
+
+  useEffect(() => {
+    setOpen(true)
+  }, [])
 
   function onDismiss() {
     setOpen(false)

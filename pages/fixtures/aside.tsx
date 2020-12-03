@@ -12,6 +12,7 @@ export default function AsideFixturePage() {
   const focusRef = useRef<HTMLButtonElement>()
 
   useEffect(() => {
+    // Setting focus is to aid keyboard and screen reader nav when activating this iframe
     focusRef.current.focus()
   }, [])
 

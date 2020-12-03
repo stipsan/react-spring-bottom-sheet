@@ -63,6 +63,7 @@ const SvgText: React.FC<{ x?: string; y?: string; className?: string }> = ({
 
 let immediate = false
 export default function Hero({ className }: { className?: string }) {
+  // @TODO this whole monster needs a total rewrite O_O"
   const [mounted, setMounted] = useState(false)
   const skip = !mounted && immediate ? true : false
   const [open, setOpen] = useState(true)

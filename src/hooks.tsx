@@ -7,6 +7,7 @@ import React, {
   useRef,
   useState,
   useLayoutEffect as useLayoutEffectSafely,
+  useDebugValue,
 } from 'react'
 import ResizeObserver from 'resize-observer-polyfill'
 import type { SnapPointProps, snapPoints } from './types'
@@ -167,6 +168,8 @@ export const useSnapPoints = ({
     )
   }
 
+  useDebugValue(snapPoints, (snapPoints) => snapPoints.sort())
+
   return { snapPoints, minSnap, maxSnap, toSnapPoint }
 }
 
@@ -184,18 +187,21 @@ export const useDimensions = ({
 }: UseDimensionsProps) => {
   // Rewrite these to set refs and use nextTick
   const { height: headerHeight } = useElementSizeObserver(headerRef)
-  const contentDimensions = useElementSizeObserver(contentRef)
+  const { height: contentHeight } = useElementSizeObserver(contentRef)
   const { height: footerHeight } = useElementSizeObserver(footerRef)
+  const minHeight =
+    Math.min(maxHeight - headerHeight - footerHeight, contentHeight) +
+    headerHeight +
+    footerHeight
 
-  const contentHeight = Math.min(
-    maxHeight - headerHeight - footerHeight,
-    contentDimensions.height
-  )
+  useDebugValue(`minHeight: ${minHeight}`)
+  useDebugValue(`contentHeight: ${contentHeight}`)
+  useDebugValue(`headerHeight: ${headerHeight}`)
+  useDebugValue(`footerHeight: ${footerHeight}`)
 
-  const minHeight = contentHeight + headerHeight + footerHeight
   return {
     minHeight,
-    contentHeight: contentDimensions.height,
+    contentHeight,
     headerHeight,
     footerHeight,
   }
@@ -254,6 +260,8 @@ export const useScrollLock = ({
     deactivate: () => {},
   })
 
+  useDebugValue(enabled ? 'Enabled' : 'Disabled')
+
   useEffect(() => {
     if (!enabled) {
       ref.current.deactivate()
@@ -297,6 +305,8 @@ export const useAriaHider = ({
     },
     deactivate: () => {},
   })
+
+  useDebugValue(enabled ? 'Enabled' : 'Disabled')
 
   useEffect(() => {
     if (!enabled) {
@@ -369,6 +379,8 @@ export const useFocusTrap = ({
     },
     deactivate: () => {},
   })
+
+  useDebugValue(enabled ? 'Enabled' : 'Disabled')
 
   useEffect(() => {
     if (!enabled) {

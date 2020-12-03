@@ -20,7 +20,9 @@ export const BottomSheet = forwardRef<RefHandles, Props>((props, ref) => {
 
   return (
     <Portal data-rsbs-portal>
-      {mounted && <_BottomSheet {...props} openRef={openRef} ref={ref} />}
+      {mounted && (
+        <_BottomSheet key="static" {...props} openRef={openRef} ref={ref} />
+      )}
     </Portal>
   )
 })
