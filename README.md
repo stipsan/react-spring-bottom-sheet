@@ -1,5 +1,8 @@
 # react-spring-bottom-sheet
 
+![Logo with the text Accessible, Delightful and Performant](https://user-images.githubusercontent.com/81981/101104249-0006a200-35cb-11eb-80bc-f8ec5fd453e0.png)
+
+
 # Work in progress!
 
 Hold off using this until `v2` is out, or you're gonna have a _bad time_!
