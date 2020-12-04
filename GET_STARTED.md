@@ -38,7 +38,7 @@ import { BottomSheet, BottomSheetRef } from 'react-spring-bottom-sheet'
 export default function Example() {
   const sheetRef = useRef<BottomSheetRef>()
   return (
-    <BottomSheet open ref={}>
+    <BottomSheet open ref={sheetRef}>
       <button
         onClick={() => {
           // Full typing for the arguments available in snapTo, yay!!
