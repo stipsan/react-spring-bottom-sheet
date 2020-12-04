@@ -19,7 +19,7 @@
     "build": "next build",
     "prebuild:dist": "rimraf dist/**",
     "build:dist": "npm run build:postcss && npm run build:microbundle",
-    "build:microbundle": "NODE_ENV=production microbundle --define process.env.NODE_ENV=production --tsconfig tsconfig.microbundle.json -f cjs,es",
+    "build:microbundle": "NODE_ENV=production microbundle --define process.env.NODE_ENV=production --tsconfig tsconfig.microbundle.json -f cjs,es,modern",
     "build:postcss": "postcss -d dist --no-map src/style.css",
     "dev": "next",
     "lint": "eslint . --ext ts,tsx,js,jsx --max-warnings 0 && tsc",
