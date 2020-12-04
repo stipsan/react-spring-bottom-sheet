@@ -108,7 +108,7 @@
   },
   "meta": {
     "twitter:site": "@stipsan",
-    "twitter:image:src": "https://react-spring-bottom-sheet.cocody.dev/somecard.png"
+    "twitter:image:src": "https://react-spring-bottom-sheet-git-v2.stipsan.vercel.app/somecard.png"
   },
   "prettier": {
     "semi": false,
