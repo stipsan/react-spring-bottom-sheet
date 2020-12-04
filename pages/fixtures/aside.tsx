@@ -1,13 +1,22 @@
+import type { NextPage } from 'next'
 import { useEffect, useRef, useState } from 'react'
 import Button from '../../docs/fixtures/Button'
 import Code from '../../docs/fixtures/Code'
 import Container from '../../docs/fixtures/Container'
 import SheetContent from '../../docs/fixtures/SheetContent'
 import { aside } from '../../docs/headings'
-import HeadTitle from '../../docs/HeadTitle'
+import MetaTags from '../../docs/MetaTags'
 import { BottomSheet } from '../../src'
+import type { GetStaticProps } from '../_app'
 
-export default function AsideFixturePage() {
+export { getStaticProps } from '../_app'
+
+const AsideFixturePage: NextPage<GetStaticProps> = ({
+  description,
+  homepage,
+  meta,
+  name,
+}) => {
   const [open, setOpen] = useState(true)
   const focusRef = useRef<HTMLButtonElement>()
 
@@ -18,7 +27,13 @@ export default function AsideFixturePage() {
 
   return (
     <>
-      <HeadTitle>{aside}</HeadTitle>
+      <MetaTags
+        {...meta}
+        name={name}
+        description={description}
+        homepage={homepage}
+        title={aside}
+      />
       <Container>
         <Button onClick={() => setOpen((open) => !open)} ref={focusRef}>
           {open ? 'Close' : 'Open'}
@@ -44,3 +59,5 @@ export default function AsideFixturePage() {
     </>
   )
 }
+
+export default AsideFixturePage

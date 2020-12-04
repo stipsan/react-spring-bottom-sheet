@@ -162,13 +162,17 @@ export const BottomSheet = React.forwardRef<
         if (off) return
 
         // @TODO refactor to setState and useEffect hooks to easier track cancel events
+
+        const snap = findSnap(numberOrCallback)
+        lastSnapRef.current = snap
+        heightRef.current = snap
         set({
-          y: findSnap(numberOrCallback),
+          y: snap,
           immediate: prefersReducedMotion.current,
         })
       },
     }),
-    [findSnap, off, prefersReducedMotion, set]
+    [findSnap, lastSnapRef, off, prefersReducedMotion, set]
   )
 
   // Handle closed to open transition
@@ -347,7 +351,7 @@ export const BottomSheet = React.forwardRef<
       // Set to false so the async flow can detect if it got cancelled
       cancelled = true
     }
-  }, [on, prefersReducedMotion, ready, set])
+  }, [observeBoundsRef, on, prefersReducedMotion, ready, set])
 
   const getY = ({
     down,

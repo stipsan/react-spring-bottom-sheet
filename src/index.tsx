@@ -25,6 +25,11 @@ export const BottomSheet = forwardRef<RefHandles, Props>(function BottomSheet(
     if (props.open) {
       clearTimeout(timerRef.current)
       setMounted(true)
+
+      // Cleanup defaultOpen state on close
+      return () => {
+        openRef.current = false
+      }
     }
   }, [props.open])
 
