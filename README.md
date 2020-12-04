@@ -7,6 +7,16 @@
 
 ![Logo with the text Accessible, Delightful and Performant](https://react-spring-bottom-sheet.cocody.dev/readme.svg)
 
+**react-spring-bottom-sheet** is built on top of **react-spring** and **react-use-gesture**. It busts the myth that accessibility and supporting keyboard navigation and screen readers are allegedly at odds with delightful, beautiful and highly animated UIs.
+
+## Install
+
+```bash
+npm i react-spring-bottom-sheet
+```
+
+#
+
 # Requirements
 
 # Credits

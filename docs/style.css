@@ -30,4 +30,7 @@
     --rsbs-ml: 0px;
     --rsbs-mr: 0px;
   }
+  .is-iframe .only-window {
+    display: none;
+  }
 }
