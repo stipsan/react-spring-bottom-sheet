@@ -1,3 +1,15 @@
+# [2.0.0](https://github.com/stipsan/react-spring-bottom-sheet/compare/v1.0.6...v2.0.0) (2020-12-04)
+
+
+### Features
+
+* V2 ([#17](https://github.com/stipsan/react-spring-bottom-sheet/issues/17)) ([8331800](https://github.com/stipsan/react-spring-bottom-sheet/commit/8331800f0b1e95fa495a408bdddf02c3fc8c9d83))
+
+
+### BREAKING CHANGES
+
+* this is the real initial release, `v1` is fake software.
+
 ## [1.0.6](https://github.com/stipsan/react-spring-bottom-sheet/compare/v1.0.5...v1.0.6) (2020-12-04)
 
 
