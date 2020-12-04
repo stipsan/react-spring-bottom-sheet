@@ -1,3 +1,10 @@
+## [1.0.6](https://github.com/stipsan/react-spring-bottom-sheet/compare/v1.0.5...v1.0.6) (2020-12-04)
+
+
+### Bug Fixes
+
+* fade out correctly on snap ([17234bc](https://github.com/stipsan/react-spring-bottom-sheet/commit/17234bc2aebd18122c4dd324ff5ad17096486983))
+
 ## [1.0.5](https://github.com/stipsan/react-spring-bottom-sheet/compare/v1.0.4...v1.0.5) (2020-12-03)
 
 
