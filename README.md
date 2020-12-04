@@ -1,6 +1,6 @@
 # react-spring-bottom-sheet
 
-![Logo with the text Accessible, Delightful and Performant](https://user-images.githubusercontent.com/81981/101104249-0006a200-35cb-11eb-80bc-f8ec5fd453e0.png)
+![Logo with the text Accessible, Delightful and Performant](/public/readme.svg)
 
 # Requirements
 
