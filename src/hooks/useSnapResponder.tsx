@@ -33,6 +33,7 @@
  */
 
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { clamp } from '../utils'
 import { useSnapPoints, useSpring } from './index'
 
 export function useSnapResponder({
@@ -96,7 +97,11 @@ export function useSnapResponder({
       console.log({ snap })
       heightRef.current = snap
       lastSnapRef.current = snap
-      set({ y: snap, immediate: prefersReducedMotion.current })
+      set({
+        y: snap,
+        backdrop: clamp(snap / minSnapRef.current, 0, 1),
+        immediate: prefersReducedMotion.current,
+      })
     }
   }, [draggingRef, findSnap, heightRef, lastSnapRef, prefersReducedMotion, set])
 
