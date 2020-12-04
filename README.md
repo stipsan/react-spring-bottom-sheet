@@ -9,7 +9,7 @@
 
 **react-spring-bottom-sheet** is built on top of **react-spring** and **react-use-gesture**. It busts the myth that accessibility and supporting keyboard navigation and screen readers are allegedly at odds with delightful, beautiful and highly animated UIs. Every animation and transition is implemented using CSS custom properties instead of manipulating them directly, allowing complete control over the experience from CSS alone.
 
-## Install
+# Install
 
 ```bash
 npm i react-spring-bottom-sheet
@@ -42,6 +42,23 @@ If you provide either a `header` or `footer` prop you'll enable the special beha
 In most cases you use a bottom sheet the same way you do with a dialog: you want it to overlay the page and block out distractions. But there are times when you want a bottom sheet but without it taking all the attention and overlaying the entire page. Providing `blocking={false}` helps this use case. By doing so you disable a couple of behaviors that are there for accessibility (focus-locking and more) that prevents a screen reader or a keyboard user from accidentally leaving the bottom sheet.
 
 # [Get started](/GET_STARTED.md)
+
+# API
+
+## props
+
+All props you provide, like `className`, `style` props or whatever else are spread onto the underlying `<animated.div>` instance, that you can style in your custom CSS using this selector: `[data-rsbs-root]`.
+Just note that the component is mounted in a `@reach/portal` at the bottom of `<body>`, and not in the DOM hierarchy you render it in.
+
+### open
+
+Type: `boolean`
+
+The only required prop. And it's controlled, so if you don't set this to `false` then it's not possible to close the bottom sheet.
+
+### onDismiss
+
+## ref
 
 # Credits
 
