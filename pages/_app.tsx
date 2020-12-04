@@ -1,23 +1,33 @@
+import type { InferGetStaticPropsType } from 'next'
 import type { AppProps } from 'next/app'
 import Head from 'next/head'
 import HeadTitle from '../docs/HeadTitle'
+import { capitalize } from '../docs/utils'
 
 import '../docs/style.css'
 import '../src/style.css'
 
-function _AppPage({ Component, pageProps }: AppProps) {
+export async function getStaticProps() {
+  const { version, description, homepage, name, meta = {} } = await import(
+    '../package.json'
+  )
+  if (!meta['og:site_name']) {
+    meta['og:site_name'] = capitalize(name)
+  }
+
+  return { props: { version, description, homepage, name, meta } }
+}
+
+export type GetStaticProps = InferGetStaticPropsType<typeof getStaticProps>
+
+export default function _AppPage({ Component, pageProps }: AppProps) {
   return (
     <>
       <Head>
-        <meta
-          name="viewport"
-          content="width=device-width, viewport-fit=cover"
-        />
+        <meta name="viewport" content="width=device-width,viewport-fit=cover" />
       </Head>
       <HeadTitle />
       <Component {...pageProps} />
     </>
   )
 }
-
-export default _AppPage

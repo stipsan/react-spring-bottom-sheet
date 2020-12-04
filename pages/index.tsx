@@ -1,10 +1,27 @@
+import type { NextPage } from 'next'
 import { aside, scrollable, simple, sticky } from '../docs/headings'
 import Hero from '../docs/Hero'
 import Nugget from '../docs/Nugget'
 import StickyNugget from '../docs/StickyNugget'
+import MetaTags from '../docs/MetaTags'
+import type { GetStaticProps } from './_app'
 
-export default function IndexPage() {
-  return (
+export { getStaticProps } from './_app'
+
+const IndexPage: NextPage<GetStaticProps> = ({
+  name,
+  version,
+  description,
+  homepage,
+  meta,
+}) => (
+  <>
+    <MetaTags
+      {...meta}
+      name={name}
+      description={description}
+      homepage={homepage}
+    />
     <main>
       <Hero />
       <div className="max-w-5xl mx-auto py-10 px-8 grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -40,5 +57,7 @@ export default function IndexPage() {
         />
       </div>
     </main>
-  )
-}
+  </>
+)
+
+export default IndexPage

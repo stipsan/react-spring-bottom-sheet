@@ -1,5 +1,6 @@
 {
   "name": "react-spring-bottom-sheet",
+  "description": "Accessible 🪄, Delightful ✨, and Performant 🚀",
   "license": "MIT",
   "author": "Cody Olsen",
   "homepage": "https://react-spring-bottom-sheet.cocody.dev",
@@ -11,6 +12,7 @@
   "main": "dist/index.js",
   "module": "dist/index.es.js",
   "files": [
+    "defaults.json",
     "dist"
   ],
   "scripts": {
@@ -53,10 +55,11 @@
     "@typescript-eslint/eslint-plugin": "^4.9.0",
     "@typescript-eslint/parser": "^4.9.0",
     "@use-it/interval": "^1.0.0",
-    "autoprefixer": "10.0.4",
+    "autoprefixer": "^10.0.4",
     "babel-eslint": "^10.1.0",
     "babel-plugin-transform-remove-console": "^6.9.4",
     "classnames": "^2.2.6",
+    "clean-publish": "^1.1.8",
     "eslint": "^7.14.0",
     "eslint-config-react-app": "^6.0.0",
     "eslint-plugin-flowtype": "^5.2.0",
@@ -84,6 +87,14 @@
     "tailwindcss": "^2.0.1",
     "typescript": "^4.1.2"
   },
+  "browserslist": [
+    "Chrome >= 49",
+    "Android >= 58",
+    "Safari >= 9.1",
+    "iOS >= 9.3",
+    "Firefox >= 31",
+    "Edge >= 16"
+  ],
   "husky": {
     "hooks": {
       "pre-commit": "lint-staged"
@@ -94,6 +105,10 @@
     "*.{js,jsx,ts,tsx}": "eslint --fix",
     "*.{js,jsx,ts,tsx,md,html,css,yml,json}": "prettier --write",
     "package.json": "prettier-package-json --write"
+  },
+  "meta": {
+    "twitter:site": "@stipsan",
+    "twitter:image:src": "https://repository-images.githubusercontent.com/315976254/1cd6c000-3633-11eb-95bf-f1326a3fec7c"
   },
   "prettier": {
     "semi": false,
