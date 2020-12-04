@@ -19,27 +19,27 @@ npm i react-spring-bottom-sheet
 
 ## [Basic](https://react-spring-bottom-sheet.cocody.dev/fixtures/simple)
 
-MVP example, showing what you get by implementing `open`, `onDismiss` and a single **snap point** always set to `minHeight`.
+> [View demo code](/pages/fixtures/simple.tsx#L43-L47)
 
-[View demo code](/pages/fixtures/simple.tsx#L43-L47)
+MVP example, showing what you get by implementing `open`, `onDismiss` and a single **snap point** always set to `minHeight`.
 
 ## [Snap points & overflow](https://react-spring-bottom-sheet.cocody.dev/fixtures/scrollable)
 
-A more elaborate example that showcases how snap points work. It also shows how it behaves if you want it to be open by default, and not closable. Notice how it responds if you resize the window, or scroll to the bottom and starts adjusting the height of the sheet without scrolling back up first.
+> [View demo code](/pages/fixtures/scrollable.tsx#L85-L95)
 
-[View demo code](/pages/fixtures/scrollable.tsx)
+A more elaborate example that showcases how snap points work. It also shows how it behaves if you want it to be open by default, and not closable. Notice how it responds if you resize the window, or scroll to the bottom and starts adjusting the height of the sheet without scrolling back up first.
 
 ## [Sticky header & footer](https://react-spring-bottom-sheet.cocody.dev/fixtures/sticky)
 
-If you provide either a `header` or `footer` prop you'll enable the special behavior seen in this example. And they're not just sticky positioned, both areas support touch gestures.
+> [View demo code](/pages/fixtures/sticky.tsx#L40-L60)
 
-[View demo code](/pages/fixtures/sticky.tsx)
+If you provide either a `header` or `footer` prop you'll enable the special behavior seen in this example. And they're not just sticky positioned, both areas support touch gestures.
 
 ## [Non-blocking overlay mode](https://react-spring-bottom-sheet.cocody.dev/fixtures/aside)
 
-In most cases you use a bottom sheet the same way you do with a dialog: you want it to overlay the page and block out distractions. But there are times when you want a bottom sheet but without it taking all the attention and overlaying the entire page. Providing `blocking={false}` helps this use case. By doing so you disable a couple of behaviors that are there for accessibility (focus-locking and more) that prevents a screen reader or a keyboard user from accidentally leaving the bottom sheet.
+> [View demo code](/pages/fixtures/aside.tsx#L41-L46)
 
-[View demo code](/pages/fixtures/aside.tsx)
+In most cases you use a bottom sheet the same way you do with a dialog: you want it to overlay the page and block out distractions. But there are times when you want a bottom sheet but without it taking all the attention and overlaying the entire page. Providing `blocking={false}` helps this use case. By doing so you disable a couple of behaviors that are there for accessibility (focus-locking and more) that prevents a screen reader or a keyboard user from accidentally leaving the bottom sheet.
 
 # [Get started](/GET_STARTED.md)
 
