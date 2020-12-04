@@ -86,7 +86,9 @@ export default function MetaTags({
             />
           )}
           <meta key="og:type" property="og:type" content="object" />
-          {ogTitle && <meta key="og:title" name="og:title" content={ogTitle} />}
+          {ogTitle && (
+            <meta key="og:title" property="og:title" content={ogTitle} />
+          )}
           <meta key="og:url" property="og:url" content={homepage} />
           <meta
             key="og:description"
