@@ -21,7 +21,7 @@ npm i react-spring-bottom-sheet
 
 MVP example, showing what you get by implementing `open`, `onDismiss` and a single **snap point** always set to `minHeight`.
 
-[View demo code](/docs/fixtures/simple.tsx)
+[View demo code](/pages/fixtures/simple.tsx)
 
 ## [Snap points & overflow](https://react-spring-bottom-sheet.cocody.dev/fixtures/scrollable)
 
