@@ -1,7 +1,6 @@
 import type { InferGetStaticPropsType } from 'next'
 import type { AppProps } from 'next/app'
 import Head from 'next/head'
-import HeadTitle from '../docs/HeadTitle'
 import { capitalize } from '../docs/utils'
 
 import '../docs/style.css'
@@ -26,7 +25,6 @@ export default function _AppPage({ Component, pageProps }: AppProps) {
       <Head>
         <meta name="viewport" content="width=device-width,viewport-fit=cover" />
       </Head>
-      <HeadTitle />
       <Component {...pageProps} />
     </>
   )

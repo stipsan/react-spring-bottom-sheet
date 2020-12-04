@@ -1,12 +1,21 @@
+import type { NextPage } from 'next'
 import { useEffect, useState } from 'react'
 import Button from '../../docs/fixtures/Button'
 import Container from '../../docs/fixtures/Container'
 import SheetContent from '../../docs/fixtures/SheetContent'
 import { sticky } from '../../docs/headings'
-import HeadTitle from '../../docs/HeadTitle'
+import MetaTags from '../../docs/MetaTags'
 import { BottomSheet } from '../../src'
+import type { GetStaticProps } from '../_app'
 
-export default function StickyFixturePage() {
+export { getStaticProps } from '../_app'
+
+const StickyFixturePage: NextPage<GetStaticProps> = ({
+  description,
+  homepage,
+  meta,
+  name,
+}) => {
   const [open, setOpen] = useState(false)
 
   useEffect(() => {
@@ -19,7 +28,13 @@ export default function StickyFixturePage() {
 
   return (
     <>
-      <HeadTitle>{sticky}</HeadTitle>
+      <MetaTags
+        {...meta}
+        name={name}
+        description={description}
+        homepage={homepage}
+        title={sticky}
+      />
       <Container>
         <Button onClick={() => setOpen(true)}>Open</Button>
         <BottomSheet
@@ -63,3 +78,5 @@ export default function StickyFixturePage() {
     </>
   )
 }
+
+export default StickyFixturePage

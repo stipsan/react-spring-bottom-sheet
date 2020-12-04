@@ -1,4 +1,5 @@
 import cx from 'classnames'
+import type { NextPage } from 'next'
 import { useRef } from 'react'
 import scrollIntoView from 'smooth-scroll-into-view-if-needed'
 import Button from '../../docs/fixtures/Button'
@@ -8,8 +9,11 @@ import ScrollUp from '../../docs/fixtures/ScrollUp'
 import SheetContent from '../../docs/fixtures/SheetContent'
 import SnapMarker from '../../docs/fixtures/SnapMarker'
 import { scrollable } from '../../docs/headings'
-import HeadTitle from '../../docs/HeadTitle'
+import MetaTags from '../../docs/MetaTags'
 import { BottomSheet, BottomSheetRef } from '../../src'
+import type { GetStaticProps } from '../_app'
+
+export { getStaticProps } from '../_app'
 
 const rand = (_) => _[~~(Math.random() * _.length)]
 const colors = [
@@ -44,13 +48,24 @@ const rows = Array.from(Array(20), (_, x) => ({
   w: rand(widths),
 }))
 
-export default function ScrollableFixturePage() {
+const ScrollableFixturePage: NextPage<GetStaticProps> = ({
+  description,
+  homepage,
+  meta,
+  name,
+}) => {
   const focusRef = useRef<HTMLButtonElement>()
   const sheetRef = useRef<BottomSheetRef>()
 
   return (
     <>
-      <HeadTitle>{scrollable}</HeadTitle>
+      <MetaTags
+        {...meta}
+        name={name}
+        description={description}
+        homepage={homepage}
+        title={scrollable}
+      />
       <Container>
         <SnapMarker
           className="text-white text-opacity-50"
@@ -146,3 +161,5 @@ export default function ScrollableFixturePage() {
     </>
   )
 }
+
+export default ScrollableFixturePage
