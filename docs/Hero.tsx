@@ -14,7 +14,7 @@ const Link: React.FC<{
     <a
       {...props}
       className={cx(
-        'bg-hero rounded-full px-4 py-2 mr-2 text-xl hover:text-hero focus:outline-none focus-visible:text-hero focus-visible:ring-2 focus-visible:ring-hero transition-colors duration-150 focus-visible:duration-0',
+        'bg-hero whitespace-nowrap rounded-full px-4 py-2 mr-2 text-xl hover:text-hero focus:outline-none focus-visible:text-hero focus-visible:ring-2 focus-visible:ring-hero transition-colors duration-150 focus-visible:duration-0',
         className
       )}
       ref={ref}
