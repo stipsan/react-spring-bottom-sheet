@@ -17,18 +17,13 @@ export function useSpringInterpolations({
   // This effect is for removing rounded corners on phones when the sheet touches the top of the browser chrome
   // as it's really ugly with the gaps border radius creates. This ensures it looks sleek.
   // @TODO the ts-ignore comments are because the `extrapolate` param isn't in the TS defs for some reason
-  /*
-  const interpolateBorderRadius =
-    maxHeight !== maxSnapRef.current
-      ? undefined
-      : spring.y.interpolate({
-          // @TODO change 16 hardcoded value to a dynamic/detected one
-          range: [maxHeight - 16, maxHeight],
-          output: ['16px', '0px'],
-          extrapolate: 'clamp',
-          map: Math.round,
-        })
-        // */
+  const interpolateBorderRadius = interpolate(
+    // @ts-expect-error
+    [spring.y, spring.maxHeight],
+    (y, maxHeight) => {
+      return `${Math.round(clamp(maxHeight - y, 0, 16))}px`
+    }
+  )
 
   /*
    * Only animate the height when absolute necessary
@@ -66,22 +61,21 @@ export function useSpringInterpolations({
       return 0
     }
   )
-  /*
 
-  const interpolateContentOpacity = spring.y.interpolate({
-    range: [
-      0,
-      Math.max(minSnapRef.current / 2 - 45, 0),
-      Math.min(minSnapRef.current / 2 + 45, minSnapRef.current),
-      minSnapRef.current,
-    ],
-    output: [0, 0, 1, 1],
-  })
-  // */
+  const interpolateContentOpacity = interpolate(
+    [spring.y, spring.minSnap],
+    (y, minSnap) => {
+      const lower = Math.max(minSnap / 2 - 45, 0)
+      const upper = Math.min(minSnap / 2 + 45, minSnap)
+      const range = upper - lower
+      const frame = minSnap - y
+      return 1 - frame / range
+    }
+  )
 
   return {
     // Fancy content fade-in effect
-    //['--rsbs-content-opacity' as any]: interpolateContentOpacity,
+    ['--rsbs-content-opacity' as any]: interpolateContentOpacity,
     // Fading in the backdrop
     ['--rsbs-backdrop-opacity' as any]: spring.backdrop,
     // Scaling the antigap in the bottom
@@ -89,7 +83,7 @@ export function useSpringInterpolations({
     // Shifts the position of the bottom sheet, used on open and close primarily as snap point changes usually only interpolate the height
     ['--rsbs-overlay-translate-y' as any]: interpolateY,
     // Remove rounded borders when full height, it looks much better this way
-    //['--rsbs-overlay-rounded' as any]: interpolateBorderRadius,
+    ['--rsbs-overlay-rounded' as any]: interpolateBorderRadius,
     // Animates the height state, not the most performant way but it's the safest with regards to mobile browser and focus/scrolling that could happen while animating
     ['--rsbs-overlay-h' as any]: interpolateHeight,
   }
