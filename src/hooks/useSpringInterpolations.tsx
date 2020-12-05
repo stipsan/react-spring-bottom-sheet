@@ -35,6 +35,7 @@ export function useSpringInterpolations({
    *       Could be done as a separat mode though, or a separate example CSS for max performance.
    */
   const interpolateHeight = interpolate(
+    // @ts-ignore
     [spring.y, spring.minSnap, spring.maxSnap],
     (y, minSnap, maxSnap) => `${clamp(y, minSnap, maxSnap)}px`
   )
