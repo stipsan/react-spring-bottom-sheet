@@ -48,7 +48,7 @@ export function useSpringInterpolations({
     return `${clamp(y, minSnapRef.current, maxSnapRef.current)}px`
   })
 
-  const interpolateY = spring.y.interpolate((y) => {
+  const interpolateY = spring.y.interpolate((y: number) => {
     if (y < minSnapRef.current) {
       return `${minSnapRef.current - y}px`
     }
@@ -58,7 +58,7 @@ export function useSpringInterpolations({
     return '0px'
   })
 
-  const interpolateFiller = spring.y.interpolate((y) => {
+  const interpolateFiller = spring.y.interpolate((y: number) => {
     if (y >= maxSnapRef.current) {
       return Math.ceil(y - maxSnapRef.current)
     }
