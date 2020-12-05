@@ -69,11 +69,14 @@ export function useSpringInterpolations({
     // @ts-ignore
     [spring.y, spring.minSnap],
     (y, minSnap) => {
-      const lower = Math.max(minSnap / 2 - 45, 0)
-      const upper = Math.min(minSnap / 2 + 45, minSnap)
-      const range = upper - lower
-      const frame = minSnap - y
-      return 1 - frame / range
+      const minX = Math.max(minSnap / 2 - 45, 0)
+      const maxX = Math.min(minSnap / 2 + 45, minSnap)
+      const minY = 0
+      const maxY = 1
+
+      const slope = (maxY - minY) / (maxX - minX)
+      const res = (y - minX) * (slope + minY)
+      return clamp(res, 0, 1)
     }
   )
 
