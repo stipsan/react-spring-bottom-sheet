@@ -41,6 +41,7 @@ export function useSpringInterpolations({
   )
 
   const interpolateY = interpolate(
+    // @ts-ignore
     [spring.y, spring.minSnap, spring.maxSnap],
     (y, minSnap, maxSnap) => {
       if (y < minSnap) {
@@ -54,6 +55,7 @@ export function useSpringInterpolations({
   )
 
   const interpolateFiller = interpolate(
+    // @ts-ignore
     [spring.y, spring.maxSnap],
     (y, maxSnap) => {
       if (y >= maxSnap) {
@@ -64,6 +66,7 @@ export function useSpringInterpolations({
   )
 
   const interpolateContentOpacity = interpolate(
+    // @ts-ignore
     [spring.y, spring.minSnap],
     (y, minSnap) => {
       const lower = Math.max(minSnap / 2 - 45, 0)
