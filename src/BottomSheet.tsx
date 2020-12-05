@@ -142,17 +142,17 @@ export const BottomSheet = React.forwardRef<
     maxHeightRef,
     maxSnapRef,
     minSnapRef,
-    updateSnap,
     observeBoundsRef,
+    updateSnap,
   } = useSnapResponder({
     draggingRef,
-    maxHeight,
-    minSnap,
-    prefersReducedMotion,
-    maxSnap,
     findSnap,
     heightRef,
     lastSnapRef,
+    maxHeight,
+    maxSnap,
+    minSnap,
+    prefersReducedMotion,
     set,
   })
   useImperativeHandle(
@@ -484,6 +484,13 @@ export const BottomSheet = React.forwardRef<
     enabled: ready && on,
     axis: 'y',
   })
+
+  if (Number.isNaN(maxSnapRef.current)) {
+    throw new TypeError('maxSnapRef is NaN!!')
+  }
+  if (Number.isNaN(minSnapRef.current)) {
+    throw new TypeError('minSnapRef is NaN!!')
+  }
 
   // @TODO the ts-ignore comments are because the `extrapolate` param isn't in the TS defs for some reason
   const interpolateBorderRadius =
