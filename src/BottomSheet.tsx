@@ -136,21 +136,17 @@ export const BottomSheet = React.forwardRef<
   }, [findSnap, getDefaultSnap, ready])
   // Wether to interpolate refs or states, useful when needing to transition between changed snapshot bounds
   const shouldInterpolateRefs = useRef(false)
-  const maxHeightRef = useRef(maxHeight)
   const minSnapRef = useRef(minSnap)
   const maxSnapRef = useRef(maxSnap)
   // Adjust the height whenever the snap points are changed due to resize events
   useEffect(() => {
     // If we're not gonna interpolate the refs we'll just quietly update them
     if (!shouldInterpolateRefs.current) {
-      maxHeightRef.current = maxHeight
       maxSnapRef.current = maxSnap
       minSnapRef.current = minSnap
 
       console.log(
         'Resizing due to',
-        'maxHeight:',
-        maxHeightRef.current !== maxHeight,
         'maxSnap:',
         maxSnapRef.current !== maxSnap,
         'minSnap:',
@@ -161,45 +157,32 @@ export const BottomSheet = React.forwardRef<
     }
 
     if (shouldInterpolateRefs.current) {
-      let cancelled = false
-      const maybeCancel = () => {
-        if (cancelled) {
-          onSpringCancelRef.current?.({ type: 'RESIZE' })
-
-          console.groupEnd()
-        }
-        return cancelled
-      }
-
       set({
         // @ts-expect-error
         to: async (next) => {
           console.group('RESIZE')
-          if (maybeCancel()) return
 
           await onSpringStartRef.current?.({ type: 'RESIZE' })
 
-          if (maybeCancel()) return
-
           const snap = findSnap(heightRef.current)
-          heightRef.current = snap
-          lastSnapRef.current = snap
 
           console.log('animate resize')
 
           // adjust bounds so that the rubberband effects don't show while resizing
           console.log(
             'Resizing due to',
-            'maxHeight:',
-            maxHeightRef.current !== maxHeight,
             'maxSnap:',
             maxSnapRef.current !== maxSnap,
             'minSnap:',
             minSnapRef.current !== minSnap
           )
-          maxHeightRef.current = Math.max(maxHeight, maxHeightRef.current)
-          maxSnapRef.current = Math.max(maxSnap, maxSnapRef.current)
-          minSnapRef.current = Math.min(minSnap, minSnapRef.current)
+          // Adjust bounds to have enough room for the transition
+          maxSnapRef.current = Math.max(snap, heightRef.current)
+          minSnapRef.current = Math.min(snap, heightRef.current)
+          console.log('new maxSnapRef', maxSnapRef.current)
+
+          heightRef.current = snap
+          lastSnapRef.current = snap
 
           await next({
             y: snap,
@@ -207,27 +190,16 @@ export const BottomSheet = React.forwardRef<
             immediate: prefersReducedMotion.current,
           })
 
-          if (maybeCancel()) return
-
-          // Update their values now that the animation is complete
-          maxHeightRef.current = maxHeight
           maxSnapRef.current = maxSnap
           minSnapRef.current = minSnap
 
           onSpringEndRef.current?.({ type: 'RESIZE' })
 
-          if (!cancelled) {
-            console.groupEnd()
-          }
+          console.groupEnd()
         },
       })
-
-      return () => {
-        // Set to false so the async flow can detect if it got cancelled
-        cancelled = true
-      }
     }
-  }, [lastSnapRef, maxSnap, minSnap, prefersReducedMotion, set])
+  }, [findSnap, lastSnapRef, maxSnap, minSnap, prefersReducedMotion, set])
   useImperativeHandle(
     forwardRef,
     () => ({
@@ -454,7 +426,7 @@ export const BottomSheet = React.forwardRef<
     }
 
     if (down) {
-      const scale = maxHeightRef.current * 0.38196601124999996
+      const scale = maxHeight * 0.38196601124999996
 
       // If dragging beyond maxSnap it should decay so the user can feel its out of bounds
       if (rawY > maxSnapRef.current) {
@@ -514,12 +486,11 @@ export const BottomSheet = React.forwardRef<
     }
 
     if (last) {
-      heightRef.current = newY
-      console.log('last drag, calling setSnapTo with', { newY })
       // Restrict y to a valid snap point
-      //updateSnap()
-
-      return memo
+      newY = findSnap(newY)
+      heightRef.current = newY
+      lastSnapRef.current = newY
+      shouldInterpolateRefs.current = true
     }
 
     set({
@@ -566,10 +537,14 @@ export const BottomSheet = React.forwardRef<
 
   const interpolations = useSpringInterpolations({
     spring,
+    maxHeight,
     // Select which values to use in the interpolation based on wether it's safe to trust the height
-    maxHeight: shouldInterpolateRefs.current ? maxHeightRef.current : maxHeight,
-    maxSnap: shouldInterpolateRefs.current ? maxSnapRef.current : maxSnap,
-    minSnap: shouldInterpolateRefs.current ? minSnapRef.current : minSnap,
+    maxSnapRef: shouldInterpolateRefs.current
+      ? maxSnapRef
+      : { current: maxSnap },
+    minSnapRef: shouldInterpolateRefs.current
+      ? minSnapRef
+      : { current: minSnap },
   })
 
   return (

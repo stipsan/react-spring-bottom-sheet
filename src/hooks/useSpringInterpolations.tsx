@@ -8,26 +8,22 @@ import { clamp } from '../utils'
 // so it's important that if anything can change outside of render that needs to be available
 // in the interpolation then a ref must be used
 
-// @TODO retire this constant and implement true rubberbanding
-// How many pixels above the viewport height the user is allowed to drag the bottom sheet
-const MAX_OVERFLOW = 120
-
 export function useSpringInterpolations({
   maxHeight,
-  maxSnap,
-  minSnap,
+  maxSnapRef,
+  minSnapRef,
   spring,
 }: {
   maxHeight: number
-  maxSnap: number
-  minSnap: number
+  maxSnapRef: { current: number }
+  minSnapRef: { current: number }
   spring: Spring
 }): React.CSSProperties {
   // This effect is for removing rounded corners on phones when the sheet touches the top of the browser chrome
   // as it's really ugly with the gaps border radius creates. This ensures it looks sleek.
   // @TODO the ts-ignore comments are because the `extrapolate` param isn't in the TS defs for some reason
   const interpolateBorderRadius =
-    maxHeight !== maxSnap
+    maxHeight !== maxSnapRef.current
       ? undefined
       : // @ts-expect-error
         spring.y.interpolate({
@@ -47,29 +43,34 @@ export function useSpringInterpolations({
    *       A FLIP resize flow for content height would likely require the sticky elements to overlap the content area.
    *       Could be done as a separat mode though, or a separate example CSS for max performance.
    */
-  const interpolateHeight = spring.y.interpolate(
-    (y: number) => `${clamp(y, minSnap, maxSnap)}px`
-  )
-
-  const interpolateY = spring.y.interpolate({
-    range: [0, minSnap, maxSnap, maxSnap + MAX_OVERFLOW],
-    output: [`${minSnap}px`, '0px', '0px', `${-MAX_OVERFLOW}px`],
+  const interpolateHeight = spring.y.interpolate((y: number) => {
+    console.log('used maxSnapRef', maxSnapRef.current)
+    return `${clamp(y, minSnapRef.current, maxSnapRef.current)}px`
   })
 
-  const interpolateFiller = spring.y
-    .interpolate({
-      range: [0, maxSnap, maxSnap + MAX_OVERFLOW],
-      output: [0, 0, MAX_OVERFLOW],
-    })
-    // Rounding up prevents subpixel gaps that can happen since we use fractions in translateY for a smooth animation
-    .interpolate(Math.ceil)
+  const interpolateY = spring.y.interpolate((y) => {
+    if (y < minSnapRef.current) {
+      return `${minSnapRef.current - y}px`
+    }
+    if (y > maxSnapRef.current) {
+      return `${maxSnapRef.current - y}px`
+    }
+    return '0px'
+  })
+
+  const interpolateFiller = spring.y.interpolate((y) => {
+    if (y >= maxSnapRef.current) {
+      return Math.ceil(y - maxSnapRef.current)
+    }
+    return 0
+  })
 
   const interpolateContentOpacity = spring.y.interpolate({
     range: [
       0,
-      Math.max(minSnap / 2 - 45, 0),
-      Math.min(minSnap / 2 + 45, minSnap),
-      minSnap,
+      Math.max(minSnapRef.current / 2 - 45, 0),
+      Math.min(minSnapRef.current / 2 + 45, minSnapRef.current),
+      minSnapRef.current,
     ],
     output: [0, 0, 1, 1],
   })

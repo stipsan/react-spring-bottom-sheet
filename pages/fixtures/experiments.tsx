@@ -257,7 +257,7 @@ function Seven() {
     if (open) {
       setShift((shift) => !shift)
     }
-  }, 10000)
+  }, 1000)
 
   return (
     <>

@@ -24,9 +24,7 @@ type defaultSnap = (props: defaultSnapProps) => number
 
 /* Might make sense to expose a preventDefault method here */
 export type SpringEvent = {
-  type: 'OPEN' | 'CLOSE'
-  //type: 'OPEN' | 'SNAP' | 'CLOSE'
-  // @TODO implemen SNAP events
+  type: 'OPEN' | 'CLOSE' | 'RESIZE'
 }
 
 export type Props = {
