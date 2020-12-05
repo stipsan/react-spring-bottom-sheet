@@ -1,3 +1,10 @@
+## [2.2.2](https://github.com/stipsan/react-spring-bottom-sheet/compare/v2.2.1...v2.2.2) (2020-12-05)
+
+
+### Bug Fixes
+
+* updated readme with more API docs and examples ([6a48fab](https://github.com/stipsan/react-spring-bottom-sheet/commit/6a48fab13285d113921d2c45e7a96e00e12138f3))
+
 ## [2.2.1](https://github.com/stipsan/react-spring-bottom-sheet/compare/v2.2.0...v2.2.1) (2020-12-05)
 
 
