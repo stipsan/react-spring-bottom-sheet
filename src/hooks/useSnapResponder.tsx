@@ -84,6 +84,7 @@ export function useSnapResponder({
         console.log('minSnap changed!')
         minSnapRef.current = minSnap
       }
+      console.count('updateSnap')
       updateSnap()
     }
   }, [draggingRef, maxHeight, updateSnap, minSnap, maxSnap])

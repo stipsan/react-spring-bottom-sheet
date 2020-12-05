@@ -147,6 +147,16 @@ export const BottomSheet = React.forwardRef<
       maxSnapRef.current = maxSnap
       minSnapRef.current = minSnap
 
+      console.log(
+        'Resizing due to',
+        'maxHeight:',
+        maxHeightRef.current !== maxHeight,
+        'maxSnap:',
+        maxSnapRef.current !== maxSnap,
+        'minSnap:',
+        minSnapRef.current !== minSnap
+      )
+
       return
     }
 
@@ -217,15 +227,7 @@ export const BottomSheet = React.forwardRef<
         cancelled = true
       }
     }
-  }, [
-    findSnap,
-    lastSnapRef,
-    maxHeight,
-    maxSnap,
-    minSnap,
-    prefersReducedMotion,
-    set,
-  ])
+  }, [lastSnapRef, maxSnap, minSnap, prefersReducedMotion, set])
   useImperativeHandle(
     forwardRef,
     () => ({

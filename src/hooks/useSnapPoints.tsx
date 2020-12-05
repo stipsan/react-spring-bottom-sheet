@@ -54,6 +54,7 @@ export function useSnapPoints({
   )
   console.log({ snapPoints, minSnap, maxSnap })
 
+  // @TODO investigate the gains from memoizing this
   function findSnap(
     numberOrCallback: number | ((state: defaultSnapProps) => number)
   ) {
@@ -232,4 +233,14 @@ function useMaxHeight(
   }, [controlledMaxHeight, setReady])
 
   return maxHeight
+}
+
+function usePrevious<T>(value: T): T {
+  const ref = useRef<T>(value)
+
+  useEffect(() => {
+    ref.current = value
+  }, [value])
+
+  return ref.current
 }

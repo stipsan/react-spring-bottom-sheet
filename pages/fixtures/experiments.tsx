@@ -88,8 +88,9 @@ function Two() {
             Dismiss
           </Button>
         }
-        defaultSnap={({ headerHeight, footerHeight }) =>
-          headerHeight + footerHeight
+        defaultSnap={({ headerHeight, footerHeight, minHeight }) =>
+          //headerHeight + footerHeight
+          minHeight
         }
         snapPoints={({ minHeight, headerHeight, footerHeight }) => [
           headerHeight + footerHeight,
@@ -256,7 +257,7 @@ function Seven() {
     if (open) {
       setShift((shift) => !shift)
     }
-  }, 3000)
+  }, 10000)
 
   return (
     <>
@@ -326,6 +327,31 @@ function Eight() {
   )
 }
 
+function Nine() {
+  const [open, setOpen] = useState(false)
+  const [expandHeader, setExpandHeader] = useState(false)
+  const [expandContent, setExpandContent] = useState(false)
+  const [expandFooter, setExpandFooter] = useState(false)
+
+  return (
+    <>
+      <Button onClick={() => setOpen(true)}>9</Button>
+      <BottomSheet
+        open={open}
+        onDismiss={() => setOpen(false)}
+        onSpringStart={(event) => console.warn('onSpringStart', event.type)}
+        onSpringCancel={(event) => console.warn('onSpringCancel', event.type)}
+        onSpringEnd={(event) => console.warn('onSpringEnd', event.type)}
+      >
+        <SheetContent>
+          <Button>T</Button>
+          <Button>T</Button>
+        </SheetContent>
+      </BottomSheet>
+    </>
+  )
+}
+
 export default function ExperimentsFixturePage() {
   return (
     <Container
@@ -342,6 +368,7 @@ export default function ExperimentsFixturePage() {
       <Six />
       <Seven />
       <Eight />
+      <Nine />
     </Container>
   )
 }

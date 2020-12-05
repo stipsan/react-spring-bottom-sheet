@@ -1,7 +1,6 @@
 export { useAriaHider } from './useAriaHider'
 export { useFocusTrap } from './useFocusTrap'
 export { useLayoutEffect } from './useLayoutEffect'
-export { usePrevious } from './usePrevious'
 export { useReady } from './useReady'
 export { useReducedMotion } from './useReducedMotion'
 export { useScrollLock } from './useScrollLock'
