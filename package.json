@@ -98,6 +98,7 @@
     "popup",
     "react",
     "react-spring",
+    "react-use-gesture",
     "sheet",
     "typescript"
   ],
