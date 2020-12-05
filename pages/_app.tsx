@@ -7,14 +7,30 @@ import '../docs/style.css'
 import '../src/style.css'
 
 export async function getStaticProps() {
-  const { version, description, homepage, name, meta = {} } = await import(
-    '../package.json'
-  )
+  const [
+    { version, description, homepage, name, meta = {} },
+    { version: reactSpringVersion },
+    { version: reactUseGestureVersion },
+  ] = await Promise.all([
+    import('../package.json'),
+    import('react-spring/package.json'),
+    import('react-use-gesture/package.json'),
+  ])
   if (!meta['og:site_name']) {
     meta['og:site_name'] = capitalize(name)
   }
 
-  return { props: { version, description, homepage, name, meta } }
+  return {
+    props: {
+      version,
+      description,
+      homepage,
+      name,
+      meta,
+      reactSpringVersion,
+      reactUseGestureVersion,
+    },
+  }
 }
 
 export type GetStaticProps = InferGetStaticPropsType<typeof getStaticProps>

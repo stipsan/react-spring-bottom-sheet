@@ -1,9 +1,10 @@
-import type { NextPage } from 'next'
 import { aside, scrollable, simple, sticky } from '../docs/headings'
+import Footer from '../docs/Footer'
 import Hero from '../docs/Hero'
+import MetaTags from '../docs/MetaTags'
 import Nugget from '../docs/Nugget'
 import StickyNugget from '../docs/StickyNugget'
-import MetaTags from '../docs/MetaTags'
+import type { NextPage } from 'next'
 import type { GetStaticProps } from './_app'
 
 export { getStaticProps } from './_app'
@@ -14,6 +15,8 @@ const IndexPage: NextPage<GetStaticProps> = ({
   description,
   homepage,
   meta,
+  reactSpringVersion,
+  reactUseGestureVersion,
 }) => (
   <>
     <MetaTags
@@ -57,6 +60,11 @@ const IndexPage: NextPage<GetStaticProps> = ({
         />
       </div>
     </main>
+    <Footer
+      version={version}
+      reactSpringVersion={reactSpringVersion}
+      reactUseGestureVersion={reactUseGestureVersion}
+    />
   </>
 )
 
