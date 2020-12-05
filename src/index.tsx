@@ -14,7 +14,7 @@ export const BottomSheet = forwardRef<RefHandles, Props>(function BottomSheet(
 ) {
   // Mounted state, helps SSR but also ensures you can't tab into the sheet while it's closed, or nav there in a screen reader
   const [mounted, setMounted] = useState(false)
-  const timerRef = useRef<ReturnType<typeof setTimeout>>()
+  const timerRef = useRef<ReturnType<typeof requestAnimationFrame>>()
   // The last point that the user snapped to, useful for open/closed toggling and the user defined height is remembered
   const lastSnapRef = useRef(null)
   // Workaround annoying race condition
@@ -23,7 +23,7 @@ export const BottomSheet = forwardRef<RefHandles, Props>(function BottomSheet(
   // Using layout effect to support cases where the bottom sheet have to appear already open, no transition
   useLayoutEffect(() => {
     if (props.open) {
-      clearTimeout(timerRef.current)
+      cancelAnimationFrame(timerRef.current)
       setMounted(true)
 
       // Cleanup defaultOpen state on close
@@ -39,7 +39,7 @@ export const BottomSheet = forwardRef<RefHandles, Props>(function BottomSheet(
 
     if (event.type === 'OPEN') {
       // Ensures that when it's opening we abort any pending unmount action
-      clearTimeout(timerRef.current)
+      cancelAnimationFrame(timerRef.current)
     }
   }
 
@@ -49,7 +49,7 @@ export const BottomSheet = forwardRef<RefHandles, Props>(function BottomSheet(
 
     if (event.type === 'CLOSE') {
       // Unmount from the dom to avoid contents being tabbable or visible to screen readers while closed
-      timerRef.current = setTimeout(() => setMounted(false), 1000)
+      timerRef.current = requestAnimationFrame(() => setMounted(false))
     }
   }
 
