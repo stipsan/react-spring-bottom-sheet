@@ -36,12 +36,13 @@ export function roundAndCheckForNaN(unrounded) {
 export function processSnapPoints(unsafeSnaps: number | number[], maxHeight) {
   const safeSnaps = [].concat(unsafeSnaps).map(roundAndCheckForNaN)
 
-  const snapPoints = [
-    ...safeSnaps.reduce((acc, snapPoint) => {
-      acc.add(clamp(snapPoint, 0, maxHeight))
-      return acc
-    }, new Set<number>()),
-  ]
+  const snapPointsDedupedSet = safeSnaps.reduce((acc, snapPoint) => {
+    acc.add(clamp(snapPoint, 0, maxHeight))
+    return acc
+  }, new Set<number>())
+
+  const snapPoints = Array.from(snapPointsDedupedSet)
+
   const minSnap = Math.min(...snapPoints)
   if (Number.isNaN(minSnap)) {
     throw new TypeError('minSnap is NaN')
