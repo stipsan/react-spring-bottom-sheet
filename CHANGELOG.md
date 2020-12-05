@@ -1,3 +1,15 @@
+# [2.1.0](https://github.com/stipsan/react-spring-bottom-sheet/compare/v2.0.3...v2.1.0) (2020-12-05)
+
+
+### Bug Fixes
+
+* use rAF instead of timeout to schedule unmount ([7f3c018](https://github.com/stipsan/react-spring-bottom-sheet/commit/7f3c0181a001a78aaad0d5318dfe9f8af15c3d05))
+
+
+### Features
+
+* add sibling prop support ([767215b](https://github.com/stipsan/react-spring-bottom-sheet/commit/767215b60ea08dfabe90c4a7d5d5f2a85684064e))
+
 ## [2.0.3](https://github.com/stipsan/react-spring-bottom-sheet/compare/v2.0.2...v2.0.3) (2020-12-05)
 
 
