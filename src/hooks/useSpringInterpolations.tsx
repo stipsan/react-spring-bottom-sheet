@@ -1,3 +1,4 @@
+import { interpolate } from 'react-spring'
 import type { Spring } from './useSpring'
 import { clamp } from '../utils'
 
@@ -9,30 +10,20 @@ import { clamp } from '../utils'
 // in the interpolation then a ref must be used
 
 export function useSpringInterpolations({
-  maxHeight,
-  maxSnapRef,
-  minSnapRef,
   spring,
 }: {
-  maxHeight: number
-  maxSnapRef: { current: number }
-  minSnapRef: { current: number }
   spring: Spring
 }): React.CSSProperties {
   // This effect is for removing rounded corners on phones when the sheet touches the top of the browser chrome
   // as it's really ugly with the gaps border radius creates. This ensures it looks sleek.
   // @TODO the ts-ignore comments are because the `extrapolate` param isn't in the TS defs for some reason
-  const interpolateBorderRadius =
-    maxHeight !== maxSnapRef.current
-      ? undefined
-      : // @ts-expect-error
-        spring.y.interpolate({
-          // @TODO change 16 hardcoded value to a dynamic/detected one
-          range: [maxHeight - 16, maxHeight],
-          output: ['16px', '0px'],
-          extrapolate: 'clamp',
-          map: Math.round,
-        })
+  const interpolateBorderRadius = interpolate(
+    // @ts-expect-error
+    [spring.y, spring.maxHeight],
+    (y, maxHeight) => {
+      return `${Math.round(clamp(maxHeight - y, 0, 16))}px`
+    }
+  )
 
   /*
    * Only animate the height when absolute necessary
@@ -43,37 +34,51 @@ export function useSpringInterpolations({
    *       A FLIP resize flow for content height would likely require the sticky elements to overlap the content area.
    *       Could be done as a separat mode though, or a separate example CSS for max performance.
    */
-  const interpolateHeight = spring.y.interpolate((y: number) => {
-    console.log('used maxSnapRef', maxSnapRef.current)
-    return `${clamp(y, minSnapRef.current, maxSnapRef.current)}px`
-  })
+  const interpolateHeight = interpolate(
+    // @ts-ignore
+    [spring.y, spring.minSnap, spring.maxSnap],
+    (y, minSnap, maxSnap) => `${clamp(y, minSnap, maxSnap)}px`
+  )
 
-  const interpolateY = spring.y.interpolate((y: number) => {
-    if (y < minSnapRef.current) {
-      return `${minSnapRef.current - y}px`
+  const interpolateY = interpolate(
+    // @ts-ignore
+    [spring.y, spring.minSnap, spring.maxSnap],
+    (y, minSnap, maxSnap) => {
+      if (y < minSnap) {
+        return `${minSnap - y}px`
+      }
+      if (y > maxSnap) {
+        return `${maxSnap - y}px`
+      }
+      return '0px'
     }
-    if (y > maxSnapRef.current) {
-      return `${maxSnapRef.current - y}px`
-    }
-    return '0px'
-  })
+  )
 
-  const interpolateFiller = spring.y.interpolate((y: number) => {
-    if (y >= maxSnapRef.current) {
-      return Math.ceil(y - maxSnapRef.current)
+  const interpolateFiller = interpolate(
+    // @ts-ignore
+    [spring.y, spring.maxSnap],
+    (y, maxSnap) => {
+      if (y >= maxSnap) {
+        return Math.ceil(y - maxSnap)
+      }
+      return 0
     }
-    return 0
-  })
+  )
 
-  const interpolateContentOpacity = spring.y.interpolate({
-    range: [
-      0,
-      Math.max(minSnapRef.current / 2 - 45, 0),
-      Math.min(minSnapRef.current / 2 + 45, minSnapRef.current),
-      minSnapRef.current,
-    ],
-    output: [0, 0, 1, 1],
-  })
+  const interpolateContentOpacity = interpolate(
+    // @ts-ignore
+    [spring.y, spring.minSnap],
+    (y, minSnap) => {
+      const minX = Math.max(minSnap / 2 - 45, 0)
+      const maxX = Math.min(minSnap / 2 + 45, minSnap)
+      const minY = 0
+      const maxY = 1
+
+      const slope = (maxY - minY) / (maxX - minX)
+      const res = (y - minX) * (slope + minY)
+      return clamp(res, 0, 1)
+    }
+  )
 
   return {
     // Fancy content fade-in effect
