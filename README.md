@@ -196,7 +196,7 @@ Type: `(event: SpringEvent) => void`
 
 Fired on: `CLOSE`.
 
-The yin to `onSpringStart`'s `yang`. It has the same characteristics. `RESIZE` don't mind if you give it an async function, but it also won't wait for it to finish before carrying on with the resizing. `OPEN` is siding with `RESIZE` on this one too while `CLOSE` still supports awaiting on async work. For `CLOSE` it gives you a hook into the step right after it has cleaned up everything after itself, and right before it unmounts itself. This can be useful if you have some logic that needs to perform some work before it's safe to unmount.
+The `yin` to `onSpringStart`'s `yang`. It has the same characteristics. `RESIZE` don't mind if you give it an async function, but it also won't wait for it to finish before carrying on with the resizing. `OPEN` is siding with `RESIZE` on this one too while `CLOSE` still supports awaiting on async work. For `CLOSE` it gives you a hook into the step right after it has cleaned up everything after itself, and right before it unmounts itself. This can be useful if you have some logic that needs to perform some work before it's safe to unmount.
 
 ## ref
 
