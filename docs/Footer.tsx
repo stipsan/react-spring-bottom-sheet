@@ -1,3 +1,6 @@
+import cx from 'classnames'
+import styles from './Footer.module.css'
+
 function Badge({
   name,
   version,
@@ -30,7 +33,12 @@ export default function Footer({
   reactUseGestureVersion: string
 }) {
   return (
-    <footer className="px-10 py-32 grid md:grid-flow-col md:place-items-center place-content-center gap-8 bg-gray-900">
+    <footer
+      className={cx(
+        'px-10 py-32 grid md:grid-flow-col md:place-items-center place-content-center gap-8 bg-gray-900',
+        styles.skewed
+      )}
+    >
       <Badge name="react-spring-bottom-sheet" version={version} />
       <Badge name="react-spring" version={reactSpringVersion} />
       <Badge name="react-use-gesture" version={reactUseGestureVersion} />

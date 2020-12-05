@@ -27,7 +27,7 @@ const IndexPage: NextPage<GetStaticProps> = ({
     />
     <main>
       <Hero />
-      <div className="max-w-5xl mx-auto py-10 px-8 grid grid-cols-1 md:grid-cols-3 gap-x-5 gap-y-10">
+      <div className="max-w-5xl mx-auto py-20 px-8 grid grid-cols-1 md:grid-cols-3 gap-x-5 gap-y-10">
         <Nugget
           heading="Modern"
           lead="Built on top of react-spring and react-use-gesture, following best practices for minimal rerenders and only animating CSS properties that can be done on the GPU when possible."
@@ -41,7 +41,7 @@ const IndexPage: NextPage<GetStaticProps> = ({
           lead="By using CSS Custom Properties you're not limited by what is spring animated by default. You can change which elements animations are applied to without writing any JS."
         />
       </div>
-      <div className="max-w-4xl mx-auto py-10 px-8 grid grid-flow-row gap-y-20">
+      <div className="max-w-5xl mx-auto pt-20 px-8 grid grid-flow-row">
         <StickyNugget
           heading={simple}
           lead={[
@@ -52,17 +52,21 @@ const IndexPage: NextPage<GetStaticProps> = ({
         />
         <StickyNugget
           flip
+          bg="bg-gray-200"
           heading={scrollable}
           lead="Intro"
           example="/fixtures/scrollable"
         />
         <StickyNugget
+          bg="bg-gray-300"
           heading={sticky}
           lead="Intro"
           example="/fixtures/sticky"
         />
         <StickyNugget
           flip
+          bg="bg-gray-400"
+          text="text-900"
           heading={aside}
           lead="Intro"
           example="/fixtures/aside"

@@ -51,3 +51,9 @@
   box-shadow: 0 0 0 2px black;
   width: 86.6%;
 }
+
+.fancybg {
+  left: 50%;
+  transform: translateX(-50%) skewY(-9deg);
+  width: 100vw;
+}
