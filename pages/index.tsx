@@ -27,10 +27,19 @@ const IndexPage: NextPage<GetStaticProps> = ({
     />
     <main>
       <Hero />
-      <div className="max-w-5xl mx-auto py-10 px-8 grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Nugget heading="Placeholder" lead="Lorem ipsum and so on" />
-        <Nugget heading="Placeholder" lead="Lorem ipsum and so on" />
-        <Nugget heading="Placeholder" lead="Lorem ipsum and so on" />
+      <div className="max-w-5xl mx-auto py-10 px-8 grid grid-cols-1 md:grid-cols-3 gap-x-5 gap-y-10">
+        <Nugget
+          heading="Modern"
+          lead="Built on top of react-spring and react-use-gesture, following best practices for minimal rerenders and only animating CSS properties that can be done on the GPU when possible."
+        />
+        <Nugget
+          heading="Flexible"
+          lead="Can be used like a blocking dialog that require the user to make a choice before it can be closed, or like floating bottom panel. It automatically adapts to the dimensions of the content you put in it."
+        />
+        <Nugget
+          heading="CSS Variables"
+          lead="By using CSS Custom Properties you're not limited by what is spring animated by default. You can change which elements animations are applied to without writing any JS."
+        />
       </div>
       <div className="max-w-4xl mx-auto py-10 px-8 grid grid-flow-row gap-y-20">
         <StickyNugget
