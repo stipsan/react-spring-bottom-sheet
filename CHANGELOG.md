@@ -1,3 +1,14 @@
+## [2.0.3](https://github.com/stipsan/react-spring-bottom-sheet/compare/v2.0.2...v2.0.3) (2020-12-05)
+
+
+### Bug Fixes
+
+* add CSS sourcemap ([04bf99f](https://github.com/stipsan/react-spring-bottom-sheet/commit/04bf99f119f88cc49686b439cc3f31ec89b1041a))
+* add keywords ([05f4399](https://github.com/stipsan/react-spring-bottom-sheet/commit/05f43990d6527b50c2a38d94cdebcacf02826e1e))
+* add more NaN type guards ([7664d1a](https://github.com/stipsan/react-spring-bottom-sheet/commit/7664d1aad582f690554641ee841aae286865b60b))
+* guard against NaN in minSnap and maxSnap handlers ([7dbf037](https://github.com/stipsan/react-spring-bottom-sheet/commit/7dbf0370afe33b2c93aa91f49f794fb3a30b5a48))
+* TS in microbundle breaks on [...(new Set)], swapping to Array.from ([2402b5a](https://github.com/stipsan/react-spring-bottom-sheet/commit/2402b5adc6afa4759b6b3dd408b254b9d1693eeb))
+
 ## [2.0.2](https://github.com/stipsan/react-spring-bottom-sheet/compare/v2.0.1...v2.0.2) (2020-12-05)
 
 
