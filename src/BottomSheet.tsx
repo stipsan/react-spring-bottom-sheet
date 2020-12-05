@@ -319,6 +319,7 @@ export const BottomSheet = React.forwardRef<
 
           canDragRef.current = true
           heightRef.current = defaultSnapRef.current
+          shouldInterpolateRefs.current = true
           await next({
             y: defaultSnapRef.current,
             backdrop: 1,
@@ -336,7 +337,6 @@ export const BottomSheet = React.forwardRef<
         onSpringEndRef.current?.({ type: 'OPEN' })
 
         if (!cancelled) {
-          shouldInterpolateRefs.current = true
           console.groupEnd()
         }
       },
