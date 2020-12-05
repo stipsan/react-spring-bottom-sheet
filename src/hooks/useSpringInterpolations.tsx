@@ -1,3 +1,4 @@
+import { interpolate } from 'react-spring'
 import type { Spring } from './useSpring'
 import { clamp } from '../utils'
 
@@ -9,30 +10,25 @@ import { clamp } from '../utils'
 // in the interpolation then a ref must be used
 
 export function useSpringInterpolations({
-  maxHeight,
-  maxSnapRef,
-  minSnapRef,
   spring,
 }: {
-  maxHeight: number
-  maxSnapRef: { current: number }
-  minSnapRef: { current: number }
   spring: Spring
 }): React.CSSProperties {
   // This effect is for removing rounded corners on phones when the sheet touches the top of the browser chrome
   // as it's really ugly with the gaps border radius creates. This ensures it looks sleek.
   // @TODO the ts-ignore comments are because the `extrapolate` param isn't in the TS defs for some reason
+  /*
   const interpolateBorderRadius =
     maxHeight !== maxSnapRef.current
       ? undefined
-      : // @ts-expect-error
-        spring.y.interpolate({
+      : spring.y.interpolate({
           // @TODO change 16 hardcoded value to a dynamic/detected one
           range: [maxHeight - 16, maxHeight],
           output: ['16px', '0px'],
           extrapolate: 'clamp',
           map: Math.round,
         })
+        // */
 
   /*
    * Only animate the height when absolute necessary
@@ -43,27 +39,34 @@ export function useSpringInterpolations({
    *       A FLIP resize flow for content height would likely require the sticky elements to overlap the content area.
    *       Could be done as a separat mode though, or a separate example CSS for max performance.
    */
-  const interpolateHeight = spring.y.interpolate((y: number) => {
-    console.log('used maxSnapRef', maxSnapRef.current)
-    return `${clamp(y, minSnapRef.current, maxSnapRef.current)}px`
-  })
+  const interpolateHeight = interpolate(
+    [spring.y, spring.minSnap, spring.maxSnap],
+    (y, minSnap, maxSnap) => `${clamp(y, minSnap, maxSnap)}px`
+  )
 
-  const interpolateY = spring.y.interpolate((y: number) => {
-    if (y < minSnapRef.current) {
-      return `${minSnapRef.current - y}px`
+  const interpolateY = interpolate(
+    [spring.y, spring.minSnap, spring.maxSnap],
+    (y, minSnap, maxSnap) => {
+      if (y < minSnap) {
+        return `${minSnap - y}px`
+      }
+      if (y > maxSnap) {
+        return `${maxSnap - y}px`
+      }
+      return '0px'
     }
-    if (y > maxSnapRef.current) {
-      return `${maxSnapRef.current - y}px`
-    }
-    return '0px'
-  })
+  )
 
-  const interpolateFiller = spring.y.interpolate((y: number) => {
-    if (y >= maxSnapRef.current) {
-      return Math.ceil(y - maxSnapRef.current)
+  const interpolateFiller = interpolate(
+    [spring.y, spring.maxSnap],
+    (y, maxSnap) => {
+      if (y >= maxSnap) {
+        return Math.ceil(y - maxSnap)
+      }
+      return 0
     }
-    return 0
-  })
+  )
+  /*
 
   const interpolateContentOpacity = spring.y.interpolate({
     range: [
@@ -74,10 +77,11 @@ export function useSpringInterpolations({
     ],
     output: [0, 0, 1, 1],
   })
+  // */
 
   return {
     // Fancy content fade-in effect
-    ['--rsbs-content-opacity' as any]: interpolateContentOpacity,
+    //['--rsbs-content-opacity' as any]: interpolateContentOpacity,
     // Fading in the backdrop
     ['--rsbs-backdrop-opacity' as any]: spring.backdrop,
     // Scaling the antigap in the bottom
@@ -85,7 +89,7 @@ export function useSpringInterpolations({
     // Shifts the position of the bottom sheet, used on open and close primarily as snap point changes usually only interpolate the height
     ['--rsbs-overlay-translate-y' as any]: interpolateY,
     // Remove rounded borders when full height, it looks much better this way
-    ['--rsbs-overlay-rounded' as any]: interpolateBorderRadius,
+    //['--rsbs-overlay-rounded' as any]: interpolateBorderRadius,
     // Animates the height state, not the most performant way but it's the safest with regards to mobile browser and focus/scrolling that could happen while animating
     ['--rsbs-overlay-h' as any]: interpolateHeight,
   }

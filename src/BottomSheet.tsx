@@ -126,36 +126,34 @@ export const BottomSheet = React.forwardRef<
     headerRef,
   })
 
+  // Setup refs that are used in cases where full control is needed over when a side effect is executed
+  const maxHeightRef = useRef(maxHeight)
+  const minSnapRef = useRef(minSnap)
+  const maxSnapRef = useRef(maxSnap)
+  const findSnapRef = useRef(findSnap)
+  // Sync the refs with current state, giving the spring full control over when to respond to changes
+  useEffect(() => {
+    maxHeightRef.current = maxHeight
+    maxSnapRef.current = maxSnap
+    minSnapRef.current = minSnap
+    findSnapRef.current = findSnap
+  }, [findSnap, maxHeight, maxSnap, minSnap])
+
   const defaultSnapRef = useRef(0)
   useEffect(() => {
     // Wait with selectin default snap until element dimensions are measured
     if (!ready) return
     console.count('selecting default snap')
 
-    defaultSnapRef.current = findSnap(getDefaultSnap)
-  }, [findSnap, getDefaultSnap, ready])
+    defaultSnapRef.current = findSnapRef.current(getDefaultSnap)
+  }, [getDefaultSnap, ready])
+
+  // @TODO can be renamed or deleted
   // Wether to interpolate refs or states, useful when needing to transition between changed snapshot bounds
   const shouldInterpolateRefs = useRef(false)
-  const minSnapRef = useRef(minSnap)
-  const maxSnapRef = useRef(maxSnap)
+
   // Adjust the height whenever the snap points are changed due to resize events
   useEffect(() => {
-    // If we're not gonna interpolate the refs we'll just quietly update them
-    if (!shouldInterpolateRefs.current) {
-      maxSnapRef.current = maxSnap
-      minSnapRef.current = minSnap
-
-      console.log(
-        'Resizing due to',
-        'maxSnap:',
-        maxSnapRef.current !== maxSnap,
-        'minSnap:',
-        minSnapRef.current !== minSnap
-      )
-
-      return
-    }
-
     if (shouldInterpolateRefs.current) {
       set({
         // @ts-expect-error
@@ -164,7 +162,7 @@ export const BottomSheet = React.forwardRef<
 
           await onSpringStartRef.current?.({ type: 'RESIZE' })
 
-          const snap = findSnap(heightRef.current)
+          const snap = findSnapRef.current(heightRef.current)
 
           console.log('animate resize')
 
@@ -177,8 +175,8 @@ export const BottomSheet = React.forwardRef<
             minSnapRef.current !== minSnap
           )
           // Adjust bounds to have enough room for the transition
-          maxSnapRef.current = Math.max(snap, heightRef.current)
-          minSnapRef.current = Math.min(snap, heightRef.current)
+          // maxSnapRef.current = Math.max(snap, heightRef.current)
+          //minSnapRef.current = Math.min(snap, heightRef.current)
           console.log('new maxSnapRef', maxSnapRef.current)
 
           heightRef.current = snap
@@ -187,11 +185,14 @@ export const BottomSheet = React.forwardRef<
           await next({
             y: snap,
             backdrop: 1,
+            maxHeight,
+            maxSnap,
+            minSnap,
             immediate: prefersReducedMotion.current,
           })
 
-          maxSnapRef.current = maxSnap
-          minSnapRef.current = minSnap
+          //maxSnapRef.current = maxSnap
+          //minSnapRef.current = minSnap
 
           onSpringEndRef.current?.({ type: 'RESIZE' })
 
@@ -199,7 +200,7 @@ export const BottomSheet = React.forwardRef<
         },
       })
     }
-  }, [findSnap, lastSnapRef, maxSnap, minSnap, prefersReducedMotion, set])
+  }, [lastSnapRef, maxHeight, maxSnap, minSnap, prefersReducedMotion, set])
   useImperativeHandle(
     forwardRef,
     () => ({
@@ -261,7 +262,11 @@ export const BottomSheet = React.forwardRef<
           await next({
             y: defaultSnapRef.current,
             backdrop: 1,
-            opacity: 1,
+            ready: 1,
+            maxHeight: maxHeightRef.current,
+            maxSnap: maxSnapRef.current,
+            // Using defaultSnapRef instead of minSnapRef to avoid animating `height` on open
+            minSnap: defaultSnapRef.current,
             immediate: true,
           })
 
@@ -281,7 +286,11 @@ export const BottomSheet = React.forwardRef<
           await next({
             y: defaultSnapRef.current,
             backdrop: 0,
-            opacity: 0,
+            ready: 0,
+            maxHeight: maxHeightRef.current,
+            maxSnap: maxSnapRef.current,
+            // Using defaultSnapRef instead of minSnapRef to avoid animating `height` on open
+            minSnap: defaultSnapRef.current,
             immediate: true,
           })
 
@@ -298,7 +307,11 @@ export const BottomSheet = React.forwardRef<
           await next({
             y: 0,
             backdrop: 0,
-            opacity: 1,
+            ready: 1,
+            maxHeight: maxHeightRef.current,
+            maxSnap: maxSnapRef.current,
+            // Using defaultSnapRef instead of minSnapRef to avoid animating `height` on open
+            minSnap: defaultSnapRef.current,
             immediate: true,
           })
 
@@ -309,7 +322,11 @@ export const BottomSheet = React.forwardRef<
           await next({
             y: defaultSnapRef.current,
             backdrop: 1,
-            opacity: 1,
+            ready: 1,
+            maxHeight: maxHeightRef.current,
+            maxSnap: maxSnapRef.current,
+            // Using defaultSnapRef instead of minSnapRef to avoid animating `height` on open
+            minSnap: defaultSnapRef.current,
             immediate: prefersReducedMotion.current,
           })
         }
@@ -368,18 +385,30 @@ export const BottomSheet = React.forwardRef<
 
         if (maybeCancel()) return
 
-        heightRef.current = 0
+        // Edge case for already closed
+        if (heightRef.current === 0) {
+          onSpringEndRef.current?.({ type: 'CLOSE' })
+          return
+        }
 
-        console.log('animate close')
+        // Avoid animating the height property on close and stay within FLIP bounds by upping the minSnap
+        next({
+          minSnap: heightRef.current,
+          immediate: true,
+        })
+
+        heightRef.current = 0
 
         await next({
           y: 0,
           backdrop: 0,
+          maxHeight: maxHeightRef.current,
+          maxSnap: maxSnapRef.current,
           immediate: prefersReducedMotion.current,
         })
         if (maybeCancel()) return
 
-        await next({ opacity: 0, immediate: true })
+        await next({ ready: 0, immediate: true })
 
         if (maybeCancel()) return
 
@@ -496,7 +525,10 @@ export const BottomSheet = React.forwardRef<
     set({
       y: newY,
       backdrop: clamp(newY / minSnapRef.current, 0, 1),
-      opacity: 1,
+      ready: 1,
+      maxHeight: maxHeightRef.current,
+      maxSnap: maxSnapRef.current,
+      minSnap: minSnapRef.current,
       immediate: prefersReducedMotion.current || down,
       config: {
         mass: relativeVelocity,
@@ -535,17 +567,7 @@ export const BottomSheet = React.forwardRef<
     throw new TypeError('minSnapRef is NaN!!')
   }
 
-  const interpolations = useSpringInterpolations({
-    spring,
-    maxHeight,
-    // Select which values to use in the interpolation based on wether it's safe to trust the height
-    maxSnapRef: shouldInterpolateRefs.current
-      ? maxSnapRef
-      : { current: maxSnap },
-    minSnapRef: shouldInterpolateRefs.current
-      ? minSnapRef
-      : { current: minSnap },
-  })
+  const interpolations = useSpringInterpolations({ spring })
 
   return (
     <animated.div
@@ -563,7 +585,7 @@ export const BottomSheet = React.forwardRef<
         // but allow overriding them/disabling them
         ...style,
         // Not overridable as the "focus lock with opacity 0" trick rely on it
-        opacity: spring.opacity,
+        opacity: spring.ready,
         // Allows interactions on the rest of the page before the close transition is finished
         pointerEvents: !ready || off ? 'none' : undefined,
       }}
