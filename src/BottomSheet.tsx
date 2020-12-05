@@ -39,6 +39,7 @@ export const BottomSheet = React.forwardRef<
 >(function BottomSheetInternal(
   {
     children,
+    sibling,
     className,
     footer,
     header,
@@ -565,6 +566,7 @@ export const BottomSheet = React.forwardRef<
         pointerEvents: !ready || off ? 'none' : undefined,
       }}
     >
+      {sibling}
       {blocking ? (
         <div
           // This component needs to be placed outside bottom-sheet, as bottom-sheet uses transform and thus creates a new context

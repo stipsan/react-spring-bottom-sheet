@@ -24,7 +24,7 @@ MVP example, showing what you get by implementing `open`, `onDismiss` and a sing
 
 ## [Snap points & overflow](https://react-spring-bottom-sheet.cocody.dev/fixtures/scrollable)
 
-> [View demo code](/pages/fixtures/scrollable.tsx#L85-L95)
+> [View demo code](/pages/fixtures/scrollable.tsx#L86-L97)
 
 A more elaborate example that showcases how snap points work. It also shows how it behaves if you want it to be open by default, and not closable. Notice how it responds if you resize the window, or scroll to the bottom and starts adjusting the height of the sheet without scrolling back up first.
 

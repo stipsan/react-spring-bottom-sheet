@@ -3,6 +3,7 @@ import type { NextPage } from 'next'
 import { useRef } from 'react'
 import scrollIntoView from 'smooth-scroll-into-view-if-needed'
 import Button from '../../docs/fixtures/Button'
+import CloseExample from '../../docs/fixtures/CloseExample'
 import Code from '../../docs/fixtures/Code'
 import Container from '../../docs/fixtures/Container'
 import ScrollUp from '../../docs/fixtures/ScrollUp'
@@ -84,6 +85,7 @@ const ScrollableFixturePage: NextPage<GetStaticProps> = ({
         <SnapMarker style={{ top: '75vh', ['--size' as any]: '0.5vh' }} />
         <BottomSheet
           open
+          sibling={<CloseExample className="z-10" />}
           ref={sheetRef}
           initialFocusRef={focusRef}
           defaultSnap={({ maxHeight }) => maxHeight / 2}

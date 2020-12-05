@@ -29,9 +29,15 @@ export type SpringEvent = {
   // @TODO implemen SNAP events
 }
 
-// Rename to Props! Woohoo!
 export type Props = {
   children: React.ReactNode
+
+  /**
+   * Similar to children, but renders next to the overlay element rather than inside it.
+   * Useful for things that are position:fixed and need to overlay the backdrop and still be interactive
+   * in blocking mode.
+   */
+  sibling?: React.ReactNode
 
   /**
    * Start a transition from closed to open, open to closed, or snap to snap.
