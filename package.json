@@ -82,6 +82,25 @@
     "tailwindcss": "^2.0.1",
     "typescript": "^4.1.2"
   },
+  "keywords": [
+    "animation",
+    "bottom-drawer",
+    "bottom-sheet",
+    "bottomsheet",
+    "dialog",
+    "drag-drop",
+    "draggableview",
+    "drawer",
+    "gesture-control",
+    "modal",
+    "motion",
+    "overlay",
+    "popup",
+    "react",
+    "react-spring",
+    "sheet",
+    "typescript"
+  ],
   "browserslist": [
     "Chrome >= 49",
     "Android >= 58",
