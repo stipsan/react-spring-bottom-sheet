@@ -1,5 +1,4 @@
 import cx from 'classnames'
-import NextLink from 'next/link'
 import { forwardRef, useEffect, useRef, useState } from 'react'
 import { animated, config, useSpring } from 'react-spring'
 import styles from './Hero.module.css'
