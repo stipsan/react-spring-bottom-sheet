@@ -54,7 +54,12 @@ const IndexPage: NextPage<GetStaticProps> = ({
           flip
           bg="bg-gray-200"
           heading={scrollable}
-          lead="Intro"
+          lead={[
+            "The snap points api lets you control exactly what positions the sheet can be in. If the user drag the sheet out of bounds you'll get a rubber band effect, and it gently slides into position on release. You can even flick it from top to bottom with some speed, if that's your jam.",
+            "If the content overflows it'll become scrollable automatically. By default the sheet will try to use enough height to avoid a scrolling overflow.",
+            'This example also showcase how the snapTo API lets you snap to a new position, try clicking on the button row.',
+            "And finally, it shows how the sheet behaves when you don't provide the onDismiss callback, note how you can't close it.",
+          ]}
           example="/fixtures/scrollable"
         />
         <StickyNugget

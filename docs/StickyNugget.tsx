@@ -33,9 +33,9 @@ export default function StickyNugget({
 
   return (
     <article
-      className={cx('grid grid-cols-1 sm:grid-cols-2 gap-5 relative py-20', {
-        'sm:pt-40': !flip,
-        'sm:pb-40': flip,
+      className={cx('grid grid-cols-1 md:grid-cols-2 gap-5 relative py-20', {
+        'md:pt-40': !flip,
+        'md:pb-40': flip,
       })}
     >
       <div
@@ -70,7 +70,7 @@ export default function StickyNugget({
       </div>
       <div
         className={cx(styles.example, {
-          'sm:order-first': flip,
+          'md:order-first': flip,
         })}
       >
         <div className={styles.phoneframe}>
