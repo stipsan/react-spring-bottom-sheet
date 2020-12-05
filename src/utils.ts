@@ -42,10 +42,18 @@ export function processSnapPoints(unsafeSnaps: number | number[], maxHeight) {
       return acc
     }, new Set<number>()),
   ]
+  const minSnap = Math.min(...snapPoints)
+  if (Number.isNaN(minSnap)) {
+    throw new TypeError('minSnap is NaN')
+  }
+  const maxSnap = Math.max(...snapPoints)
+  if (Number.isNaN(maxSnap)) {
+    throw new TypeError('maxSnap is NaN')
+  }
 
   return {
     snapPoints,
-    minSnap: Math.min(...snapPoints),
-    maxSnap: Math.max(...snapPoints),
+    minSnap,
+    maxSnap,
   }
 }
