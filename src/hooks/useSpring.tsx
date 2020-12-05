@@ -6,3 +6,6 @@ import { useSpring as useReactSpring } from 'react-spring'
 export function useSpring() {
   return useReactSpring(() => ({ y: 0, opacity: 0, backdrop: 0 }))
 }
+
+export type Spring = ReturnType<typeof useSpring>[0]
+export type SpringSet = ReturnType<typeof useSpring>[1]

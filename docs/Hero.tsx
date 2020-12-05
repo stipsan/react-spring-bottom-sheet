@@ -1,5 +1,4 @@
 import cx from 'classnames'
-import NextLink from 'next/link'
 import { forwardRef, useEffect, useRef, useState } from 'react'
 import { animated, config, useSpring } from 'react-spring'
 import styles from './Hero.module.css'
@@ -27,13 +26,15 @@ const Link: React.FC<{
 
 const Links = ({ className }: { className?: string }) => (
   <>
-    <NextLink href="/docs" passHref>
-      <Link className={className}>Get started</Link>
-    </NextLink>
+    <Link
+      className={className}
+      href="https://github.com/stipsan/react-spring-bottom-sheet/blob/main/GET_STARTED.md#get-started"
+    >
+      Get started
+    </Link>
     <Link
       className={className}
       href="https://github.com/stipsan/react-spring-bottom-sheet"
-      target="_blank"
     >
       GitHub
     </Link>

@@ -88,8 +88,9 @@ function Two() {
             Dismiss
           </Button>
         }
-        defaultSnap={({ headerHeight, footerHeight }) =>
-          headerHeight + footerHeight
+        defaultSnap={({ headerHeight, footerHeight, minHeight }) =>
+          //headerHeight + footerHeight
+          minHeight
         }
         snapPoints={({ minHeight, headerHeight, footerHeight }) => [
           headerHeight + footerHeight,
@@ -185,9 +186,6 @@ function Five() {
         open={open}
         footer={<strong>Sticky footer</strong>}
         onDismiss={onDismiss}
-        onSpringStart={(event) => console.warn('onSpringStart', event)}
-        onSpringCancel={(event) => console.error('onSpringCancel', event)}
-        onSpringEnd={(event) => console.warn('onSpringEnd', event)}
         defaultSnap={({ lastSnap }) => lastSnap}
         snapPoints={({ minHeight, headerHeight, footerHeight }) => [
           headerHeight,
@@ -256,7 +254,7 @@ function Seven() {
     if (open) {
       setShift((shift) => !shift)
     }
-  }, 3000)
+  }, 1000)
 
   return (
     <>
@@ -326,6 +324,49 @@ function Eight() {
   )
 }
 
+function Nine() {
+  const [open, setOpen] = useState(false)
+  const [expandHeader, setExpandHeader] = useState(false)
+  const [expandContent, setExpandContent] = useState(false)
+  const [expandFooter, setExpandFooter] = useState(false)
+
+  return (
+    <>
+      <Button onClick={() => setOpen(true)}>9</Button>
+      <BottomSheet
+        open={open}
+        onDismiss={() => setOpen(false)}
+        header={
+          <div>
+            <Button onClick={() => setExpandHeader(true)}>Expand</Button>
+            <br />
+            {expandHeader && (
+              <Button onClick={() => setExpandHeader(false)}>No!</Button>
+            )}
+          </div>
+        }
+        footer={
+          <>
+            <Button onClick={() => setExpandFooter(true)}>Expand</Button>
+            <br />
+            {expandFooter && (
+              <Button onClick={() => setExpandFooter(false)}>No!</Button>
+            )}
+          </>
+        }
+      >
+        <SheetContent>
+          <Button onClick={() => setExpandContent(true)}>Expand</Button>
+          <br />
+          {expandContent && (
+            <Button onClick={() => setExpandContent(false)}>No!</Button>
+          )}
+        </SheetContent>
+      </BottomSheet>
+    </>
+  )
+}
+
 export default function ExperimentsFixturePage() {
   return (
     <Container
@@ -342,6 +383,7 @@ export default function ExperimentsFixturePage() {
       <Six />
       <Seven />
       <Eight />
+      <Nine />
     </Container>
   )
 }

@@ -54,6 +54,7 @@ export function useSnapPoints({
   )
   console.log({ snapPoints, minSnap, maxSnap })
 
+  // @TODO investigate the gains from memoizing this
   function findSnap(
     numberOrCallback: number | ((state: defaultSnapProps) => number)
   ) {
