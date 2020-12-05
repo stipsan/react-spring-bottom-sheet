@@ -1,3 +1,10 @@
+## [2.0.2](https://github.com/stipsan/react-spring-bottom-sheet/compare/v2.0.1...v2.0.2) (2020-12-05)
+
+
+### Bug Fixes
+
+* microbundle defaults to preact, changed it back to react ([4f52355](https://github.com/stipsan/react-spring-bottom-sheet/commit/4f523558f1190b659a175f82ae5a0267a25d13eb))
+
 ## [2.0.1](https://github.com/stipsan/react-spring-bottom-sheet/compare/v2.0.0...v2.0.1) (2020-12-05)
 
 
