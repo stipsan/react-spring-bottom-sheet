@@ -44,7 +44,7 @@ const StickyFixturePage: NextPage<GetStaticProps> = ({
             lastSnap ?? Math.max(...snapPoints)
           }
           snapPoints={({ maxHeight }) => [
-            maxHeight - maxHeight / 10,
+            maxHeight - maxHeight / 5,
             maxHeight * 0.6,
           ]}
           header={

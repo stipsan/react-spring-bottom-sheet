@@ -53,7 +53,7 @@ Just note that the component is mounted in a `@reach/portal` at the bottom of `<
 
 Type: `boolean`
 
-The only required prop. And it's controlled, so if you don't set this to `false` then it's not possible to close the bottom sheet.
+The only required prop, beyond `children`. And it's controlled, so if you don't set this to `false` then it's not possible to close the bottom sheet. It's worth knowing that the bottom sheet won't render anything but a `@reach/dialog` placeholder while `open` is `false`. Thus ensure your components behave as expected with being unmounted when the sheet closed. We can't really allow it to render and mount while in a closed/hidden position as there's no stable way of preventing keyboard users or screen readers from accidentally interacting with the closed bottom sheet as long as it's in the dom. This is especially problematic given it implements ARIA to optimize for a11y.
 
 ### onDismiss
 
@@ -75,7 +75,14 @@ This function should be pure as it's called often. You can choose to provide a s
 - `footerHeight` – if a `footer` prop is provided then this is its height.
 - `height` – the current height of the sheet.
 - `minHeight` – the minimum height needed to avoid a scrollbar. If there's not enough height available to avoid it then this will be the same as `maxHeight`.
-- `maxHeight` – the maximum available height on the page, usually matches `window.innerHeight/100vh`.
+- `maxHeight` – the maximum available height on the page, equivalent to `window.innerHeight` and `100vh`.
+
+```jsx
+<BottomSheet
+  // Allow the user to select between minimun height to avoid a scrollbar, and fullscren
+  snapPoints={({ minHeight, maxHeight }) => [minHeight, maxHeight]}
+/>
+```
 
 ### defaultSnap
 
@@ -83,6 +90,17 @@ Type: `number | (state) => number`
 
 Provide either a number, or a callback returning a number for the default position of the sheet when it opens.
 `state` use the same arguments as `snapPoints`, plus two more values: `snapPoints` and `lastSnap`.
+
+```jsx
+<BottomSheet
+  // the first snap points height depends on the content, while the second one is equivalent to 60vh
+  snapPoints={({ minHeight, maxHeight }) => [minHeight, maxHeight / 0.6]}
+  // Opens the largest snap point by default, unless the user selected one previously
+  defaultSnap={({ lastSnap, snapPoints }) =>
+    lastSnap ?? Math.max(...snapPoints)
+  }
+/>
+```
 
 ### header
 
@@ -96,6 +114,12 @@ Type: `ReactNode`
 
 Supports the same value type as the `children` prop.
 
+### sibling
+
+Type: `ReactNode`
+
+Supports the same value type as the `sibling` prop. Renders the node as a child of `[data-rsbs-root]`, but as a sibling to `[data-rsbs-backdrop]` and `[data-rsbs-overlay]`. This allows you to access the animation state and render elements on top of the bottom sheet, while being outside the overlay itself.
+
 ### initialFocusRef
 
 Type: `React.Ref`
@@ -107,6 +131,72 @@ A react ref to the element you want to get keyboard focus when opening. If not p
 Type: `boolean`
 
 Enabled by default. Enables focus trapping of keyboard navigation, so you can't accidentally tab out of the bottom sheet and into the background. Also sets `aria-hidden` on the rest of the page to prevent Screen Readers from escaping as well.
+
+### scrollLocking
+
+Type: `boolean`
+
+iOS Safari, and some other mobile culprits, can be tricky if you're on a page that has scrolling overflow on `document.body`. Mobile browsers often prefer scrolling the page in these cases instead of letting you handle the touch interaction for UI such as the bottom sheet. Thus it's enabled by default. However it can be a bit agressive and can affect cases where you're putting a drag and drop element inside the bottom sheet. Such as `<input type="range" />` and more. For these cases you can wrap them in a container and give them this data attribute `[data-body-scroll-lock-ignore]` to prevent intervention. Really handy if you're doing crazy stuff like putting mapbox-gl widgets inside bottom sheets.
+
+## Events
+
+All events receive `SprinngEvent` as their argument. It has a single property, `type`, which can be `'OPEN' | 'RESIZE' | 'CLOSE'` depending on the scenario.
+
+### onSpringStart
+
+Type: `(event: SpringEvent) => void`
+
+Fired on: `OPEN | RESIZE | CLOSE`.
+
+If you need to delay the open animation until you're ready, perhaps you're loading some data and showing an inline spinner meanwhile. You can return a Promise or use an async function to make the bottom sheet wait for your work to finish before it starts the open transition.
+
+```jsx
+function Example() {
+  const [data, setData] = useState([])
+  return (
+    <BottomSheet
+      onSnapStart={async (event) => {
+        if (event.type === 'OPEN') {
+          // the bottom sheet gently waits
+          const data = await fetch(/* . . . */)
+          setData(data)
+          // and now we can proceed
+        }
+      }}
+    >
+      {data.map(/* . . . */)}
+    </BottomSheet>
+  )
+}
+```
+
+The `CLOSE` event also supports async/await and promises, if you need to delay the close transition. The `RESIZE` event does not await on anything, but nothing bad will happen if you give it an async function.
+
+### onSpringCancel
+
+Type: `(event: SpringEvent) => void`
+
+Fired on: `OPEN | CLOSE`.
+
+#### OPEN
+
+In order to be as fluid and delightful as possible, the open state can be interrupted and redirected by the user without waiting for the open transition to complete. Maybe they changed their mind and decided to close the sheet because they tapped a button by mistake. This interruption can happen in a number of ways:
+
+- the user swipes the sheet below the fold, triggering an `onDismiss` event.
+- the user hits the `esc` key, triggering an `onDismiss` event.
+- the parent component sets `open` to `false` before finishing the animation.
+
+#### CLOSE
+
+If the user reopens the sheet before it's done animating it'll trigger this event. Most importantly though it can fire if the bottom sheet is unmounted without enough time to clean animate itself out of the view before it rolls back things like `body-scroll-lock`, `focus-trap` and more. It'll still clean itself up even if React decides to be rude about it. But this also means that the event can fire after the component is unmounted, so you should avoid calling setState or similar without checking for the mounted status of your own wrapper component.
+
+### onSpringEnd
+
+Type: `(event: SpringEvent) => void`
+
+Fired on: `CLOSE`.
+
+The `yin` to `onSpringStart`'s `yang`. It has the same characteristics. `RESIZE` don't mind if you give it an async function, but it also won't wait for it to finish before carrying on with the resizing. `OPEN` is siding with `RESIZE` on this one too while `CLOSE` still supports awaiting on async work. For `CLOSE` it gives you a hook into the step right after it has cleaned up everything after itself, and right before it unmounts itself. This can be useful if you have some logic that needs to perform some work before it's safe to unmount.
 
 ## ref
 
@@ -123,7 +213,16 @@ export default function Example() {
 
 Type: `(numberOrCallback: number | (state => number)) => void`
 
-Same signature as the `defaultSnap` prop, calling it will animate the sheet to the new snap point you return. You can either call it with a number, which is the height in px (it'll select the closest snap point that matches your value): `ref.current.snapTo(200)`. Or `ref.current.snapTo(({headerHeight, footerHeight, height, minHeight, maxHeight, snapPoints, lastSnap}) => Math.max(...snapPoints))`.
+Same signature as the `defaultSnap` prop, calling it will animate the sheet to the new snap point you return. You can either call it with a number, which is the height in px (it'll select the closest snap point that matches your value): `ref.current.snapTo(200)`. Or:
+
+```js
+ef.current.snapTo(({ // Showing all the available props
+  headerHeight, footerHeight, height, minHeight, maxHeight, snapPoints, lastSnap }) =>
+  // Selecting the largest snap point, if you give it a number that doesn't match a snap point then it'll
+  // select whichever snap point is nearest the value you gave
+  Math.max(...snapPoints)
+)
+```
 
 # Credits
 

@@ -8,11 +8,15 @@ export default function StickyNugget({
   heading,
   lead,
   example,
+  text = 'text-gray-800',
+  bg = 'bg-gray-100',
 }: {
   flip?: boolean
   heading: string
   lead: React.ReactNode
   example: string
+  bg?: string
+  text?: string
 }) {
   const [loading, setLoading] = useState(false)
   const [loaded, setLoaded] = useState(false)
@@ -28,10 +32,18 @@ export default function StickyNugget({
   }, [loaded, loading])
 
   return (
-    <article className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+    <article
+      className={cx('grid grid-cols-1 md:grid-cols-2 gap-5 relative py-20', {
+        'md:pt-40': !flip,
+        'md:pb-40': flip,
+      })}
+    >
+      <div
+        className={cx('absolute top-0 right-0 bottom-0', styles.fancybg, bg)}
+      />
       <div>
         <div className="grid grid-flow-row place-items-start gap-2.5 sticky top-5 mb-5">
-          <h2 className="text-5xl text-hero font-display">{heading}</h2>
+          <h2 className={cx('text-5xl font-display', text)}>{heading}</h2>
           {[].concat(lead).map((lead, i) => (
             <p key={`lead-${i}`} className="text-2xl px-0.5">
               {lead}
@@ -39,7 +51,7 @@ export default function StickyNugget({
           ))}
 
           <Link href={example}>
-            <a className="px-2 py-0 rounded-full transition-colors duration-150 focus-visible:duration-0 bg-hero-lighter text-hero hover:bg-hero hover:text-hero-lighter focus:outline-none focus-visible:bg-hero focus-visible:text-hero-lighter focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-white focus-visible:ring-hero">
+            <a className="underline-none hover:underline focus:underline text-xl font-bold text-gray-700 hover:text-gray-800 active:text-gray-900 focus:outline-none">
               Open example
             </a>
           </Link>
@@ -58,7 +70,7 @@ export default function StickyNugget({
       </div>
       <div
         className={cx(styles.example, {
-          'sm:order-first': flip,
+          'md:order-first': flip,
         })}
       >
         <div className={styles.phoneframe}>

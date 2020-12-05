@@ -160,7 +160,7 @@ export const BottomSheet = React.forwardRef<
         to: async (next) => {
           console.group('RESIZE')
 
-          await onSpringStartRef.current?.({ type: 'RESIZE' })
+          onSpringStartRef.current?.({ type: 'RESIZE' })
 
           const snap = findSnapRef.current(heightRef.current)
 
@@ -319,6 +319,7 @@ export const BottomSheet = React.forwardRef<
 
           canDragRef.current = true
           heightRef.current = defaultSnapRef.current
+          shouldInterpolateRefs.current = true
           await next({
             y: defaultSnapRef.current,
             backdrop: 1,
@@ -336,7 +337,6 @@ export const BottomSheet = React.forwardRef<
         onSpringEndRef.current?.({ type: 'OPEN' })
 
         if (!cancelled) {
-          shouldInterpolateRefs.current = true
           console.groupEnd()
         }
       },
@@ -412,7 +412,7 @@ export const BottomSheet = React.forwardRef<
 
         if (maybeCancel()) return
 
-        onSpringEndRef.current?.({ type: 'CLOSE' })
+        await onSpringEndRef.current?.({ type: 'CLOSE' })
 
         if (!cancelled) {
           shouldInterpolateRefs.current = true

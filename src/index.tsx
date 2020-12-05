@@ -33,9 +33,9 @@ export const BottomSheet = forwardRef<RefHandles, Props>(function BottomSheet(
     }
   }, [props.open])
 
-  function onSpringStart(event: SpringEvent) {
+  async function onSpringStart(event: SpringEvent) {
     // Forward the event
-    props.onSpringStart?.(event)
+    await props.onSpringStart?.(event)
 
     if (event.type === 'OPEN') {
       // Ensures that when it's opening we abort any pending unmount action
@@ -43,9 +43,9 @@ export const BottomSheet = forwardRef<RefHandles, Props>(function BottomSheet(
     }
   }
 
-  function onSpringEnd(event: SpringEvent) {
+  async function onSpringEnd(event: SpringEvent) {
     // Forward the event
-    props.onSpringEnd?.(event)
+    await props.onSpringEnd?.(event)
 
     if (event.type === 'CLOSE') {
       // Unmount from the dom to avoid contents being tabbable or visible to screen readers while closed

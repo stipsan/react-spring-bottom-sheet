@@ -1,0 +1,8 @@
+.skewed {
+  transform: skewY(-9deg);
+  box-shadow: 0 15rem 0 0 theme('backgroundColor.gray.900');
+
+  & > * {
+    transform: skewY(9deg);
+  }
+}
