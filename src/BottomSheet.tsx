@@ -412,7 +412,7 @@ export const BottomSheet = React.forwardRef<
 
         if (maybeCancel()) return
 
-        onSpringEndRef.current?.({ type: 'CLOSE' })
+        await onSpringEndRef.current?.({ type: 'CLOSE' })
 
         if (!cancelled) {
           shouldInterpolateRefs.current = true
