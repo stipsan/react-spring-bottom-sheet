@@ -153,18 +153,20 @@ If you need to delay the open animation until you're ready, perhaps you're loadi
 ```jsx
 function Example() {
   const [data, setData] = useState([])
-return <BottomSheet
-  onSnapStart={async (event) => {
-    if(event.type === 'OPEN) {
-      // the bottom sheet gently waits
-      const data = await fetch(/* . . . */);
-      setData(data);
-      // and now we can proceed
-    }
-  }}
->
-{data.map(/* . . . */)}
-</BottomSheet>
+  return (
+    <BottomSheet
+      onSnapStart={async (event) => {
+        if (event.type === 'OPEN') {
+          // the bottom sheet gently waits
+          const data = await fetch(/* . . . */)
+          setData(data)
+          // and now we can proceed
+        }
+      }}
+    >
+      {data.map(/* . . . */)}
+    </BottomSheet>
+  )
 }
 ```
 
