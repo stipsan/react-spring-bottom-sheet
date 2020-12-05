@@ -15,7 +15,7 @@ import {
   useReducedMotion,
   useScrollLock,
   useSnapPoints,
-  useSnapResponder,
+  useSpringInterpolations,
   useSpring,
 } from './hooks'
 import type {
@@ -25,10 +25,6 @@ import type {
   SnapPointProps,
 } from './types'
 import { clamp } from './utils'
-
-// @TODO retire this constant and implement true rubberbanding
-// How many pixels above the viewport height the user is allowed to drag the bottom sheet
-const MAX_OVERFLOW = 120
 
 export const BottomSheet = React.forwardRef<
   RefHandles,
@@ -96,7 +92,6 @@ export const BottomSheet = React.forwardRef<
   const footerRef = useRef<HTMLDivElement>(null)
   const overlayRef = useRef<HTMLDivElement | null>(null)
 
-  const draggingRef = useRef(false)
   // Keeps track of the current height, or the height transitioning to
   const heightRef = useRef(0)
 
@@ -139,23 +134,98 @@ export const BottomSheet = React.forwardRef<
 
     defaultSnapRef.current = findSnap(getDefaultSnap)
   }, [findSnap, getDefaultSnap, ready])
-  const {
-    maxHeightRef,
-    maxSnapRef,
-    minSnapRef,
-    observeBoundsRef,
-    updateSnap,
-  } = useSnapResponder({
-    draggingRef,
+  // Wether to interpolate refs or states, useful when needing to transition between changed snapshot bounds
+  const shouldInterpolateRefs = useRef(false)
+  const maxHeightRef = useRef(maxHeight)
+  const minSnapRef = useRef(minSnap)
+  const maxSnapRef = useRef(maxSnap)
+  // Adjust the height whenever the snap points are changed due to resize events
+  useEffect(() => {
+    // If we're not gonna interpolate the refs we'll just quietly update them
+    if (!shouldInterpolateRefs.current) {
+      maxHeightRef.current = maxHeight
+      maxSnapRef.current = maxSnap
+      minSnapRef.current = minSnap
+
+      return
+    }
+
+    if (shouldInterpolateRefs.current) {
+      let cancelled = false
+      const maybeCancel = () => {
+        if (cancelled) {
+          onSpringCancelRef.current?.({ type: 'RESIZE' })
+
+          console.groupEnd()
+        }
+        return cancelled
+      }
+
+      set({
+        // @ts-expect-error
+        to: async (next) => {
+          console.group('RESIZE')
+          if (maybeCancel()) return
+
+          await onSpringStartRef.current?.({ type: 'RESIZE' })
+
+          if (maybeCancel()) return
+
+          const snap = findSnap(heightRef.current)
+          heightRef.current = snap
+          lastSnapRef.current = snap
+
+          console.log('animate resize')
+
+          // adjust bounds so that the rubberband effects don't show while resizing
+          console.log(
+            'Resizing due to',
+            'maxHeight:',
+            maxHeightRef.current !== maxHeight,
+            'maxSnap:',
+            maxSnapRef.current !== maxSnap,
+            'minSnap:',
+            minSnapRef.current !== minSnap
+          )
+          maxHeightRef.current = Math.max(maxHeight, maxHeightRef.current)
+          maxSnapRef.current = Math.max(maxSnap, maxSnapRef.current)
+          minSnapRef.current = Math.min(minSnap, minSnapRef.current)
+
+          await next({
+            y: snap,
+            backdrop: 1,
+            immediate: prefersReducedMotion.current,
+          })
+
+          if (maybeCancel()) return
+
+          // Update their values now that the animation is complete
+          maxHeightRef.current = maxHeight
+          maxSnapRef.current = maxSnap
+          minSnapRef.current = minSnap
+
+          onSpringEndRef.current?.({ type: 'RESIZE' })
+
+          if (!cancelled) {
+            console.groupEnd()
+          }
+        },
+      })
+
+      return () => {
+        // Set to false so the async flow can detect if it got cancelled
+        cancelled = true
+      }
+    }
+  }, [
     findSnap,
-    heightRef,
     lastSnapRef,
     maxHeight,
     maxSnap,
     minSnap,
     prefersReducedMotion,
     set,
-  })
+  ])
   useImperativeHandle(
     forwardRef,
     () => ({
@@ -202,7 +272,8 @@ export const BottomSheet = React.forwardRef<
       // @ts-expect-error
       to: async (next) => {
         console.group('OPEN')
-        observeBoundsRef.current = false
+        shouldInterpolateRefs.current = false
+
         if (maybeCancel()) return
 
         await onSpringStartRef.current?.({ type: 'OPEN' })
@@ -274,7 +345,7 @@ export const BottomSheet = React.forwardRef<
         onSpringEndRef.current?.({ type: 'OPEN' })
 
         if (!cancelled) {
-          observeBoundsRef.current = true
+          shouldInterpolateRefs.current = true
           console.groupEnd()
         }
       },
@@ -290,7 +361,6 @@ export const BottomSheet = React.forwardRef<
   }, [
     ariaHiderRef,
     focusTrapRef,
-    observeBoundsRef,
     off,
     prefersReducedMotion,
     ready,
@@ -312,10 +382,10 @@ export const BottomSheet = React.forwardRef<
       return cancelled
     }
 
-    observeBoundsRef.current = false
     set({
       // @ts-expect-error
       to: async (next) => {
+        shouldInterpolateRefs.current = false
         console.group('CLOSE')
         if (maybeCancel()) return
 
@@ -342,7 +412,7 @@ export const BottomSheet = React.forwardRef<
         onSpringEndRef.current?.({ type: 'CLOSE' })
 
         if (!cancelled) {
-          observeBoundsRef.current = true
+          shouldInterpolateRefs.current = true
           console.groupEnd()
         }
       },
@@ -352,7 +422,7 @@ export const BottomSheet = React.forwardRef<
       // Set to false so the async flow can detect if it got cancelled
       cancelled = true
     }
-  }, [observeBoundsRef, on, prefersReducedMotion, ready, set])
+  }, [on, prefersReducedMotion, ready, set])
 
   const getY = ({
     down,
@@ -430,23 +500,22 @@ export const BottomSheet = React.forwardRef<
     console.log({ first, memo })
     if (first) {
       console.log('first ', { memo })
-      draggingRef.current = true
+      shouldInterpolateRefs.current = false
     }
 
     // Cancel the drag operation if the canDrag state changed
     if (!canDragRef.current) {
       console.log('handleDrag cancelled dragging because canDragRef is false')
-      draggingRef.current = false
+      shouldInterpolateRefs.current = true
       cancel()
       return
     }
 
     if (last) {
-      draggingRef.current = false
       heightRef.current = newY
       console.log('last drag, calling setSnapTo with', { newY })
       // Restrict y to a valid snap point
-      updateSnap()
+      //updateSnap()
 
       return memo
     }
@@ -493,47 +562,12 @@ export const BottomSheet = React.forwardRef<
     throw new TypeError('minSnapRef is NaN!!')
   }
 
-  // @TODO the ts-ignore comments are because the `extrapolate` param isn't in the TS defs for some reason
-  const interpolateBorderRadius =
-    maxHeightRef.current !== maxSnapRef.current
-      ? undefined
-      : // @ts-expect-error
-        spring.y.interpolate({
-          range: [maxHeightRef.current - 16, maxHeightRef.current],
-          output: ['16px', '0px'],
-          extrapolate: 'clamp',
-          map: Math.round,
-        })
-
-  const interpolateHeight = spring.y.interpolate(
-    (y: number) => `${clamp(y, minSnapRef.current, maxSnapRef.current)}px`
-  )
-
-  const interpolateY = spring.y.interpolate({
-    range: [
-      0,
-      minSnapRef.current,
-      maxSnapRef.current,
-      maxSnapRef.current + MAX_OVERFLOW,
-    ],
-    output: [`${minSnapRef.current}px`, '0px', '0px', `${-MAX_OVERFLOW}px`],
-  })
-  const interpolateFiller = spring.y
-    .interpolate({
-      range: [0, maxSnapRef.current, maxSnapRef.current + MAX_OVERFLOW],
-      output: [0, 0, MAX_OVERFLOW],
-    })
-    // Rounding up prevents subpixel gaps that can happen since we use fractions in translateY for a smooth animation
-    .interpolate(Math.ceil)
-
-  const interpolateContentOpacity = spring.y.interpolate({
-    range: [
-      0,
-      Math.max(minSnapRef.current / 2 - 45, 0),
-      Math.min(minSnapRef.current / 2 + 45, minSnapRef.current),
-      minSnapRef.current,
-    ],
-    output: [0, 0, 1, 1],
+  const interpolations = useSpringInterpolations({
+    spring,
+    // Select which values to use in the interpolation based on wether it's safe to trust the height
+    maxHeight: shouldInterpolateRefs.current ? maxHeightRef.current : maxHeight,
+    maxSnap: shouldInterpolateRefs.current ? maxSnapRef.current : maxSnap,
+    minSnap: shouldInterpolateRefs.current ? minSnapRef.current : minSnap,
   })
 
   return (
@@ -547,18 +581,9 @@ export const BottomSheet = React.forwardRef<
       className={className}
       ref={containerRef}
       style={{
-        // Fancy content fade-in effect
-        ['--rsbs-content-opacity' as any]: interpolateContentOpacity,
-        // Fading in the backdrop
-        ['--rsbs-backdrop-opacity' as any]: spring.backdrop,
-        // Scaling the antigap in the bottom
-        ['--rsbs-antigap-scale-y' as any]: interpolateFiller,
-        // Shifts the position of the bottom sheet, used on open and close primarily as snap point changes usually only interpolate the height
-        ['--rsbs-overlay-translate-y' as any]: interpolateY,
-        // Remove rounded borders when full height, it looks much better this way
-        ['--rsbs-overlay-rounded' as any]: interpolateBorderRadius,
-        // Animates the height state, not the most performant way but it's the safest with regards to mobile browser and focus/scrolling that could happen while animating
-        ['--rsbs-overlay-h' as any]: interpolateHeight,
+        // spread in the interpolations yeees
+        ...interpolations,
+        // but allow overriding them/disabling them
         ...style,
         // Not overridable as the "focus lock with opacity 0" trick rely on it
         opacity: spring.opacity,
