@@ -186,9 +186,6 @@ function Five() {
         open={open}
         footer={<strong>Sticky footer</strong>}
         onDismiss={onDismiss}
-        onSpringStart={(event) => console.warn('onSpringStart', event)}
-        onSpringCancel={(event) => console.error('onSpringCancel', event)}
-        onSpringEnd={(event) => console.warn('onSpringEnd', event)}
         defaultSnap={({ lastSnap }) => lastSnap}
         snapPoints={({ minHeight, headerHeight, footerHeight }) => [
           headerHeight,
@@ -357,9 +354,6 @@ function Nine() {
             )}
           </>
         }
-        onSpringStart={(event) => console.warn('onSpringStart', event.type)}
-        onSpringCancel={(event) => console.warn('onSpringCancel', event.type)}
-        onSpringEnd={(event) => console.warn('onSpringEnd', event.type)}
       >
         <SheetContent>
           <Button onClick={() => setExpandContent(true)}>Expand</Button>
