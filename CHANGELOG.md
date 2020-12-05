@@ -1,3 +1,10 @@
+## [2.2.1](https://github.com/stipsan/react-spring-bottom-sheet/compare/v2.2.0...v2.2.1) (2020-12-05)
+
+
+### Bug Fixes
+
+* rewrite interpolations to always be in frame sync ([cc43467](https://github.com/stipsan/react-spring-bottom-sheet/commit/cc43467062e212f121045bf377b752c64c337213))
+
 # [2.2.0](https://github.com/stipsan/react-spring-bottom-sheet/compare/v2.1.0...v2.2.0) (2020-12-05)
 
 
