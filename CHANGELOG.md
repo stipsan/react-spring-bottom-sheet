@@ -1,3 +1,10 @@
+## [2.0.1](https://github.com/stipsan/react-spring-bottom-sheet/compare/v2.0.0...v2.0.1) (2020-12-05)
+
+
+### Bug Fixes
+
+* **deps:** bump focus-trap ([a099a54](https://github.com/stipsan/react-spring-bottom-sheet/commit/a099a54958828ae1e27b6de3608b41000ace23a6))
+
 # [2.0.0](https://github.com/stipsan/react-spring-bottom-sheet/compare/v1.0.6...v2.0.0) (2020-12-04)
 
 
