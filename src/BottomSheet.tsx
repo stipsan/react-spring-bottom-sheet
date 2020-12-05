@@ -272,6 +272,7 @@ export const BottomSheet = React.forwardRef<
 
           if (maybeCancel()) return
 
+          canDragRef.current = true
           await Promise.all([
             scrollLockRef.current.activate(),
             focusTrapRef.current.activate(),
@@ -279,8 +280,6 @@ export const BottomSheet = React.forwardRef<
           ])
 
           if (maybeCancel()) return
-
-          canDragRef.current = true
         } else {
           console.log('animate open')
           await next({
@@ -296,6 +295,7 @@ export const BottomSheet = React.forwardRef<
 
           if (maybeCancel()) return
 
+          canDragRef.current = true
           await Promise.all([
             scrollLockRef.current.activate(),
             focusTrapRef.current.activate(),
@@ -317,7 +317,6 @@ export const BottomSheet = React.forwardRef<
 
           if (maybeCancel()) return
 
-          canDragRef.current = true
           heightRef.current = defaultSnapRef.current
           shouldInterpolateRefs.current = true
           await next({
@@ -544,19 +543,16 @@ export const BottomSheet = React.forwardRef<
   useDrag(handleDrag, {
     domTarget: backdropRef,
     eventOptions: { capture: true },
-    enabled: ready && on,
     axis: 'y',
   })
   useDrag(handleDrag, {
     domTarget: headerRef,
     eventOptions: { capture: true },
-    enabled: ready && on,
     axis: 'y',
   })
   useDrag(handleDrag, {
     domTarget: footerRef,
     eventOptions: { capture: true },
-    enabled: ready && on,
     axis: 'y',
   })
 
