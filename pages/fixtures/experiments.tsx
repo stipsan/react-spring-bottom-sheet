@@ -339,13 +339,34 @@ function Nine() {
       <BottomSheet
         open={open}
         onDismiss={() => setOpen(false)}
+        header={
+          <div>
+            <Button onClick={() => setExpandHeader(true)}>Expand</Button>
+            <br />
+            {expandHeader && (
+              <Button onClick={() => setExpandHeader(false)}>No!</Button>
+            )}
+          </div>
+        }
+        footer={
+          <>
+            <Button onClick={() => setExpandFooter(true)}>Expand</Button>
+            <br />
+            {expandFooter && (
+              <Button onClick={() => setExpandFooter(false)}>No!</Button>
+            )}
+          </>
+        }
         onSpringStart={(event) => console.warn('onSpringStart', event.type)}
         onSpringCancel={(event) => console.warn('onSpringCancel', event.type)}
         onSpringEnd={(event) => console.warn('onSpringEnd', event.type)}
       >
         <SheetContent>
-          <Button>T</Button>
-          <Button>T</Button>
+          <Button onClick={() => setExpandContent(true)}>Expand</Button>
+          <br />
+          {expandContent && (
+            <Button onClick={() => setExpandContent(false)}>No!</Button>
+          )}
         </SheetContent>
       </BottomSheet>
     </>
