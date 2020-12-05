@@ -75,7 +75,7 @@ This function should be pure as it's called often. You can choose to provide a s
 - `footerHeight` – if a `footer` prop is provided then this is its height.
 - `height` – the current height of the sheet.
 - `minHeight` – the minimum height needed to avoid a scrollbar. If there's not enough height available to avoid it then this will be the same as `maxHeight`.
-- `maxHeight` – the maximum available height on the page, usually matches `window.innerHeight/100vh`.
+- `maxHeight` – the maximum available height on the page, equivalent to `window.innerHeight` and `100vh`.
 
 ```jsx
 <BottomSheet
