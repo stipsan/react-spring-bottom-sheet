@@ -1,3 +1,10 @@
+# [2.2.0](https://github.com/stipsan/react-spring-bottom-sheet/compare/v2.1.0...v2.2.0) (2020-12-05)
+
+
+### Features
+
+* Add RESIZE events ([b3ff691](https://github.com/stipsan/react-spring-bottom-sheet/commit/b3ff691f6d893e56235e207864e63b61c8740750))
+
 # [2.1.0](https://github.com/stipsan/react-spring-bottom-sheet/compare/v2.0.3...v2.1.0) (2020-12-05)
 
 
