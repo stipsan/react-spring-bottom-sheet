@@ -3,5 +3,11 @@
   "dependencyDashboard": true,
   "lockFileMaintenance": {
     "automerge": true
-  }
+  },
+  "packageRules": [
+    {
+      "depTypeList": ["dependencies", "peerDependencies"],
+      "automerge": false
+    }
+  ]
 }
