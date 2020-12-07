@@ -36,7 +36,7 @@ If you provide either a `header` or `footer` prop you'll enable the special beha
 
 ## [Non-blocking overlay mode](https://react-spring-bottom-sheet.cocody.dev/fixtures/aside)
 
-> [View demo code](/pages/fixtures/aside.tsx#L41-L46)
+> [View demo code](/pages/fixtures/aside.tsx#L41-L53)
 
 In most cases you use a bottom sheet the same way you do with a dialog: you want it to overlay the page and block out distractions. But there are times when you want a bottom sheet but without it taking all the attention and overlaying the entire page. Providing `blocking={false}` helps this use case. By doing so you disable a couple of behaviors that are there for accessibility (focus-locking and more) that prevents a screen reader or a keyboard user from accidentally leaving the bottom sheet.
 

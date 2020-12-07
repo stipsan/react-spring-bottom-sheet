@@ -37,4 +37,5 @@ module.exports = {
       ringWidth: ['group-focus', 'focus-visible'],
     },
   },
+  plugins: [require('@tailwindcss/forms')],
 }
