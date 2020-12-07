@@ -24,7 +24,6 @@ import type {
   RefHandles,
   SnapPointProps,
 } from './types'
-import { clamp } from './utils'
 
 export const BottomSheet = React.forwardRef<
   RefHandles,
@@ -439,15 +438,11 @@ export const BottomSheet = React.forwardRef<
     }
 
     let newY = down
-      ? clamp(
-          rubberbandIfOutOfBounds(
-            rawY,
-            onDismiss ? 0 : minSnapRef.current,
-            maxSnapRef.current,
-            0.55
-          ),
-          0,
-          maxHeightRef.current
+      ? rubberbandIfOutOfBounds(
+          rawY,
+          onDismiss ? 0 : minSnapRef.current,
+          maxSnapRef.current,
+          0.55
         )
       : predictedY
 
