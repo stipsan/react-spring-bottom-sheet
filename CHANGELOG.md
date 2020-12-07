@@ -1,3 +1,11 @@
+## [2.2.4](https://github.com/stipsan/react-spring-bottom-sheet/compare/v2.2.3...v2.2.4) (2020-12-07)
+
+
+### Bug Fixes
+
+* more stable defaultSnap RESIZE sync ([230dbe2](https://github.com/stipsan/react-spring-bottom-sheet/commit/230dbe2bf0d3fe0f0314e444e0b2154fe5d2295f))
+* readjust defaultSnap on resize ([b812786](https://github.com/stipsan/react-spring-bottom-sheet/commit/b812786697d2a7c58ce87bf5106cbb524a59193d))
+
 ## [2.2.3](https://github.com/stipsan/react-spring-bottom-sheet/compare/v2.2.2...v2.2.3) (2020-12-07)
 
 
