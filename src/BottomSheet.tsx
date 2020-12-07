@@ -7,7 +7,8 @@
 
 import React, { useEffect, useImperativeHandle, useRef } from 'react'
 import { animated } from 'react-spring'
-import { useDrag } from 'react-use-gesture'
+import { useDrag, rubberbandIfOutOfBounds } from 'react-use-gesture'
+import { clamp } from './utils'
 import {
   useAriaHider,
   useFocusTrap,
@@ -390,96 +391,64 @@ export const BottomSheet = React.forwardRef<
     }
   }, [on, prefersReducedMotion, ready, set])
 
-  const getY = ({
-    down,
-    temp,
-    movement,
-    velocity,
-  }: {
-    down: boolean
-    temp: number
-    movement: number
-    velocity: number
-  }): number => {
-    const rawY = temp - movement
-    const predictedDistance = movement * velocity
-    const predictedY = Math.max(
-      minSnapRef.current,
-      Math.min(maxSnapRef.current, rawY - predictedDistance * 2)
-    )
-
-    if (
-      !down &&
-      onDismiss &&
-      rawY - predictedDistance < minSnapRef.current / 2
-    ) {
-      onDismiss()
-      return rawY
-    }
-
-    if (down) {
-      const scale = maxHeight * 0.38196601124999996
-
-      // If dragging beyond maxSnap it should decay so the user can feel its out of bounds
-      if (rawY > maxSnapRef.current) {
-        const overflow =
-          Math.min(rawY, maxSnapRef.current + scale / 2) - maxSnapRef.current
-        const resistance = Math.min(0.5, overflow / scale) * overflow
-
-        return maxSnapRef.current + overflow - resistance
-      }
-
-      // If onDismiss isn't defined, the user can't flick it out of view and the dragging should decay/slow down
-      if (!onDismiss && rawY < minSnapRef.current) {
-        const overflow =
-          minSnapRef.current - Math.max(rawY, minSnapRef.current - scale / 2)
-        const resistance = Math.min(0.5, overflow / scale) * overflow
-
-        return minSnapRef.current - overflow + resistance
-      }
-
-      // apply coordinates as it's being dragged, unless it is out of bounds (in which case a decay should be applied)
-      return rawY
-    }
-
-    return predictedY
-  }
-
   const handleDrag = ({
     down,
     velocity,
-    direction,
+    direction: [, direction],
     memo = spring.y.getValue(),
     first,
     last,
-    movement: [, my],
+    movement: [, _my],
     cancel,
   }) => {
-    let newY = getY({
-      down: !!down,
-      movement: isNaN(my) ? 0 : my,
-      velocity,
-      temp: memo as number,
-    })
-
-    const relativeVelocity = Math.max(1, velocity)
-    console.log({ first, memo })
-    if (first) {
-      console.log('first ', { memo })
-      springOnResize.current = false
-    }
+    const my = _my * -1
 
     // Cancel the drag operation if the canDrag state changed
     if (!canDragRef.current) {
       console.log('handleDrag cancelled dragging because canDragRef is false')
       springOnResize.current = true
       cancel()
-      return
+      return memo
+    }
+
+    const rawY = memo + my
+    const predictedDistance = my * velocity
+    const predictedY = Math.max(
+      minSnapRef.current,
+      Math.min(maxSnapRef.current, rawY + predictedDistance * 2)
+    )
+
+    if (
+      !down &&
+      onDismiss &&
+      direction > 0 &&
+      rawY + predictedDistance < minSnapRef.current / 2
+    ) {
+      cancel()
+      onDismiss()
+      return memo
+    }
+
+    let newY = down
+      ? clamp(
+          rubberbandIfOutOfBounds(
+            rawY,
+            onDismiss ? 0 : minSnapRef.current,
+            maxSnapRef.current,
+            0.55
+          ),
+          0,
+          maxHeightRef.current
+        )
+      : predictedY
+
+    if (first) {
+      springOnResize.current = false
     }
 
     if (last) {
       // Restrict y to a valid snap point
-      newY = findSnap(newY)
+      newY = findSnapRef.current(newY)
       heightRef.current = newY
       lastSnapRef.current = newY
       springOnResize.current = true
@@ -492,12 +461,7 @@ export const BottomSheet = React.forwardRef<
       maxSnap: maxSnapRef.current,
       minSnap: minSnapRef.current,
       immediate: prefersReducedMotion.current || down,
-      config: {
-        mass: relativeVelocity,
-        tension: 300 * relativeVelocity,
-        friction: 35 * relativeVelocity,
-        velocity: direction[1] * velocity,
-      },
+      config: { velocity },
     })
 
     return memo
