@@ -18,7 +18,7 @@ npm i react-spring-bottom-sheet
 
 ## [Basic](https://react-spring-bottom-sheet.cocody.dev/fixtures/simple)
 
-> [View demo code](/pages/fixtures/simple.tsx#L43-L47)
+> [View demo code](/pages/fixtures/simple.tsx#L44-L48)
 
 MVP example, showing what you get by implementing `open`, `onDismiss` and a single **snap point** always set to `minHeight`.
 
@@ -30,7 +30,7 @@ A more elaborate example that showcases how snap points work. It also shows how 
 
 ## [Sticky header & footer](https://react-spring-bottom-sheet.cocody.dev/fixtures/sticky)
 
-> [View demo code](/pages/fixtures/sticky.tsx#L40-L60)
+> [View demo code](/pages/fixtures/sticky.tsx#L41-L61)
 
 If you provide either a `header` or `footer` prop you'll enable the special behavior seen in this example. And they're not just sticky positioned, both areas support touch gestures.
 
