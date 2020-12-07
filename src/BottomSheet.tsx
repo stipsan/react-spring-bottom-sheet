@@ -131,22 +131,15 @@ export const BottomSheet = React.forwardRef<
   const minSnapRef = useRef(minSnap)
   const maxSnapRef = useRef(maxSnap)
   const findSnapRef = useRef(findSnap)
+  const defaultSnapRef = useRef(0)
   // Sync the refs with current state, giving the spring full control over when to respond to changes
   useEffect(() => {
     maxHeightRef.current = maxHeight
     maxSnapRef.current = maxSnap
     minSnapRef.current = minSnap
     findSnapRef.current = findSnap
-  }, [findSnap, maxHeight, maxSnap, minSnap])
-
-  const defaultSnapRef = useRef(0)
-  useEffect(() => {
-    // Wait with selectin default snap until element dimensions are measured
-    if (!ready) return
-    console.count('selecting default snap')
-
-    defaultSnapRef.current = findSnapRef.current(getDefaultSnap)
-  }, [getDefaultSnap, ready])
+    defaultSnapRef.current = findSnap(getDefaultSnap)
+  }, [findSnap, getDefaultSnap, maxHeight, maxSnap, minSnap])
 
   // Adjust the height whenever the snap points are changed due to resize events
   const springOnResize = useRef(false)
@@ -160,22 +153,6 @@ export const BottomSheet = React.forwardRef<
           onSpringStartRef.current?.({ type: 'RESIZE' })
 
           const snap = findSnapRef.current(heightRef.current)
-
-          console.log('animate resize')
-
-          // adjust bounds so that the rubberband effects don't show while resizing
-          console.log(
-            'Resizing due to',
-            'maxSnap:',
-            maxSnapRef.current !== maxSnap,
-            'minSnap:',
-            minSnapRef.current !== minSnap
-          )
-          // Adjust bounds to have enough room for the transition
-          // maxSnapRef.current = Math.max(snap, heightRef.current)
-          //minSnapRef.current = Math.min(snap, heightRef.current)
-          console.log('new maxSnapRef', maxSnapRef.current)
-
           heightRef.current = snap
           lastSnapRef.current = snap
 
@@ -187,12 +164,6 @@ export const BottomSheet = React.forwardRef<
             minSnap,
             immediate: prefersReducedMotion.current,
           })
-
-          maxSnapRef.current = maxSnap
-          minSnapRef.current = minSnap
-          // Ensure the default snap is using a correct value
-          // @TODO consider calling the prop to allow userland to decide a new default snap based on the new values
-          defaultSnapRef.current = findSnapRef.current(defaultSnapRef.current)
 
           onSpringEndRef.current?.({ type: 'RESIZE' })
 
