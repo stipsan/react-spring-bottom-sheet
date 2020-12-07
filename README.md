@@ -30,7 +30,7 @@ A more elaborate example that showcases how snap points work. It also shows how 
 
 ## [Sticky header & footer](https://react-spring-bottom-sheet.cocody.dev/fixtures/sticky)
 
-> [View demo code](/pages/fixtures/sticky.tsx#L40-L61)
+> [View demo code](/pages/fixtures/sticky.tsx#L40-L60)
 
 If you provide either a `header` or `footer` prop you'll enable the special behavior seen in this example. And they're not just sticky positioned, both areas support touch gestures.
 
