@@ -33,12 +33,13 @@ export default function Footer({
   reactUseGestureVersion: string
 }) {
   return (
-    <footer
-      className={cx(
-        'px-10 py-32 grid md:grid-flow-col md:place-items-center place-content-center gap-8 bg-gray-900',
-        styles.skewed
-      )}
-    >
+    <footer className="px-10 py-32 grid md:grid-flow-col md:place-items-center place-content-center gap-8 relative">
+      <div
+        className={cx(
+          styles.skewed,
+          'absolute top-0 right-0 bottom-0 bg-gray-900 w-screen'
+        )}
+      />
       <Badge name="react-spring-bottom-sheet" version={version} />
       <Badge name="react-spring" version={reactSpringVersion} />
       <Badge name="react-use-gesture" version={reactUseGestureVersion} />
