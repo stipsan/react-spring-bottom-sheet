@@ -42,11 +42,12 @@ const StickyFixturePage: NextPage<GetStaticProps> = ({
           open={open}
           onDismiss={onDismiss}
           defaultSnap={({ snapPoints, lastSnap }) =>
-            lastSnap ?? Math.max(...snapPoints)
+            lastSnap ?? Math.min(...snapPoints)
           }
-          snapPoints={({ maxHeight }) => [
+          snapPoints={({ maxHeight, minHeight }) => [
             maxHeight - maxHeight / 5,
             maxHeight * 0.6,
+            minHeight,
           ]}
           header={
             <h1 className="flex items-center text-xl justify-center font-bold text-gray-800">

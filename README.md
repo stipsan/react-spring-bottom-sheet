@@ -30,7 +30,7 @@ A more elaborate example that showcases how snap points work. It also shows how 
 
 ## [Sticky header & footer](https://react-spring-bottom-sheet.cocody.dev/fixtures/sticky)
 
-> [View demo code](/pages/fixtures/sticky.tsx#L40-L60)
+> [View demo code](/pages/fixtures/sticky.tsx#L40-L61)
 
 If you provide either a `header` or `footer` prop you'll enable the special behavior seen in this example. And they're not just sticky positioned, both areas support touch gestures.
 
@@ -226,9 +226,9 @@ ef.current.snapTo(({ // Showing all the available props
 
 # Credits
 
-- Play icon used on frame overlays: https://fontawesome.com/icons/play-circle?style=regular
-- Phone frame used in logo: https://www.figma.com/community/file/896042888090872154/Mono-Devices-1.0
-- iPhone frame used to wrap examples: https://www.figma.com/community/file/858143367356468985/(Variants)-iOS-%26-iPadOS-14-UI-Kit-for-Figma
+- Play icon used on frame overlays: [font-awesome](https://fontawesome.com/icons/play-circle?style=regular)
+- Phone frame used in logo: [Mono Devices 1.0](https://www.figma.com/community/file/896042888090872154/Mono-Devices-1.0)
+- iPhone frame used to wrap examples: [iOS 14 UI Kit for Figma](<https://www.figma.com/community/file/858143367356468985/(Variants)-iOS-%26-iPadOS-14-UI-Kit-for-Figma>)
 
 [gzip-badge]: http://img.badgesize.io/https://unpkg.com/react-spring-bottom-sheet/dist/index.es.js?compression=gzip&label=gzip%20size&style=flat-square
 [size-badge]: http://img.badgesize.io/https://unpkg.com/react-spring-bottom-sheet/dist/index.es.js?label=size&style=flat-square
