@@ -24,7 +24,6 @@ import type {
   RefHandles,
   SnapPointProps,
 } from './types'
-import { clamp } from './utils'
 
 export const BottomSheet = React.forwardRef<
   RefHandles,
@@ -488,7 +487,6 @@ export const BottomSheet = React.forwardRef<
 
     set({
       y: newY,
-      backdrop: clamp(newY / minSnapRef.current, 0, 1),
       ready: 1,
       maxHeight: maxHeightRef.current,
       maxSnap: maxSnapRef.current,
