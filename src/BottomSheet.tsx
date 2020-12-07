@@ -148,13 +148,10 @@ export const BottomSheet = React.forwardRef<
     defaultSnapRef.current = findSnapRef.current(getDefaultSnap)
   }, [getDefaultSnap, ready])
 
-  // @TODO can be renamed or deleted
-  // Wether to interpolate refs or states, useful when needing to transition between changed snapshot bounds
-  const shouldInterpolateRefs = useRef(false)
-
   // Adjust the height whenever the snap points are changed due to resize events
+  const springOnResize = useRef(false)
   useEffect(() => {
-    if (shouldInterpolateRefs.current) {
+    if (springOnResize.current) {
       set({
         // @ts-expect-error
         to: async (next) => {
@@ -191,8 +188,11 @@ export const BottomSheet = React.forwardRef<
             immediate: prefersReducedMotion.current,
           })
 
-          //maxSnapRef.current = maxSnap
-          //minSnapRef.current = minSnap
+          maxSnapRef.current = maxSnap
+          minSnapRef.current = minSnap
+          // Ensure the default snap is using a correct value
+          // @TODO consider calling the prop to allow userland to decide a new default snap based on the new values
+          defaultSnapRef.current = findSnapRef.current(defaultSnapRef.current)
 
           onSpringEndRef.current?.({ type: 'RESIZE' })
 
@@ -247,7 +247,7 @@ export const BottomSheet = React.forwardRef<
       // @ts-expect-error
       to: async (next) => {
         console.group('OPEN')
-        shouldInterpolateRefs.current = false
+        springOnResize.current = false
 
         if (maybeCancel()) return
 
@@ -318,7 +318,7 @@ export const BottomSheet = React.forwardRef<
           if (maybeCancel()) return
 
           heightRef.current = defaultSnapRef.current
-          shouldInterpolateRefs.current = true
+          springOnResize.current = true
           await next({
             y: defaultSnapRef.current,
             backdrop: 1,
@@ -375,7 +375,7 @@ export const BottomSheet = React.forwardRef<
     set({
       // @ts-expect-error
       to: async (next) => {
-        shouldInterpolateRefs.current = false
+        springOnResize.current = false
         console.group('CLOSE')
         if (maybeCancel()) return
 
@@ -414,7 +414,7 @@ export const BottomSheet = React.forwardRef<
         await onSpringEndRef.current?.({ type: 'CLOSE' })
 
         if (!cancelled) {
-          shouldInterpolateRefs.current = true
+          springOnResize.current = true
           console.groupEnd()
         }
       },
@@ -502,13 +502,13 @@ export const BottomSheet = React.forwardRef<
     console.log({ first, memo })
     if (first) {
       console.log('first ', { memo })
-      shouldInterpolateRefs.current = false
+      springOnResize.current = false
     }
 
     // Cancel the drag operation if the canDrag state changed
     if (!canDragRef.current) {
       console.log('handleDrag cancelled dragging because canDragRef is false')
-      shouldInterpolateRefs.current = true
+      springOnResize.current = true
       cancel()
       return
     }
@@ -518,7 +518,7 @@ export const BottomSheet = React.forwardRef<
       newY = findSnap(newY)
       heightRef.current = newY
       lastSnapRef.current = newY
-      shouldInterpolateRefs.current = true
+      springOnResize.current = true
     }
 
     set({
