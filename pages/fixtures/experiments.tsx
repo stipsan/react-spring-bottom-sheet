@@ -3,6 +3,7 @@ import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import Button from '../../docs/fixtures/Button'
 import Code from '../../docs/fixtures/Code'
 import Container from '../../docs/fixtures/Container'
+import Expandable from '../../docs/fixtures/Expandable'
 import Kbd from '../../docs/fixtures/Kbd'
 import SheetContent from '../../docs/fixtures/SheetContent'
 import { BottomSheet } from '../../src'
@@ -155,17 +156,39 @@ function Four() {
     <>
       <Button onClick={() => setOpen(true)}>4</Button>
       <BottomSheet
-        style={{ ['--rsbs-bg' as any]: '#EFF6FF' }}
         open={open}
         onDismiss={onDismiss}
-        snapPoints={({ minHeight }) => [0, minHeight]}
+        header={
+          <input
+            className="mt-1 block w-full rounded-md bg-gray-100 border-transparent focus:border-gray-300 focus:bg-white focus:ring-0"
+            type="text"
+            placeholder="Text input field in a sticky header"
+          />
+        }
+        footer={
+          <input
+            className="mt-1 block w-full rounded-md bg-gray-100 border-transparent focus:border-gray-300 focus:bg-white focus:ring-0"
+            type="text"
+            placeholder="Text input field in a sticky header"
+          />
+        }
       >
         <SheetContent>
-          <p>
-            Using <Code>onDismiss</Code> lets users close the sheet by swiping
-            it down, tapping on the backdrop or by hitting <Kbd>esc</Kbd> on
-            their keyboard.
-          </p>
+          <input
+            className="mt-1 block w-full rounded-md bg-gray-100 border-transparent focus:border-gray-300 focus:bg-white focus:ring-0"
+            type="text"
+            placeholder="Text input field in a sticky header"
+          />
+          <Expandable>
+            <div className="bg-gray-200 block rounded-md h-10 w-full my-10" />
+            <p>Testing focus management and keyboard behavior on open.</p>
+            <div className="bg-gray-200 block rounded-md h-10 w-full my-10" />
+          </Expandable>
+          <input
+            className="mt-1 block w-full rounded-md bg-gray-100 border-transparent focus:border-gray-300 focus:bg-white focus:ring-0"
+            type="text"
+            placeholder="Text input field in a sticky header"
+          />
         </SheetContent>
       </BottomSheet>
     </>
