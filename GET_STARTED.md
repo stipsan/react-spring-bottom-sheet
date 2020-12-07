@@ -60,18 +60,13 @@ These are all the variables available to customize the look and feel when using 
 
 ```css
 :root {
-  --rsbs-antigap-scale-y: 0;
   --rsbs-backdrop-bg: rgba(0, 0, 0, 0.6);
-  --rsbs-backdrop-opacity: 1;
   --rsbs-bg: #fff;
-  --rsbs-content-opacity: 1;
   --rsbs-handle-bg: hsla(0, 0%, 0%, 0.14);
   --rsbs-max-w: auto;
   --rsbs-ml: env(safe-area-inset-left);
   --rsbs-mr: env(safe-area-inset-right);
   --rsbs-overlay-rounded: 16px;
-  --rsbs-overlay-translate-y: 0px;
-  --rsbs-overlay-h: 0px;
 }
 ```
 
