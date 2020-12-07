@@ -80,11 +80,17 @@ export function useSpringInterpolations({
     }
   )
 
+  const interpolateBackdrop = interpolate(
+    // @ts-ignore
+    [spring.y, spring.minSnap],
+    (y, minSnap) => clamp(y / minSnap, 0, 1)
+  )
+
   return {
     // Fancy content fade-in effect
     ['--rsbs-content-opacity' as any]: interpolateContentOpacity,
     // Fading in the backdrop
-    ['--rsbs-backdrop-opacity' as any]: spring.backdrop,
+    ['--rsbs-backdrop-opacity' as any]: interpolateBackdrop,
     // Scaling the antigap in the bottom
     ['--rsbs-antigap-scale-y' as any]: interpolateFiller,
     // Shifts the position of the bottom sheet, used on open and close primarily as snap point changes usually only interpolate the height

@@ -158,7 +158,6 @@ export const BottomSheet = React.forwardRef<
 
           await next({
             y: snap,
-            backdrop: 1,
             maxHeight,
             maxSnap,
             minSnap,
@@ -232,7 +231,6 @@ export const BottomSheet = React.forwardRef<
           heightRef.current = defaultSnapRef.current
           await next({
             y: defaultSnapRef.current,
-            backdrop: 1,
             ready: 1,
             maxHeight: maxHeightRef.current,
             maxSnap: maxSnapRef.current,
@@ -255,7 +253,6 @@ export const BottomSheet = React.forwardRef<
           console.log('animate open')
           await next({
             y: defaultSnapRef.current,
-            backdrop: 0,
             ready: 0,
             maxHeight: maxHeightRef.current,
             maxSnap: maxSnapRef.current,
@@ -277,7 +274,6 @@ export const BottomSheet = React.forwardRef<
 
           await next({
             y: 0,
-            backdrop: 0,
             ready: 1,
             maxHeight: maxHeightRef.current,
             maxSnap: maxSnapRef.current,
@@ -292,7 +288,6 @@ export const BottomSheet = React.forwardRef<
           springOnResize.current = true
           await next({
             y: defaultSnapRef.current,
-            backdrop: 1,
             ready: 1,
             maxHeight: maxHeightRef.current,
             maxSnap: maxSnapRef.current,
@@ -371,7 +366,6 @@ export const BottomSheet = React.forwardRef<
 
         await next({
           y: 0,
-          backdrop: 0,
           maxHeight: maxHeightRef.current,
           maxSnap: maxSnapRef.current,
           immediate: prefersReducedMotion.current,

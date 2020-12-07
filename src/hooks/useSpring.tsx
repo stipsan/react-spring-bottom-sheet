@@ -7,7 +7,6 @@ export function useSpring() {
   return useReactSpring(() => ({
     y: 0,
     ready: 0,
-    backdrop: 0,
     maxHeight: 0,
     minSnap: 0,
     maxSnap: 0,
