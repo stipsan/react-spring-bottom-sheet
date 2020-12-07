@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react'
 import Button from '../../docs/fixtures/Button'
 import Code from '../../docs/fixtures/Code'
 import Container from '../../docs/fixtures/Container'
+import Expandable from '../../docs/fixtures/Expandable'
 import Kbd from '../../docs/fixtures/Kbd'
 import SheetContent from '../../docs/fixtures/SheetContent'
 import { simple } from '../../docs/headings'
@@ -51,14 +52,13 @@ const SimpleFixturePage: NextPage<GetStaticProps> = ({
               it down, tapping on the backdrop or by hitting <Kbd>esc</Kbd> on
               their keyboard.
             </p>
-            <details className=" text-xl px-7 py-3 rounded-2xl transition-colors duration-150 focus-within:duration-0 bg-gray-100 text-gray-900 focus:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-offset-white focus-within:ring-gray-300 w-full">
-              <summary className="focus:outline-none">Tap to expand</summary>
+            <Expandable>
               <div className="bg-gray-200 block rounded-md h-10 w-full my-10" />
               <p>
                 The height adjustment is done automatically, it just works™!
               </p>
               <div className="bg-gray-200 block rounded-md h-10 w-full my-10" />
-            </details>
+            </Expandable>
             <Button onClick={onDismiss} className="w-full">
               Dismiss
             </Button>

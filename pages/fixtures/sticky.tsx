@@ -2,6 +2,7 @@ import type { NextPage } from 'next'
 import { useEffect, useState } from 'react'
 import Button from '../../docs/fixtures/Button'
 import Container from '../../docs/fixtures/Container'
+import Expandable from '../../docs/fixtures/Expandable'
 import SheetContent from '../../docs/fixtures/SheetContent'
 import { sticky } from '../../docs/headings'
 import MetaTags from '../../docs/MetaTags'
@@ -63,6 +64,14 @@ const StickyFixturePage: NextPage<GetStaticProps> = ({
               Just as with content, if the header or footer changes their height
               the sheet will readjust accordingly.
             </p>
+            <Expandable>
+              <div className="bg-gray-200 block rounded-md h-10 w-full my-10" />
+              <p>
+                Notice how much better the UX is on resize events when the
+                "Dismiss" button is sticky.
+              </p>
+              <div className="bg-gray-200 block rounded-md h-10 w-full my-10" />
+            </Expandable>
             <p>
               When you provide a header the draggable area increases, making it
               easier for users to adjust the height of the bottom sheet.
