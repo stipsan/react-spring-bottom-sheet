@@ -85,7 +85,6 @@ export const BottomSheet = React.forwardRef<
   const [spring, set] = useSpring()
 
   const containerRef = useRef<HTMLDivElement>(null)
-  const backdropRef = useRef<HTMLDivElement>(null)
   const contentRef = useRef<HTMLDivElement>(null)
   const contentContainerRef = useRef<HTMLDivElement>(null)
   const headerRef = useRef<HTMLDivElement>(null)
@@ -115,15 +114,17 @@ export const BottomSheet = React.forwardRef<
   })
 
   const { minSnap, maxSnap, maxHeight, findSnap } = useSnapPoints({
+    contentContainerRef,
+    controlledMaxHeight,
+    footerEnabled: !!footer,
+    footerRef,
     getSnapPoints,
+    headerEnabled: !!header,
+    headerRef,
     heightRef,
     lastSnapRef,
     ready,
-    contentContainerRef,
-    controlledMaxHeight,
     registerReady,
-    footerRef,
-    headerRef,
   })
 
   // Setup refs that are used in cases where full control is needed over when a side effect is executed
