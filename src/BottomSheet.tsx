@@ -118,7 +118,7 @@ export const BottomSheet = React.forwardRef<
     footerEnabled: !!footer,
     footerRef,
     getSnapPoints,
-    headerEnabled: !!header,
+    headerEnabled: header !== false,
     headerRef,
     heightRef,
     lastSnapRef,
