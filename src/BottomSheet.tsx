@@ -7,8 +7,7 @@
 
 import React, { useEffect, useImperativeHandle, useRef } from 'react'
 import { animated } from 'react-spring'
-import { useDrag, rubberbandIfOutOfBounds } from 'react-use-gesture'
-import { clamp } from './utils'
+import { rubberbandIfOutOfBounds, useDrag } from 'react-use-gesture'
 import {
   useAriaHider,
   useFocusTrap,
@@ -16,8 +15,8 @@ import {
   useReducedMotion,
   useScrollLock,
   useSnapPoints,
-  useSpringInterpolations,
   useSpring,
+  useSpringInterpolations,
 } from './hooks'
 import type {
   defaultSnapProps,
@@ -25,6 +24,7 @@ import type {
   RefHandles,
   SnapPointProps,
 } from './types'
+import { clamp } from './utils'
 
 export const BottomSheet = React.forwardRef<
   RefHandles,
@@ -392,14 +392,16 @@ export const BottomSheet = React.forwardRef<
   }, [on, prefersReducedMotion, ready, set])
 
   const handleDrag = ({
-    down,
-    velocity,
+    args: [{ closeOnTap = false } = {}] = [],
+    cancel,
     direction: [, direction],
-    memo = spring.y.getValue() as number,
+    down,
     first,
     last,
+    memo = spring.y.getValue() as number,
     movement: [, _my],
-    cancel,
+    tap,
+    velocity,
   }) => {
     const my = _my * -1
 
@@ -408,6 +410,12 @@ export const BottomSheet = React.forwardRef<
       console.log('handleDrag cancelled dragging because canDragRef is false')
       springOnResize.current = true
       cancel()
+      return memo
+    }
+
+    if (onDismiss && closeOnTap && tap) {
+      cancel()
+      onDismiss()
       return memo
     }
 
@@ -467,20 +475,8 @@ export const BottomSheet = React.forwardRef<
     return memo
   }
 
-  useDrag(handleDrag, {
-    domTarget: backdropRef,
-    eventOptions: { capture: true },
-    axis: 'y',
-  })
-  useDrag(handleDrag, {
-    domTarget: headerRef,
-    eventOptions: { capture: true },
-    axis: 'y',
-  })
-  useDrag(handleDrag, {
-    domTarget: footerRef,
-    eventOptions: { capture: true },
-    axis: 'y',
+  const bind = useDrag(handleDrag, {
+    filterTaps: true,
   })
 
   if (Number.isNaN(maxSnapRef.current)) {
@@ -516,23 +512,14 @@ export const BottomSheet = React.forwardRef<
       }}
     >
       {sibling}
-      {blocking ? (
+      {blocking && (
         <div
           // This component needs to be placed outside bottom-sheet, as bottom-sheet uses transform and thus creates a new context
           // that clips this element to the container, not allowing it to cover the full page.
           key="backdrop"
           data-rsbs-backdrop
-          ref={backdropRef}
-          onClickCapture={(event) => {
-            if (onDismiss) {
-              event.preventDefault()
-              onDismiss()
-            }
-          }}
+          {...bind({ closeOnTap: true })}
         />
-      ) : (
-        // backdropRef always needs to be set because of useDrag
-        <div key="backdrop" ref={backdropRef} />
       )}
       <div
         key="overlay"
@@ -549,13 +536,10 @@ export const BottomSheet = React.forwardRef<
           }
         }}
       >
-        {header !== false ? (
-          <div key="header" data-rsbs-header ref={headerRef}>
+        {header !== false && (
+          <div key="header" data-rsbs-header ref={headerRef} {...bind()}>
             <div data-rsbs-header-padding>{header}</div>
           </div>
-        ) : (
-          // headerRef always needs to be set because of useDrag
-          <div key="header" ref={headerRef} />
         )}
         <div key="content" data-rsbs-content ref={contentRef}>
           <div
@@ -566,13 +550,10 @@ export const BottomSheet = React.forwardRef<
             <div data-rsbs-content-padding>{children}</div>
           </div>
         </div>
-        {footer ? (
-          <div key="footer" ref={footerRef} data-rsbs-footer>
+        {footer && (
+          <div key="footer" ref={footerRef} data-rsbs-footer {...bind()}>
             <div data-rsbs-footer-padding>{footer}</div>
           </div>
-        ) : (
-          // footerRef always needs to be set because of useDrag
-          <div key="footer" ref={footerRef} />
         )}
       </div>
       <div key="antigap" data-rsbs-antigap />
