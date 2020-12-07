@@ -1,3 +1,10 @@
+## [2.2.3](https://github.com/stipsan/react-spring-bottom-sheet/compare/v2.2.2...v2.2.3) (2020-12-07)
+
+
+### Bug Fixes
+
+* make open transitions more interruptible on iOS ([#23](https://github.com/stipsan/react-spring-bottom-sheet/issues/23)) ([f898dd0](https://github.com/stipsan/react-spring-bottom-sheet/commit/f898dd035fc0087237ec993789c40675c0dcd080))
+
 ## [2.2.2](https://github.com/stipsan/react-spring-bottom-sheet/compare/v2.2.1...v2.2.2) (2020-12-05)
 
 
