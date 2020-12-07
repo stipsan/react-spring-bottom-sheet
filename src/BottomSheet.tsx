@@ -415,6 +415,7 @@ export const BottomSheet = React.forwardRef<
     }
 
     if (onDismiss && closeOnTap && tap) {
+      cancel()
       onDismiss()
       return memo
     }
