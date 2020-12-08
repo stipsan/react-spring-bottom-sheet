@@ -1,3 +1,10 @@
+## [2.2.6](https://github.com/stipsan/react-spring-bottom-sheet/compare/v2.2.5...v2.2.6) (2020-12-08)
+
+
+### Bug Fixes
+
+* better type declarations ([c19dd44](https://github.com/stipsan/react-spring-bottom-sheet/commit/c19dd446827dcb32cee664f84fea250beb86c1ff))
+
 ## [2.2.5](https://github.com/stipsan/react-spring-bottom-sheet/compare/v2.2.4...v2.2.5) (2020-12-08)
 
 
