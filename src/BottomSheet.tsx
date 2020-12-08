@@ -7,7 +7,7 @@
 
 import React, { useEffect, useImperativeHandle, useRef } from 'react'
 import { animated } from 'react-spring'
-import { useDrag } from 'react-use-gesture'
+import { rubberbandIfOutOfBounds, useDrag } from 'react-use-gesture'
 import {
   useAriaHider,
   useFocusTrap,
@@ -15,8 +15,8 @@ import {
   useReducedMotion,
   useScrollLock,
   useSnapPoints,
-  useSpringInterpolations,
   useSpring,
+  useSpringInterpolations,
 } from './hooks'
 import type {
   defaultSnapProps,
@@ -84,7 +84,6 @@ export const BottomSheet = React.forwardRef<
   const [spring, set] = useSpring()
 
   const containerRef = useRef<HTMLDivElement>(null)
-  const backdropRef = useRef<HTMLDivElement>(null)
   const contentRef = useRef<HTMLDivElement>(null)
   const contentContainerRef = useRef<HTMLDivElement>(null)
   const headerRef = useRef<HTMLDivElement>(null)
@@ -114,15 +113,17 @@ export const BottomSheet = React.forwardRef<
   })
 
   const { minSnap, maxSnap, maxHeight, findSnap } = useSnapPoints({
+    contentContainerRef,
+    controlledMaxHeight,
+    footerEnabled: !!footer,
+    footerRef,
     getSnapPoints,
+    headerEnabled: header !== false,
+    headerRef,
     heightRef,
     lastSnapRef,
     ready,
-    contentContainerRef,
-    controlledMaxHeight,
     registerReady,
-    footerRef,
-    headerRef,
   })
 
   // Setup refs that are used in cases where full control is needed over when a side effect is executed
@@ -390,96 +391,68 @@ export const BottomSheet = React.forwardRef<
     }
   }, [on, prefersReducedMotion, ready, set])
 
-  const getY = ({
-    down,
-    temp,
-    movement,
-    velocity,
-  }: {
-    down: boolean
-    temp: number
-    movement: number
-    velocity: number
-  }): number => {
-    const rawY = temp - movement
-    const predictedDistance = movement * velocity
-    const predictedY = Math.max(
-      minSnapRef.current,
-      Math.min(maxSnapRef.current, rawY - predictedDistance * 2)
-    )
-
-    if (
-      !down &&
-      onDismiss &&
-      rawY - predictedDistance < minSnapRef.current / 2
-    ) {
-      onDismiss()
-      return rawY
-    }
-
-    if (down) {
-      const scale = maxHeight * 0.38196601124999996
-
-      // If dragging beyond maxSnap it should decay so the user can feel its out of bounds
-      if (rawY > maxSnapRef.current) {
-        const overflow =
-          Math.min(rawY, maxSnapRef.current + scale / 2) - maxSnapRef.current
-        const resistance = Math.min(0.5, overflow / scale) * overflow
-
-        return maxSnapRef.current + overflow - resistance
-      }
-
-      // If onDismiss isn't defined, the user can't flick it out of view and the dragging should decay/slow down
-      if (!onDismiss && rawY < minSnapRef.current) {
-        const overflow =
-          minSnapRef.current - Math.max(rawY, minSnapRef.current - scale / 2)
-        const resistance = Math.min(0.5, overflow / scale) * overflow
-
-        return minSnapRef.current - overflow + resistance
-      }
-
-      // apply coordinates as it's being dragged, unless it is out of bounds (in which case a decay should be applied)
-      return rawY
-    }
-
-    return predictedY
-  }
-
   const handleDrag = ({
+    args: [{ closeOnTap = false } = {}] = [],
+    cancel,
+    direction: [, direction],
     down,
-    velocity,
-    direction,
-    memo = spring.y.getValue(),
     first,
     last,
-    movement: [, my],
-    cancel,
+    memo = spring.y.getValue() as number,
+    movement: [, _my],
+    tap,
+    velocity,
   }) => {
-    let newY = getY({
-      down: !!down,
-      movement: isNaN(my) ? 0 : my,
-      velocity,
-      temp: memo as number,
-    })
-
-    const relativeVelocity = Math.max(1, velocity)
-    console.log({ first, memo })
-    if (first) {
-      console.log('first ', { memo })
-      springOnResize.current = false
-    }
+    const my = _my * -1
 
     // Cancel the drag operation if the canDrag state changed
     if (!canDragRef.current) {
       console.log('handleDrag cancelled dragging because canDragRef is false')
       springOnResize.current = true
       cancel()
-      return
+      return memo
+    }
+
+    if (onDismiss && closeOnTap && tap) {
+      cancel()
+      onDismiss()
+      return memo
+    }
+
+    const rawY = memo + my
+    const predictedDistance = my * velocity
+    const predictedY = Math.max(
+      minSnapRef.current,
+      Math.min(maxSnapRef.current, rawY + predictedDistance * 2)
+    )
+
+    if (
+      !down &&
+      onDismiss &&
+      direction > 0 &&
+      rawY + predictedDistance < minSnapRef.current / 2
+    ) {
+      cancel()
+      onDismiss()
+      return memo
+    }
+
+    let newY = down
+      ? rubberbandIfOutOfBounds(
+          rawY,
+          onDismiss ? 0 : minSnapRef.current,
+          maxSnapRef.current,
+          0.55
+        )
+      : predictedY
+
+    if (first) {
+      springOnResize.current = false
     }
 
     if (last) {
       // Restrict y to a valid snap point
-      newY = findSnap(newY)
+      newY = findSnapRef.current(newY)
       heightRef.current = newY
       lastSnapRef.current = newY
       springOnResize.current = true
@@ -492,31 +465,14 @@ export const BottomSheet = React.forwardRef<
       maxSnap: maxSnapRef.current,
       minSnap: minSnapRef.current,
       immediate: prefersReducedMotion.current || down,
-      config: {
-        mass: relativeVelocity,
-        tension: 300 * relativeVelocity,
-        friction: 35 * relativeVelocity,
-        velocity: direction[1] * velocity,
-      },
+      config: { velocity },
     })
 
     return memo
   }
 
-  useDrag(handleDrag, {
-    domTarget: backdropRef,
-    eventOptions: { capture: true },
-    axis: 'y',
-  })
-  useDrag(handleDrag, {
-    domTarget: headerRef,
-    eventOptions: { capture: true },
-    axis: 'y',
-  })
-  useDrag(handleDrag, {
-    domTarget: footerRef,
-    eventOptions: { capture: true },
-    axis: 'y',
+  const bind = useDrag(handleDrag, {
+    filterTaps: true,
   })
 
   if (Number.isNaN(maxSnapRef.current)) {
@@ -552,23 +508,14 @@ export const BottomSheet = React.forwardRef<
       }}
     >
       {sibling}
-      {blocking ? (
+      {blocking && (
         <div
           // This component needs to be placed outside bottom-sheet, as bottom-sheet uses transform and thus creates a new context
           // that clips this element to the container, not allowing it to cover the full page.
           key="backdrop"
           data-rsbs-backdrop
-          ref={backdropRef}
-          onClickCapture={(event) => {
-            if (onDismiss) {
-              event.preventDefault()
-              onDismiss()
-            }
-          }}
+          {...bind({ closeOnTap: true })}
         />
-      ) : (
-        // backdropRef always needs to be set because of useDrag
-        <div key="backdrop" ref={backdropRef} />
       )}
       <div
         key="overlay"
@@ -585,13 +532,10 @@ export const BottomSheet = React.forwardRef<
           }
         }}
       >
-        {header !== false ? (
-          <div key="header" data-rsbs-header ref={headerRef}>
+        {header !== false && (
+          <div key="header" data-rsbs-header ref={headerRef} {...bind()}>
             <div data-rsbs-header-padding>{header}</div>
           </div>
-        ) : (
-          // headerRef always needs to be set because of useDrag
-          <div key="header" ref={headerRef} />
         )}
         <div key="content" data-rsbs-content ref={contentRef}>
           <div
@@ -602,13 +546,10 @@ export const BottomSheet = React.forwardRef<
             <div data-rsbs-content-padding>{children}</div>
           </div>
         </div>
-        {footer ? (
-          <div key="footer" ref={footerRef} data-rsbs-footer>
+        {footer && (
+          <div key="footer" ref={footerRef} data-rsbs-footer {...bind()}>
             <div data-rsbs-footer-padding>{footer}</div>
           </div>
-        ) : (
-          // footerRef always needs to be set because of useDrag
-          <div key="footer" ref={footerRef} />
         )}
       </div>
       <div key="antigap" data-rsbs-antigap />

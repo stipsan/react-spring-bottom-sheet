@@ -18,7 +18,7 @@ npm i react-spring-bottom-sheet
 
 ## [Basic](https://react-spring-bottom-sheet.cocody.dev/fixtures/simple)
 
-> [View demo code](/pages/fixtures/simple.tsx#L43-L47)
+> [View demo code](/pages/fixtures/simple.tsx#L44-L48)
 
 MVP example, showing what you get by implementing `open`, `onDismiss` and a single **snap point** always set to `minHeight`.
 
@@ -30,13 +30,13 @@ A more elaborate example that showcases how snap points work. It also shows how 
 
 ## [Sticky header & footer](https://react-spring-bottom-sheet.cocody.dev/fixtures/sticky)
 
-> [View demo code](/pages/fixtures/sticky.tsx#L40-L60)
+> [View demo code](/pages/fixtures/sticky.tsx#L41-L61)
 
 If you provide either a `header` or `footer` prop you'll enable the special behavior seen in this example. And they're not just sticky positioned, both areas support touch gestures.
 
 ## [Non-blocking overlay mode](https://react-spring-bottom-sheet.cocody.dev/fixtures/aside)
 
-> [View demo code](/pages/fixtures/aside.tsx#L41-L46)
+> [View demo code](/pages/fixtures/aside.tsx#L41-L53)
 
 In most cases you use a bottom sheet the same way you do with a dialog: you want it to overlay the page and block out distractions. But there are times when you want a bottom sheet but without it taking all the attention and overlaying the entire page. Providing `blocking={false}` helps this use case. By doing so you disable a couple of behaviors that are there for accessibility (focus-locking and more) that prevents a screen reader or a keyboard user from accidentally leaving the bottom sheet.
 
@@ -226,9 +226,9 @@ ef.current.snapTo(({ // Showing all the available props
 
 # Credits
 
-- Play icon used on frame overlays: https://fontawesome.com/icons/play-circle?style=regular
-- Phone frame used in logo: https://www.figma.com/community/file/896042888090872154/Mono-Devices-1.0
-- iPhone frame used to wrap examples: https://www.figma.com/community/file/858143367356468985/(Variants)-iOS-%26-iPadOS-14-UI-Kit-for-Figma
+- Play icon used on frame overlays: [font-awesome](https://fontawesome.com/icons/play-circle?style=regular)
+- Phone frame used in logo: [Mono Devices 1.0](https://www.figma.com/community/file/896042888090872154/Mono-Devices-1.0)
+- iPhone frame used to wrap examples: [iOS 14 UI Kit for Figma](<https://www.figma.com/community/file/858143367356468985/(Variants)-iOS-%26-iPadOS-14-UI-Kit-for-Figma>)
 
 [gzip-badge]: http://img.badgesize.io/https://unpkg.com/react-spring-bottom-sheet/dist/index.es.js?compression=gzip&label=gzip%20size&style=flat-square
 [size-badge]: http://img.badgesize.io/https://unpkg.com/react-spring-bottom-sheet/dist/index.es.js?label=size&style=flat-square

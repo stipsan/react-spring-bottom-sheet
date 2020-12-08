@@ -14,8 +14,10 @@ import { useReady } from './useReady'
 export function useSnapPoints({
   contentContainerRef,
   controlledMaxHeight,
+  footerEnabled,
   footerRef,
   getSnapPoints,
+  headerEnabled,
   headerRef,
   heightRef,
   lastSnapRef,
@@ -24,8 +26,10 @@ export function useSnapPoints({
 }: {
   contentContainerRef: React.RefObject<Element>
   controlledMaxHeight?: number
+  footerEnabled: boolean
   footerRef: React.RefObject<Element>
   getSnapPoints: snapPoints
+  headerEnabled: boolean
   headerRef: React.RefObject<Element>
   heightRef: React.RefObject<number>
   lastSnapRef: React.RefObject<number>
@@ -33,10 +37,12 @@ export function useSnapPoints({
   registerReady: ReturnType<typeof useReady>['registerReady']
 }) {
   const { maxHeight, minHeight, headerHeight, footerHeight } = useDimensions({
-    controlledMaxHeight,
-    headerRef,
     contentContainerRef,
+    controlledMaxHeight,
+    footerEnabled,
     footerRef,
+    headerEnabled,
+    headerRef,
     registerReady,
   })
 
@@ -86,16 +92,20 @@ export function useSnapPoints({
 }
 
 function useDimensions({
-  headerRef,
   contentContainerRef,
-  footerRef,
   controlledMaxHeight,
+  footerEnabled,
+  footerRef,
+  headerEnabled,
+  headerRef,
   registerReady,
 }: {
-  controlledMaxHeight?: number
-  headerRef: React.RefObject<Element>
   contentContainerRef: React.RefObject<Element>
+  controlledMaxHeight?: number
+  footerEnabled: boolean
   footerRef: React.RefObject<Element>
+  headerEnabled: boolean
+  headerRef: React.RefObject<Element>
   registerReady: ReturnType<typeof useReady>['registerReady']
 }) {
   const setReady = useMemo(() => registerReady('contentHeight'), [
@@ -103,19 +113,19 @@ function useDimensions({
   ])
   const maxHeight = useMaxHeight(controlledMaxHeight, registerReady)
 
-  // Rewrite these to set refs and use nextTick
-  const { height: headerHeight } = useElementSizeObserver(
-    headerRef,
-    'headerHeight'
-  )
+  // @TODO probably better to forward props instead of checking refs to decide if it's enabled
+  const { height: headerHeight } = useElementSizeObserver(headerRef, {
+    label: 'headerHeight',
+    enabled: headerEnabled,
+  })
   const { height: contentHeight } = useElementSizeObserver(
     contentContainerRef,
-    'contentHeight'
+    { label: 'contentHeight', enabled: true }
   )
-  const { height: footerHeight } = useElementSizeObserver(
-    footerRef,
-    'footerHeight'
-  )
+  const { height: footerHeight } = useElementSizeObserver(footerRef, {
+    label: 'footerHeight',
+    enabled: footerEnabled,
+  })
   const minHeight =
     Math.min(maxHeight - headerHeight - footerHeight, contentHeight) +
     headerHeight +
@@ -143,11 +153,12 @@ function useDimensions({
  *
  * @param ref - A React ref to an element
  */
+const defaultSize = { width: 0, height: 0 }
 function useElementSizeObserver(
   ref: React.RefObject<Element>,
-  label: string
+  { label, enabled }: { label: string; enabled: boolean }
 ): { width: number; height: number } {
-  let [size, setSize] = useState(() => ({ width: 0, height: 0 }))
+  let [size, setSize] = useState(defaultSize)
 
   useDebugValue(`${label}: ${size.height}`)
 
@@ -160,7 +171,7 @@ function useElementSizeObserver(
   }, [])
 
   useEffect(() => {
-    if (!ref.current) {
+    if (!ref.current || !enabled) {
       return
     }
 
@@ -174,9 +185,9 @@ function useElementSizeObserver(
     return () => {
       resizeObserver.disconnect()
     }
-  }, [ref, handleResize])
+  }, [ref, handleResize, enabled])
 
-  return size
+  return enabled ? size : defaultSize
 }
 
 // Blazingly keep track of the current viewport height without blocking the thread, keeping that sweet 60fps on smartphones

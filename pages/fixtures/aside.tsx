@@ -42,6 +42,13 @@ const AsideFixturePage: NextPage<GetStaticProps> = ({
           open={open}
           onDismiss={() => setOpen(false)}
           blocking={false}
+          header={
+            <input
+              className="mt-1 block w-full rounded-md bg-gray-100 border-transparent focus:border-gray-300 focus:bg-white focus:ring-0"
+              type="text"
+              placeholder="Text input field in a sticky header"
+            />
+          }
           snapPoints={({ maxHeight }) => [maxHeight / 4, maxHeight * 0.6]}
         >
           <SheetContent>

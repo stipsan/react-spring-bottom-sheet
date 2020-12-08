@@ -42,7 +42,7 @@ const StickyFixturePage: NextPage<GetStaticProps> = ({
           open={open}
           onDismiss={onDismiss}
           defaultSnap={({ snapPoints, lastSnap }) =>
-            lastSnap ?? Math.max(...snapPoints)
+            lastSnap ?? Math.min(...snapPoints)
           }
           snapPoints={({ maxHeight }) => [
             maxHeight - maxHeight / 5,
@@ -67,8 +67,10 @@ const StickyFixturePage: NextPage<GetStaticProps> = ({
             <Expandable>
               <div className="bg-gray-200 block rounded-md h-10 w-full my-10" />
               <p>
-                Notice how much better the UX is on resize events when the
-                "Dismiss" button is sticky.
+                Putting the "Done" button in a sticky footer is a nice touch on
+                long bottom sheets with a lot of content. And on resize events
+                the sticky elements are always visible, unlike the "Dismiss"
+                button in the first example that needs to be animated first.
               </p>
               <div className="bg-gray-200 block rounded-md h-10 w-full my-10" />
             </Expandable>
@@ -81,6 +83,17 @@ const StickyFixturePage: NextPage<GetStaticProps> = ({
               as well to optimize for large phones where the header might be
               difficult to reach with one hand.
             </p>
+            <Expandable>
+              <div className="bg-gray-200 block rounded-md h-10 w-full my-10" />
+              <p>
+                Additionally this bottom sheet uses stable viewpoints that are
+                equivalent to vh CSS units. Predictable heights like this is
+                also handy if there's content loaded async, or you're
+                implementing a virtual list so the sheet can't rely on measuring
+                the height of its content.
+              </p>
+              <div className="bg-gray-200 block rounded-md h-10 w-full my-10" />
+            </Expandable>
           </SheetContent>
         </BottomSheet>
       </Container>
