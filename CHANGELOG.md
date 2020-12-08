@@ -1,3 +1,10 @@
+## [2.2.5](https://github.com/stipsan/react-spring-bottom-sheet/compare/v2.2.4...v2.2.5) (2020-12-08)
+
+
+### Bug Fixes
+
+* improve rubber band effect when out of bounds ([#29](https://github.com/stipsan/react-spring-bottom-sheet/issues/29)) ([4f2fe09](https://github.com/stipsan/react-spring-bottom-sheet/commit/4f2fe090774bcfbfd5171281701cc5ba68db8a44))
+
 ## [2.2.4](https://github.com/stipsan/react-spring-bottom-sheet/compare/v2.2.3...v2.2.4) (2020-12-07)
 
 
