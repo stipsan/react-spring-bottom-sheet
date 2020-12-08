@@ -17,8 +17,9 @@
   ],
   "scripts": {
     "build": "next build",
+    "build:declarations": "tsc --project tsconfig.declarations.json",
     "prebuild:dist": "rimraf dist/**",
-    "build:dist": "npm run build:postcss && npm run build:microbundle",
+    "build:dist": "npm run build:postcss && npm run build:microbundle && npm run build:declarations",
     "build:microbundle": "NODE_ENV=production microbundle --define process.env.NODE_ENV=production --tsconfig tsconfig.microbundle.json -f cjs,es,modern --css-modules false --jsx React.createElement --jsxFragment React.Fragment",
     "build:postcss": "postcss -d dist src/style.css",
     "dev": "next",
