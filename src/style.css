@@ -1,6 +1,15 @@
 [data-rsbs-overlay] {
-  border-top-left-radius: var(--rsbs-overlay-rounded);
-  border-top-right-radius: var(--rsbs-overlay-rounded);
+  /* Remove rounded borders when full height, ensuring no ugly corner gaps when the bottom sheet is touching the edge of the browser chrome */
+  border-radius: var(--rsbs-overlay-rounded);
+  border-radius: max(
+    0px,
+    min(
+      calc(var(--rsbs-state-max-h) - var(--rsbs-state-y)),
+      var(--rsbs-overlay-rounded)
+    )
+  );
+  border-bottom-left-radius: 0px;
+  border-bottom-right-radius: 0px;
   display: flex;
   background: var(--rsbs-bg);
   flex-direction: column;

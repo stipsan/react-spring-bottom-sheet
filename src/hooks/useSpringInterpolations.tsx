@@ -15,15 +15,6 @@ export function useSpringInterpolations({
 }: {
   spring: Spring
 }): React.CSSProperties {
-  // This effect is for removing rounded corners on phones when the sheet touches the top of the browser chrome
-  // as it's really ugly with the gaps border radius creates. This ensures it looks sleek.
-  const interpolateOverlayRounded = interpolate(
-    [spring.y, spring.maxHeight as OpaqueInterpolation<number>],
-    (y, maxHeight) => {
-      return `${Math.round(clamp(maxHeight - y, 0, 16))}px`
-    }
-  )
-
   /*
    * Only animate the height when absolute necessary
    * @TODO currently it's only able to opt out of changing the height if there's just a single snapshot
@@ -89,8 +80,6 @@ export function useSpringInterpolations({
     ['--rsbs-content-opacity' as any]: interpolateContentOpacity,
     // Animates the height state when y is somewhere between min/max snap, not the most performant way but it's the safest with regards to mobile browser and focus/scrolling that could happen while animating
     ['--rsbs-overlay-h' as any]: interpolateOverlayHeight,
-    // Remove rounded borders when full height, it looks much better this way
-    ['--rsbs-overlay-rounded' as any]: interpolateOverlayRounded,
     // Shifts the position of the bottom sheet, used on open and close primarily as snap point changes usually only interpolate the height
     ['--rsbs-overlay-translate-y' as any]: interpolateOverlayTranslateY,
     // Expose spring state to allow more advanced CSS customizations
