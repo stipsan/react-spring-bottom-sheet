@@ -34,15 +34,12 @@
 [data-rsbs-backdrop],
 [data-rsbs-antigap] {
   z-index: 3;
-  -ms-scroll-chaining: none;
   overscroll-behavior: none;
   touch-action: none;
   position: fixed;
   right: 0;
   bottom: 0;
   left: 0;
-  -webkit-user-select: none;
-  -ms-user-select: none;
   user-select: none;
   -webkit-tap-highlight-color: transparent;
   -webkit-touch-callout: none;
@@ -78,8 +75,6 @@
 }
 [data-rsbs-header] {
   text-align: center;
-  -webkit-user-select: none;
-  -ms-user-select: none;
   user-select: none;
   box-shadow: 0 1px 0
     rgba(46, 59, 66, calc(var(--rsbs-content-opacity) * 0.125));
@@ -117,11 +112,8 @@
   flex-grow: 1;
   -webkit-tap-highlight-color: revert;
   -webkit-touch-callout: revert;
-  -webkit-user-select: auto;
-  -ms-user-select: auto;
   user-select: auto;
   overflow: auto;
-  -ms-scroll-chaining: none;
   overscroll-behavior: contain;
   -webkit-overflow-scrolling: touch;
 }
