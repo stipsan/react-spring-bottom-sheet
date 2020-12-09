@@ -17,7 +17,7 @@ export function useSpringInterpolations({
   // This effect is for removing rounded corners on phones when the sheet touches the top of the browser chrome
   // as it's really ugly with the gaps border radius creates. This ensures it looks sleek.
   // @TODO the ts-ignore comments are because the `extrapolate` param isn't in the TS defs for some reason
-  const interpolateBorderRadius = interpolate(
+  const interpolateOverlayRounded = interpolate(
     // @ts-expect-error
     [spring.y, spring.maxHeight],
     (y, maxHeight) => {
@@ -34,13 +34,13 @@ export function useSpringInterpolations({
    *       A FLIP resize flow for content height would likely require the sticky elements to overlap the content area.
    *       Could be done as a separat mode though, or a separate example CSS for max performance.
    */
-  const interpolateHeight = interpolate(
+  const interpolateOverlayHeight = interpolate(
     // @ts-ignore
     [spring.y, spring.minSnap, spring.maxSnap],
     (y, minSnap, maxSnap) => `${clamp(y, minSnap, maxSnap)}px`
   )
 
-  const interpolateY = interpolate(
+  const interpolateOverlayTranslateY = interpolate(
     // @ts-ignore
     [spring.y, spring.minSnap, spring.maxSnap],
     (y, minSnap, maxSnap) => {
@@ -54,7 +54,7 @@ export function useSpringInterpolations({
     }
   )
 
-  const interpolateFiller = interpolate(
+  const interpolateAntigapScaleY = interpolate(
     // @ts-ignore
     [spring.y, spring.maxSnap],
     (y, maxSnap) => {
@@ -80,24 +80,31 @@ export function useSpringInterpolations({
     }
   )
 
-  const interpolateBackdrop = interpolate(
+  const interpolateBackdropOpacity = interpolate(
     // @ts-ignore
     [spring.y, spring.minSnap],
     (y, minSnap) => clamp(y / minSnap, 0, 1)
   )
 
   return {
-    // Fancy content fade-in effect
+    ['--rsbs-antigap-scale-y' as any]: interpolateAntigapScaleY,
+    ['--rsbs-backdrop-opacity' as any]: interpolateBackdropOpacity,
     ['--rsbs-content-opacity' as any]: interpolateContentOpacity,
-    // Fading in the backdrop
-    ['--rsbs-backdrop-opacity' as any]: interpolateBackdrop,
-    // Scaling the antigap in the bottom
-    ['--rsbs-antigap-scale-y' as any]: interpolateFiller,
-    // Shifts the position of the bottom sheet, used on open and close primarily as snap point changes usually only interpolate the height
-    ['--rsbs-overlay-translate-y' as any]: interpolateY,
+    ['--rsbs-overlay-h' as any]: interpolateOverlayHeight,
+    ['--rsbs-overlay-rounded' as any]: interpolateOverlayRounded,
+    ['--rsbs-overlay-translate-y' as any]: interpolateOverlayTranslateY,
+
+    // Scaling the antigap in the bottom when dragging out of bounds
+    ['--rsbs-antigap-scale-y' as any]: interpolateAntigapScaleY,
+    // Fading in the backdrop when below the fold
+    ['--rsbs-backdrop-opacity' as any]: interpolateBackdropOpacity,
+    // Fancy content fade-in effect as it gets below the fold
+    ['--rsbs-content-opacity' as any]: interpolateContentOpacity,
+    // Animates the height state when y is somewhere between min/max snap, not the most performant way but it's the safest with regards to mobile browser and focus/scrolling that could happen while animating
+    ['--rsbs-overlay-h' as any]: interpolateOverlayHeight,
     // Remove rounded borders when full height, it looks much better this way
-    ['--rsbs-overlay-rounded' as any]: interpolateBorderRadius,
-    // Animates the height state, not the most performant way but it's the safest with regards to mobile browser and focus/scrolling that could happen while animating
-    ['--rsbs-overlay-h' as any]: interpolateHeight,
+    ['--rsbs-overlay-rounded' as any]: interpolateOverlayRounded,
+    // Shifts the position of the bottom sheet, used on open and close primarily as snap point changes usually only interpolate the height
+    ['--rsbs-overlay-translate-y' as any]: interpolateOverlayTranslateY,
   }
 }
