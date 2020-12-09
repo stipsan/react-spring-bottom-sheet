@@ -1,7 +1,7 @@
 import { interpolate } from 'react-spring'
 import type { OpaqueInterpolation } from 'react-spring'
 import type { Spring } from './useSpring'
-import { clamp } from '../utils'
+import { clamp, toPx } from '../utils'
 
 // It's a bit easier to ensure interpolations don't accidentally use the wrong variables by
 // putting them here, in their own closure with explicitly defined variables used
@@ -93,5 +93,10 @@ export function useSpringInterpolations({
     ['--rsbs-overlay-rounded' as any]: interpolateOverlayRounded,
     // Shifts the position of the bottom sheet, used on open and close primarily as snap point changes usually only interpolate the height
     ['--rsbs-overlay-translate-y' as any]: interpolateOverlayTranslateY,
+    // Expose spring state to allow more advanced CSS customizations
+    ['--rsbs-state-max-h' as any]: spring.maxHeight.interpolate(toPx),
+    ['--rsbs-state-max-snap' as any]: spring.maxSnap.interpolate(toPx),
+    ['--rsbs-state-min-snap' as any]: spring.minSnap.interpolate(toPx),
+    ['--rsbs-state-y' as any]: spring.y.interpolate(toPx),
   }
 }

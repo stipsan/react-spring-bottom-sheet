@@ -58,3 +58,7 @@ export function processSnapPoints(unsafeSnaps: number | number[], maxHeight) {
     maxSnap,
   }
 }
+
+export function toPx(from: number) {
+  return `${from}px`
+}
