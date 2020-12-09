@@ -36,6 +36,7 @@ export const BottomSheet = React.forwardRef<
     children,
     sibling,
     className,
+    classNames = {},
     footer,
     header,
     open: _open,
@@ -492,7 +493,7 @@ export const BottomSheet = React.forwardRef<
       data-rsbs-is-dismissable={dismissable}
       data-rsbs-has-header={!!header}
       data-rsbs-has-footer={!!footer}
-      className={className}
+      className={className || classNames.root}
       ref={containerRef}
       style={{
         // spread in the interpolations yeees
@@ -511,6 +512,7 @@ export const BottomSheet = React.forwardRef<
           // This component needs to be placed outside bottom-sheet, as bottom-sheet uses transform and thus creates a new context
           // that clips this element to the container, not allowing it to cover the full page.
           key="backdrop"
+          className={classNames.backdrop}
           data-rsbs-backdrop
           {...bind({ closeOnTap: true })}
         />
@@ -518,6 +520,7 @@ export const BottomSheet = React.forwardRef<
       <div
         key="overlay"
         aria-modal="true"
+        className={classNames.overlay}
         role="dialog"
         data-rsbs-overlay
         tabIndex={-1}
@@ -531,26 +534,52 @@ export const BottomSheet = React.forwardRef<
         }}
       >
         {header !== false && (
-          <div key="header" data-rsbs-header ref={headerRef} {...bind()}>
-            <div data-rsbs-header-padding>{header}</div>
+          <div
+            key="header"
+            className={classNames.header}
+            data-rsbs-header
+            ref={headerRef}
+            {...bind()}
+          >
+            <div className={classNames.headerPadding} data-rsbs-header-padding>
+              {header}
+            </div>
           </div>
         )}
-        <div key="content" data-rsbs-content ref={contentRef}>
+        <div
+          key="content"
+          className={classNames.content}
+          data-rsbs-content
+          ref={contentRef}
+        >
           <div
             ref={contentContainerRef}
             // The overflow hidden is for the resize observer to get dimensions including margins and paddings
             style={{ overflow: 'hidden' }}
           >
-            <div data-rsbs-content-padding>{children}</div>
+            <div
+              className={classNames.contentPadding}
+              data-rsbs-content-padding
+            >
+              {children}
+            </div>
           </div>
         </div>
         {footer && (
-          <div key="footer" ref={footerRef} data-rsbs-footer {...bind()}>
-            <div data-rsbs-footer-padding>{footer}</div>
+          <div
+            key="footer"
+            className={classNames.footer}
+            ref={footerRef}
+            data-rsbs-footer
+            {...bind()}
+          >
+            <div className={classNames.footerPadding} data-rsbs-footer-padding>
+              {footer}
+            </div>
           </div>
         )}
       </div>
-      <div key="antigap" data-rsbs-antigap />
+      <div key="antigap" className={classNames.antigap} data-rsbs-antigap />
     </animated.div>
   )
 })

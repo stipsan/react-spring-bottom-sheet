@@ -1,5 +1,4 @@
 import { interpolate } from 'react-spring'
-import type { OpaqueInterpolation } from 'react-spring'
 import type { Spring } from './useSpring'
 import { clamp, toPx } from '../utils'
 

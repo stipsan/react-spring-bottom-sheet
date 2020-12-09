@@ -58,9 +58,21 @@ export type Props = {
   open: boolean
 
   /**
-   * Additional CSS class for the container.
+   * Control what className you want on any of the core elements, useful when using a utility-first CSS framework
    */
-  className?: string
+  classNames?: Record<
+    | 'antigap'
+    | 'backdrop'
+    | 'content'
+    | 'contentPadding'
+    | 'footer'
+    | 'footerPadding'
+    | 'header'
+    | 'headerPadding'
+    | 'overlay'
+    | 'root',
+    string
+  >
 
   /**
    * Renders a sticky footer at the bottom of the sheet.
