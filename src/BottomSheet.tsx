@@ -502,7 +502,7 @@ export const BottomSheet = React.forwardRef<
         // Not overridable as the "focus lock with opacity 0" trick rely on it
         opacity: spring.ready,
         // Allows interactions on the rest of the page before the close transition is finished
-        pointerEvents: !ready || off ? 'none' : undefined,
+        pointerEvents: off ? 'none' : undefined,
       }}
     >
       {sibling}
