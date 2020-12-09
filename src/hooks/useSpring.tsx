@@ -4,7 +4,13 @@ import { useSpring as useReactSpring } from 'react-spring'
 // Put in this file befause it makes it easier to type and I'm lazy! :D
 
 export function useSpring() {
-  return useReactSpring(() => ({
+  return useReactSpring<{
+    y: number
+    ready: number
+    maxHeight: number
+    minSnap: number
+    maxSnap: number
+  }>(() => ({
     y: 0,
     ready: 0,
     maxHeight: 0,

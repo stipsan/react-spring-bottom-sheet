@@ -1,4 +1,5 @@
 import { interpolate } from 'react-spring'
+import type { OpaqueInterpolation } from 'react-spring'
 import type { Spring } from './useSpring'
 import { clamp } from '../utils'
 
@@ -16,10 +17,8 @@ export function useSpringInterpolations({
 }): React.CSSProperties {
   // This effect is for removing rounded corners on phones when the sheet touches the top of the browser chrome
   // as it's really ugly with the gaps border radius creates. This ensures it looks sleek.
-  // @TODO the ts-ignore comments are because the `extrapolate` param isn't in the TS defs for some reason
   const interpolateOverlayRounded = interpolate(
-    // @ts-expect-error
-    [spring.y, spring.maxHeight],
+    [spring.y, spring.maxHeight as OpaqueInterpolation<number>],
     (y, maxHeight) => {
       return `${Math.round(clamp(maxHeight - y, 0, 16))}px`
     }
@@ -35,13 +34,11 @@ export function useSpringInterpolations({
    *       Could be done as a separat mode though, or a separate example CSS for max performance.
    */
   const interpolateOverlayHeight = interpolate(
-    // @ts-ignore
     [spring.y, spring.minSnap, spring.maxSnap],
     (y, minSnap, maxSnap) => `${clamp(y, minSnap, maxSnap)}px`
   )
 
   const interpolateOverlayTranslateY = interpolate(
-    // @ts-ignore
     [spring.y, spring.minSnap, spring.maxSnap],
     (y, minSnap, maxSnap) => {
       if (y < minSnap) {
@@ -55,7 +52,6 @@ export function useSpringInterpolations({
   )
 
   const interpolateAntigapScaleY = interpolate(
-    // @ts-ignore
     [spring.y, spring.maxSnap],
     (y, maxSnap) => {
       if (y >= maxSnap) {
@@ -66,7 +62,6 @@ export function useSpringInterpolations({
   )
 
   const interpolateContentOpacity = interpolate(
-    // @ts-ignore
     [spring.y, spring.minSnap],
     (y, minSnap) => {
       const minX = Math.max(minSnap / 2 - 45, 0)
@@ -81,19 +76,11 @@ export function useSpringInterpolations({
   )
 
   const interpolateBackdropOpacity = interpolate(
-    // @ts-ignore
     [spring.y, spring.minSnap],
     (y, minSnap) => clamp(y / minSnap, 0, 1)
   )
 
   return {
-    ['--rsbs-antigap-scale-y' as any]: interpolateAntigapScaleY,
-    ['--rsbs-backdrop-opacity' as any]: interpolateBackdropOpacity,
-    ['--rsbs-content-opacity' as any]: interpolateContentOpacity,
-    ['--rsbs-overlay-h' as any]: interpolateOverlayHeight,
-    ['--rsbs-overlay-rounded' as any]: interpolateOverlayRounded,
-    ['--rsbs-overlay-translate-y' as any]: interpolateOverlayTranslateY,
-
     // Scaling the antigap in the bottom when dragging out of bounds
     ['--rsbs-antigap-scale-y' as any]: interpolateAntigapScaleY,
     // Fading in the backdrop when below the fold
