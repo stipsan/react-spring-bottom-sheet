@@ -6,7 +6,7 @@
 
 ![Logo with the text Accessible, Delightful and Performant](https://react-spring-bottom-sheet.cocody.dev/readme.svg)
 
-**react-spring-bottom-sheet** is built on top of **react-spring** and **react-use-gesture**. It busts the myth that accessibility and supporting keyboard navigation and screen readers are allegedly at odds with delightful, beautiful and highly animated UIs. Every animation and transition is implemented using CSS custom properties instead of manipulating them directly, allowing complete control over the experience from CSS alone.
+**react-spring-bottom-sheet** is built on top of **[react-spring]** and **[react-use-gesture]**. It busts the myth that accessibility and supporting keyboard navigation and screen readers are allegedly at odds with delightful, beautiful, and highly animated UIs. Every animation and transition use CSS custom properties instead of manipulating them directly, allowing complete control over the experience from CSS alone.
 
 # Install
 
@@ -234,3 +234,5 @@ ef.current.snapTo(({ // Showing all the available props
 [size-badge]: http://img.badgesize.io/https://unpkg.com/react-spring-bottom-sheet/dist/index.es.js?label=size&style=flat-square
 [unpkg-dist]: https://unpkg.com/react-spring-bottom-sheet/dist/
 [module-formats-badge]: https://img.shields.io/badge/module%20formats-cjs%2C%20es%2C%20modern-green.svg?style=flat-square
+[react-spring]: https://github.com/pmndrs/react-spring
+[react-use-gesture]: https://github.com/pmndrs/react-use-gesture
