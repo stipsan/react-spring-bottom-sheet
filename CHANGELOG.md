@@ -1,3 +1,10 @@
+## [2.2.7](https://github.com/stipsan/react-spring-bottom-sheet/compare/v2.2.6...v2.2.7) (2020-12-19)
+
+
+### Bug Fixes
+
+* dragging can overshoot if onDismiss is undefined ([#43](https://github.com/stipsan/react-spring-bottom-sheet/issues/43)) ([549ab30](https://github.com/stipsan/react-spring-bottom-sheet/commit/549ab30be66dd138fb59a9bf869eb77002349b6f))
+
 ## [2.2.6](https://github.com/stipsan/react-spring-bottom-sheet/compare/v2.2.5...v2.2.6) (2020-12-08)
 
 
