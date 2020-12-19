@@ -438,16 +438,26 @@ export const BottomSheet = React.forwardRef<
 
     let newY = down
       ? // @TODO figure out a better way to deal with rubberband overshooting if min and max have the same value
-        !onDismiss &&
-        rawY < minSnapRef.current &&
-        minSnapRef.current === maxSnapRef.current
-        ? rubberbandIfOutOfBounds(
+        !onDismiss && minSnapRef.current === maxSnapRef.current
+        ? rawY < minSnapRef.current
+          ? rubberbandIfOutOfBounds(
+              rawY,
+              minSnapRef.current,
+              maxSnapRef.current * 2,
+              0.55
+            )
+          : rubberbandIfOutOfBounds(
+              rawY,
+              minSnapRef.current / 2,
+              maxSnapRef.current,
+              0.55
+            )
+        : rubberbandIfOutOfBounds(
             rawY,
-            minSnapRef.current,
-            maxSnapRef.current * 2,
+            onDismiss ? 0 : minSnapRef.current,
+            maxSnapRef.current,
             0.55
           )
-        : rubberbandIfOutOfBounds(rawY, 0, maxSnapRef.current, 0.55)
       : predictedY
 
     if (first) {
