@@ -73,6 +73,10 @@ export type Props = {
     | 'root',
     string
   >
+  /**
+   * TODO
+   */
+  varNames?: { ['backdrop-opacity']: '--rsbs-backdrop-opacity' }
 
   /**
    * Renders a sticky footer at the bottom of the sheet.
