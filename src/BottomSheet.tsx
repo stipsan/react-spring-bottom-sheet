@@ -66,7 +66,6 @@ export const BottomSheet = React.forwardRef<
   // Before any animations can start we need to measure a few things, like the viewport and the dimensions of content, and header + footer if they exist
   const { ready, registerReady } = useReady()
 
-  const dismissable = !!onDismiss
   // Controls the drag handler, used by spring operations that happen outside the render loop in React
   const canDragRef = useRef(false)
 
@@ -438,12 +437,27 @@ export const BottomSheet = React.forwardRef<
     }
 
     let newY = down
-      ? rubberbandIfOutOfBounds(
-          rawY,
-          onDismiss ? 0 : minSnapRef.current,
-          maxSnapRef.current,
-          0.55
-        )
+      ? // @TODO figure out a better way to deal with rubberband overshooting if min and max have the same value
+        !onDismiss && minSnapRef.current === maxSnapRef.current
+        ? rawY < minSnapRef.current
+          ? rubberbandIfOutOfBounds(
+              rawY,
+              minSnapRef.current,
+              maxSnapRef.current * 2,
+              0.55
+            )
+          : rubberbandIfOutOfBounds(
+              rawY,
+              minSnapRef.current / 2,
+              maxSnapRef.current,
+              0.55
+            )
+        : rubberbandIfOutOfBounds(
+            rawY,
+            onDismiss ? 0 : minSnapRef.current,
+            maxSnapRef.current,
+            0.55
+          )
       : predictedY
 
     if (first) {
@@ -489,7 +503,7 @@ export const BottomSheet = React.forwardRef<
       {...props}
       data-rsbs-root
       data-rsbs-is-blocking={blocking}
-      data-rsbs-is-dismissable={dismissable}
+      data-rsbs-is-dismissable={!!onDismiss}
       data-rsbs-has-header={!!header}
       data-rsbs-has-footer={!!footer}
       className={className}
