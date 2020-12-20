@@ -5,6 +5,7 @@
 // It also ensures that when transitioning to open on mount the state is always clean, not affected by previous states that could
 // cause race conditions.
 
+import { useMachine } from '@xstate/react'
 import React, { useEffect, useImperativeHandle, useRef } from 'react'
 import { animated } from 'react-spring'
 import { rubberbandIfOutOfBounds, useDrag } from 'react-use-gesture'
@@ -18,6 +19,7 @@ import {
   useSpring,
   useSpringInterpolations,
 } from './hooks'
+import { overlayMachine } from './machines/overlay'
 import type {
   defaultSnapProps,
   Props,
@@ -140,6 +142,19 @@ export const BottomSheet = React.forwardRef<
     findSnapRef.current = findSnap
     defaultSnapRef.current = findSnap(getDefaultSnap)
   }, [findSnap, getDefaultSnap, maxHeight, maxSnap, minSnap])
+
+  const [current, send] = useMachine(overlayMachine)
+
+  useEffect(() => {
+    if (_open) {
+      send('OPEN')
+    } else {
+      send('CLOSED')
+    }
+  }, [_open])
+  useEffect(() => {
+    console.log('current changed!', current)
+  }, [current])
 
   // Adjust the height whenever the snap points are changed due to resize events
   const springOnResize = useRef(false)

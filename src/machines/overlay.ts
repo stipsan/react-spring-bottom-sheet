@@ -2,7 +2,7 @@ import { Machine } from 'xstate'
 
 // This is the root machine, composing all the other machines and is the brain of the bottom sheet
 
-interface MainStateSchema {
+interface OverlayStateSchema {
   states: {
     // the overlay usually starts in the closed position
     closed: {}
@@ -41,10 +41,10 @@ interface MainStateSchema {
   }
 }
 
-type MainEvent = { type: 'OPEN' } | { type: 'CLOSE' }
+type OverlayEvent = { type: 'OPEN' } | { type: 'CLOSE' }
 
 // The context (extended state) of the machine
-interface MainContext {
+interface OverlayContext {
   // @TODO
 }
 function sleep(ms = 10000) {
@@ -60,7 +60,11 @@ const openToDrag = {
 
 // Copy paste the machine into https://xstate.js.org/viz/ to make sense of what's going on in here ;)
 
-export const mainMachine = Machine<MainContext, MainStateSchema, MainEvent>(
+export const overlayMachine = Machine<
+  OverlayContext,
+  OverlayStateSchema,
+  OverlayEvent
+>(
   {
     id: 'overlay',
     initial: 'closed',
