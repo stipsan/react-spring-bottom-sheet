@@ -8,15 +8,25 @@ interface MainStateSchema {
     closed: {}
     opening: {
       states: {
+        // Used to fire off the springStart event
         start: {}
-        // staging will render the overlay in the open state, but visually hidden
+        // This state only happens when the overlay should start in an open state, instead of animating from the bottom
+        // openImmediately: {}
+        // visuallyHidden will render the overlay in the open state, but with opacity 0
         // doing this solves two problems:
         // on Android focusing an input element will trigger the softkeyboard to show up, which will change the viewport height
         // on iOS the focus event will break the view by triggering a scrollIntoView event if focus happens while the overlay is below the viewport and body got overflow:hidden
         // by rendering things with opacity 0 we ensure keyboards and scrollIntoView all happen in a way that match up with what the sheet will look like.
         // we can then move it to the opening position below the viewport, and animate it into view without worrying about height changes or scrolling overflow:hidden events
-        staging: {}
+        visuallyHidden: {}
+        // In this state we're activating focus traps, scroll locks and more, this will sometimes trigger soft keyboards and scrollIntoView
+        activating: {}
+        // Animates from the bottom, note that it's either start => openImmediately => activating => end, or start => visuallyHidden => activating => openSmoothly => end
+        openingSmoothly: {}
+        // Used to fire off the springEnd event
         end: {}
+        // And finally we're ready to transition to open
+        done: {}
       }
     }
     open: {}
@@ -38,33 +48,81 @@ interface MainContext {
   // @TODO
 }
 
-export const mainMachine = Machine<MainContext, MainStateSchema, MainEvent>({
-  id: 'overlay',
-  initial: 'closed',
-  context: {},
-  states: {
-    closed: { on: { OPEN: 'opening' } },
-    opening: {
-      states: {
-        start: {
-          entry: 'onSpringStart',
+function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms))
+}
+
+export const mainMachine = Machine<MainContext, MainStateSchema, MainEvent>(
+  {
+    id: 'overlay',
+    initial: 'closed',
+    context: {},
+    states: {
+      closed: { on: { OPEN: 'opening' } },
+      opening: {
+        initial: 'start',
+        states: {
+          start: {
+            invoke: { src: 'onSpringStart', onDone: 'visuallyHidden' },
+            on: {
+              CLOSE: { actions: 'onSpringCancel' },
+            },
+          },
+          visuallyHidden: {
+            invoke: { src: 'renderVisuallyHidden', onDone: 'activating' },
+            on: {
+              CLOSE: { actions: 'onSpringCancel' },
+            },
+          },
+          activating: {
+            invoke: { src: 'activate', onDone: 'openingSmoothly' },
+            on: {
+              CLOSE: { actions: 'onSpringCancel' },
+            },
+          },
+          openingSmoothly: {
+            invoke: { src: 'openSmoothly', onDone: 'end' },
+            on: {
+              CLOSE: { actions: 'onSpringCancel' },
+            },
+          },
+          end: {
+            invoke: { src: 'onSpringEnd', onDone: 'done' },
+            on: {
+              CLOSE: { actions: 'onSpringCancel' },
+            },
+          },
+          done: {
+            type: 'final',
+          },
         },
-        staging: {
-          invoke: [{ id: 'stage', src: 'stage' }],
-          onDone: 'end',
-        },
-        end: {
-          type: 'final',
-        },
+        onDone: 'open',
       },
-      on: {
-        CLOSE: { actions: 'onSpringCancel' },
-      },
-      onDone: 'open',
+      open: {},
+      dragging: {},
+      snapping: { onDone: 'open' },
+      closing: { onDone: 'closed' },
     },
-    open: {},
-    dragging: {},
-    snapping: { onDone: 'open' },
-    closing: { onDone: 'closed' },
+    on: {
+      CLOSE: 'closing',
+    },
   },
-})
+  {
+    actions: {
+      onSpringCancel: (context, event) => {
+        console.log('onSpringCancel', { context, event })
+      },
+    },
+    services: {
+      // onSpringStart|onSpringEnd will await on the prop callbacks, allowing userland to delay transitions
+      onSpringStart: async (context, event) => {
+        console.log('onSpringStart', { context, event })
+        await sleep(100)
+        console.log('async test')
+      },
+      onSpringEnd: async (context, event) => {
+        console.log('onSpringEnd', { context, event })
+      },
+    },
+  }
+)
