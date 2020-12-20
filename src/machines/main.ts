@@ -142,26 +142,28 @@ export const mainMachine = Machine<MainContext, MainStateSchema, MainEvent>(
             invoke: {
               id: 'onCloseStart',
               src: 'onSpringStart',
-              onDone: 'closingSmoothly',
+              onDone: 'deactivating',
             },
+            on: { OPEN: { target: '#overlay.open', actions: 'onCloseCancel' } },
+          },
+          deactivating: {
+            invoke: { src: 'deactivate', onDone: 'closingSmoothly' },
           },
           closingSmoothly: {
             invoke: { src: 'closeSmoothly', onDone: 'end' },
           },
+
           end: {
             invoke: { id: 'onCloseEnd', src: 'onSpringEnd', onDone: 'done' },
             on: {
-              SNAP: '#overlay.snapping',
-              CLOSE: '#overlay.closing',
-              DRAG: '#overlay.dragging',
+              OPEN: { target: '#overlay.opening', actions: 'onCloseCancel' },
             },
           },
           done: { type: 'final' },
         },
         on: {
-          SNAP: { target: 'snapping', actions: 'onSnapEnd' },
-          DRAG: { target: '#overlay.dragging', actions: 'onSnapCancel' },
-          CLOSE: { target: '#overlay.closing', actions: 'onSnapCancel' },
+          CLOSE: undefined,
+          OPEN: { target: '#overlay.opening', actions: 'onCloseCancel' },
         },
         onDone: 'closed',
       },
@@ -180,6 +182,9 @@ export const mainMachine = Machine<MainContext, MainStateSchema, MainEvent>(
       },
       onSnapCancel: (context, event) => {
         console.log('onSnapCancel', { context, event })
+      },
+      onCloseCancel: (context, event) => {
+        console.log('onCloseCancel', { context, event })
       },
       onOpenEnd: (context, event) => {
         console.log('onOpenCancel', { context, event })
@@ -217,6 +222,12 @@ export const mainMachine = Machine<MainContext, MainStateSchema, MainEvent>(
         await sleep()
         console.groupEnd()
       },
+      deactivate: async (context, event) => {
+        console.group('deactivate')
+        console.log({ context, event })
+        await sleep()
+        console.groupEnd()
+      },
       openSmoothly: async (context, event) => {
         console.group('openSmoothly')
         console.log({ context, event })
@@ -224,13 +235,13 @@ export const mainMachine = Machine<MainContext, MainStateSchema, MainEvent>(
         console.groupEnd()
       },
       snapSmoothly: async (context, event) => {
-        console.group('snappingSmoothly')
+        console.group('snapSmoothly')
         console.log({ context, event })
         await sleep()
         console.groupEnd()
       },
       closeSmoothly: async (context, event) => {
-        console.group('closingSmoothly')
+        console.group('closeSmoothly')
         console.log({ context, event })
         await sleep()
         console.groupEnd()
