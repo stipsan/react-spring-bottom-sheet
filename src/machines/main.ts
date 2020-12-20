@@ -58,6 +58,8 @@ const openToDrag = {
   DRAG: { target: '#overlay.dragging', actions: 'onOpenEnd' },
 }
 
+// Copy paste the machine into https://xstate.js.org/viz/ to make sense of what's going on in here ;)
+
 export const mainMachine = Machine<MainContext, MainStateSchema, MainEvent>(
   {
     id: 'overlay',
@@ -133,7 +135,36 @@ export const mainMachine = Machine<MainContext, MainStateSchema, MainEvent>(
         },
         onDone: 'open',
       },
-      closing: { onDone: 'closed' },
+      closing: {
+        initial: 'start',
+        states: {
+          start: {
+            invoke: {
+              id: 'onCloseStart',
+              src: 'onSpringStart',
+              onDone: 'closingSmoothly',
+            },
+          },
+          closingSmoothly: {
+            invoke: { src: 'closeSmoothly', onDone: 'end' },
+          },
+          end: {
+            invoke: { id: 'onCloseEnd', src: 'onSpringEnd', onDone: 'done' },
+            on: {
+              SNAP: '#overlay.snapping',
+              CLOSE: '#overlay.closing',
+              DRAG: '#overlay.dragging',
+            },
+          },
+          done: { type: 'final' },
+        },
+        on: {
+          SNAP: { target: 'snapping', actions: 'onSnapEnd' },
+          DRAG: { target: '#overlay.dragging', actions: 'onSnapCancel' },
+          CLOSE: { target: '#overlay.closing', actions: 'onSnapCancel' },
+        },
+        onDone: 'closed',
+      },
     },
     on: {
       CLOSE: 'closing',
@@ -188,6 +219,18 @@ export const mainMachine = Machine<MainContext, MainStateSchema, MainEvent>(
       },
       openSmoothly: async (context, event) => {
         console.group('openSmoothly')
+        console.log({ context, event })
+        await sleep()
+        console.groupEnd()
+      },
+      snapSmoothly: async (context, event) => {
+        console.group('snappingSmoothly')
+        console.log({ context, event })
+        await sleep()
+        console.groupEnd()
+      },
+      closeSmoothly: async (context, event) => {
+        console.group('closingSmoothly')
         console.log({ context, event })
         await sleep()
         console.groupEnd()
