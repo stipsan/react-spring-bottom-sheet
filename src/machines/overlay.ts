@@ -36,12 +36,32 @@ interface OverlayStateSchema {
     // when interrupting a dragging event, it fires onSpringCancel(SNAP) before onSpringStart(DRAG)
     dragging: {}
     // snapping happens whenever transitioning to a new snap point, often after dragging
-    snapping: {}
-    closing: {}
+    snapping: {
+      states: {
+        start: {}
+        snappingSmoothly: {}
+        end: {}
+        done: {}
+      }
+    }
+    closing: {
+      states: {
+        start: {}
+        deactivating: {}
+        closingSmoothly: {}
+        end: {}
+        done: {}
+      }
+    }
   }
 }
 
-type OverlayEvent = { type: 'OPEN' } | { type: 'CLOSE' }
+type OverlayEvent =
+  | { type: 'OPEN' }
+  | { type: 'SNAP' }
+  | { type: 'CLOSE' }
+  | { type: 'DRAG' }
+//  | { type: 'RESIZE' }
 
 // The context (extended state) of the machine
 interface OverlayContext {
@@ -156,7 +176,6 @@ export const overlayMachine = Machine<
           closingSmoothly: {
             invoke: { src: 'closeSmoothly', onDone: 'end' },
           },
-
           end: {
             invoke: { id: 'onCloseEnd', src: 'onSpringEnd', onDone: 'done' },
             on: {

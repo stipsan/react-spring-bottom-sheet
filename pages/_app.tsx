@@ -9,7 +9,6 @@ import '../src/style.css'
 // Setup xstate debugging, but only when in dev mode
 if (process.env.NODE_ENV === 'development' && typeof window !== 'undefined') {
   import('@xstate/inspect').then(({ inspect }) => {
-    console.log('loaded', inspect)
     inspect({
       url: 'https://statecharts.io/inspect',
       iframe: false,
