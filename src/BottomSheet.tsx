@@ -36,6 +36,7 @@ import type {
 export const BottomSheet = React.forwardRef<
   RefHandles,
   {
+    initialState: 'OPEN' | 'CLOSED'
     defaultOpen: boolean
     lastSnapRef: React.MutableRefObject<number | null>
   } & Props
@@ -47,6 +48,7 @@ export const BottomSheet = React.forwardRef<
     footer,
     header,
     open: _open,
+    initialState,
     defaultOpen,
     lastSnapRef,
     initialFocusRef,
@@ -69,8 +71,6 @@ export const BottomSheet = React.forwardRef<
   // but confusing as heck when transitioning between touch gestures and spring animations
   const on = _open
   const off = !_open
-  // Keep track of the initial states, to detect if the bottom sheet should animate or use immediate
-  const startOnRef = useRef(defaultOpen)
   // Before any animations can start we need to measure a few things, like the viewport and the dimensions of content, and header + footer if they exist
   const { ready, registerReady } = useReady()
 
@@ -187,6 +187,7 @@ export const BottomSheet = React.forwardRef<
         console.log('onDrag', { context, event })
       }, []),
     },
+    context: { initialState },
     services: {
       // onSpringStart|onSpringEnd will await on the prop callbacks, allowing userland to delay transitions
       onSpringStart: useCallback(async (context, event) => {
@@ -201,71 +202,101 @@ export const BottomSheet = React.forwardRef<
         await await onSpringEndRef.current?.({ type: event.type })
         console.groupEnd()
       }, []),
-      renderVisuallyHidden: useCallback(async (context, event) => {
-        console.group('renderVisuallyHidden')
-        console.log({ context, event })
-        await asyncSet({
-          y: defaultSnapRef.current,
-          ready: 0,
-          maxHeight: maxHeightRef.current,
-          maxSnap: maxSnapRef.current,
-          // Using defaultSnapRef instead of minSnapRef to avoid animating `height` on open
-          minSnap: defaultSnapRef.current,
-          immediate: true,
-        })
-        console.groupEnd()
-      }, []),
-      activate: useCallback(async (context, event) => {
-        console.group('activate')
-        console.log({ context, event })
-        canDragRef.current = true
-        await Promise.all([
-          scrollLockRef.current.activate(),
-          focusTrapRef.current.activate(),
-          ariaHiderRef.current.activate(),
-        ])
-        console.groupEnd()
-      }, []),
-      deactivate: useCallback(async (context, event) => {
-        console.group('deactivate')
-        console.log({ context, event })
-        // @TODO might be better to not await on these
-        await Promise.all([
-          scrollLockRef.current.deactivate(),
-          focusTrapRef.current.deactivate(),
-          ariaHiderRef.current.deactivate(),
-        ])
-        canDragRef.current = false
-        console.groupEnd()
-      }, []),
-      openSmoothly: useCallback(async (context, event) => {
-        console.group('openSmoothly')
-        console.log({ context, event })
-        await asyncSet({
-          y: 0,
-          ready: 1,
-          maxHeight: maxHeightRef.current,
-          maxSnap: maxSnapRef.current,
-          // Using defaultSnapRef instead of minSnapRef to avoid animating `height` on open
-          minSnap: defaultSnapRef.current,
-          immediate: true,
-        })
+      renderVisuallyHidden: useCallback(
+        async (context, event) => {
+          console.group('renderVisuallyHidden')
+          console.log({ context, event })
+          await asyncSet({
+            y: defaultSnapRef.current,
+            ready: 0,
+            maxHeight: maxHeightRef.current,
+            maxSnap: maxSnapRef.current,
+            // Using defaultSnapRef instead of minSnapRef to avoid animating `height` on open
+            minSnap: defaultSnapRef.current,
+            immediate: true,
+          })
+          console.groupEnd()
+        },
+        [asyncSet]
+      ),
+      activate: useCallback(
+        async (context, event) => {
+          console.group('activate')
+          console.log({ context, event })
+          canDragRef.current = true
+          await Promise.all([
+            scrollLockRef.current.activate(),
+            focusTrapRef.current.activate(),
+            ariaHiderRef.current.activate(),
+          ])
+          console.groupEnd()
+        },
+        [ariaHiderRef, focusTrapRef, scrollLockRef]
+      ),
+      deactivate: useCallback(
+        async (context, event) => {
+          console.group('deactivate')
+          console.log({ context, event })
+          // @TODO might be better to not await on these
+          await Promise.all([
+            scrollLockRef.current.deactivate(),
+            focusTrapRef.current.deactivate(),
+            ariaHiderRef.current.deactivate(),
+          ])
+          canDragRef.current = false
+          console.groupEnd()
+        },
+        [ariaHiderRef, focusTrapRef, scrollLockRef]
+      ),
+      openImmediately: useCallback(
+        async (context, event) => {
+          console.group('openImmediately')
+          console.log({ context, event })
+          heightRef.current = defaultSnapRef.current
+          await asyncSet({
+            y: defaultSnapRef.current,
+            ready: 1,
+            maxHeight: maxHeightRef.current,
+            maxSnap: maxSnapRef.current,
+            // Using defaultSnapRef instead of minSnapRef to avoid animating `height` on open
+            minSnap: defaultSnapRef.current,
+            immediate: true,
+          })
+          console.groupEnd()
+        },
+        [asyncSet]
+      ),
+      openSmoothly: useCallback(
+        async (context, event) => {
+          console.group('openSmoothly')
+          console.log({ context, event })
+          await asyncSet({
+            y: 0,
+            ready: 1,
+            maxHeight: maxHeightRef.current,
+            maxSnap: maxSnapRef.current,
+            // Using defaultSnapRef instead of minSnapRef to avoid animating `height` on open
+            minSnap: defaultSnapRef.current,
+            immediate: true,
+          })
 
-        heightRef.current = defaultSnapRef.current
-        springOnResize.current = true
+          heightRef.current = defaultSnapRef.current
+          springOnResize.current = true
 
-        await asyncSet({
-          y: defaultSnapRef.current,
-          ready: 1,
-          maxHeight: maxHeightRef.current,
-          maxSnap: maxSnapRef.current,
-          // Using defaultSnapRef instead of minSnapRef to avoid animating `height` on open
-          minSnap: defaultSnapRef.current,
-          immediate: prefersReducedMotion.current,
-        })
+          await asyncSet({
+            y: defaultSnapRef.current,
+            ready: 1,
+            maxHeight: maxHeightRef.current,
+            maxSnap: maxSnapRef.current,
+            // Using defaultSnapRef instead of minSnapRef to avoid animating `height` on open
+            minSnap: defaultSnapRef.current,
+            immediate: prefersReducedMotion.current,
+          })
 
-        console.groupEnd()
-      }, []),
+          console.groupEnd()
+        },
+        [asyncSet, prefersReducedMotion]
+      ),
       snapSmoothly: useCallback(async (context, event) => {
         console.group('snapSmoothly')
         console.log({ context, event })
@@ -274,23 +305,36 @@ export const BottomSheet = React.forwardRef<
       closeSmoothly: useCallback(async (context, event) => {
         console.group('closeSmoothly')
         console.log({ context, event })
+        // Avoid animating the height property on close and stay within FLIP bounds by upping the minSnap
+        asyncSet({
+          minSnap: heightRef.current,
+          immediate: true,
+        })
+
+        heightRef.current = 0
+
+        await asyncSet({
+          y: 0,
+          maxHeight: maxHeightRef.current,
+          maxSnap: maxSnapRef.current,
+          immediate: prefersReducedMotion.current,
+        })
+
+        await asyncSet({ ready: 0, immediate: true })
         console.groupEnd()
       }, []),
     },
   })
 
   useEffect(() => {
+    if (!ready) return
+
     if (_open) {
-      console.warn('send.OPEN')
       send('OPEN')
     } else {
-      console.warn('send.CLOSE')
       send('CLOSE')
     }
-  }, [_open, send])
-  useEffect(() => {
-    console.warn('current changed!', current)
-  }, [current])
+  }, [_open, send, ready])
 
   // Adjust the height whenever the snap points are changed due to resize events
   const springOnResize = useRef(false)
@@ -341,73 +385,6 @@ export const BottomSheet = React.forwardRef<
     }),
     [findSnap, lastSnapRef, off, prefersReducedMotion, set]
   )
-
-  // Handle open to closed animations
-  useEffect(() => {
-    if (!ready || on) return
-
-    let cancelled = false
-    const maybeCancel = () => {
-      if (cancelled) {
-        onSpringCancelRef.current?.({ type: 'CLOSE' })
-
-        console.groupEnd()
-      }
-      return cancelled
-    }
-
-    set({
-      // @ts-expect-error
-      to: async (next) => {
-        springOnResize.current = false
-        console.group('CLOSE')
-        if (maybeCancel()) return
-
-        canDragRef.current = false
-        await onSpringStartRef.current?.({ type: 'CLOSE' })
-
-        if (maybeCancel()) return
-
-        // Edge case for already closed
-        if (heightRef.current === 0) {
-          onSpringEndRef.current?.({ type: 'CLOSE' })
-          return
-        }
-
-        // Avoid animating the height property on close and stay within FLIP bounds by upping the minSnap
-        next({
-          minSnap: heightRef.current,
-          immediate: true,
-        })
-
-        heightRef.current = 0
-
-        await next({
-          y: 0,
-          maxHeight: maxHeightRef.current,
-          maxSnap: maxSnapRef.current,
-          immediate: prefersReducedMotion.current,
-        })
-        if (maybeCancel()) return
-
-        await next({ ready: 0, immediate: true })
-
-        if (maybeCancel()) return
-
-        await onSpringEndRef.current?.({ type: 'CLOSE' })
-
-        if (!cancelled) {
-          springOnResize.current = true
-          console.groupEnd()
-        }
-      },
-    })
-
-    return () => {
-      // Set to false so the async flow can detect if it got cancelled
-      cancelled = true
-    }
-  }, [on, prefersReducedMotion, ready, set])
 
   const handleDrag = ({
     args: [{ closeOnTap = false } = {}] = [],
@@ -532,7 +509,7 @@ export const BottomSheet = React.forwardRef<
       data-rsbs-root
       // @TODO expose a state thingy, super handy for things like control over when you want the backdrop to change opacity
       // when responding to y being out of bounds
-      //data-rsbs-state=closed|opening|open|dragging|snapping|closing
+      data-rsbs-state={publichStates.find(current.matches)}
       data-rsbs-is-blocking={blocking}
       data-rsbs-is-dismissable={!!onDismiss}
       data-rsbs-has-header={!!header}
@@ -601,6 +578,16 @@ export const BottomSheet = React.forwardRef<
     </animated.div>
   )
 })
+
+// Used for the data attribute, list over states available to CSS selectors
+const publichStates = [
+  'closed',
+  'opening',
+  'open',
+  'closing',
+  'dragging',
+  'snapping',
+]
 
 // Default prop values that are callbacks, and it's nice to save some memory and reuse their instances since they're pure
 function _defaultSnap({ snapPoints, lastSnap }: defaultSnapProps) {

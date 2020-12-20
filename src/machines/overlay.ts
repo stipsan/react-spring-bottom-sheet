@@ -10,19 +10,33 @@ interface OverlayStateSchema {
       states: {
         // Used to fire off the springStart event
         start: {}
-        // This state only happens when the overlay should start in an open state, instead of animating from the bottom
-        // openImmediately: {}
-        // visuallyHidden will render the overlay in the open state, but with opacity 0
-        // doing this solves two problems:
-        // on Android focusing an input element will trigger the softkeyboard to show up, which will change the viewport height
-        // on iOS the focus event will break the view by triggering a scrollIntoView event if focus happens while the overlay is below the viewport and body got overflow:hidden
-        // by rendering things with opacity 0 we ensure keyboards and scrollIntoView all happen in a way that match up with what the sheet will look like.
-        // we can then move it to the opening position below the viewport, and animate it into view without worrying about height changes or scrolling overflow:hidden events
-        visuallyHidden: {}
-        // In this state we're activating focus traps, scroll locks and more, this will sometimes trigger soft keyboards and scrollIntoView
-        activating: {}
-        // Animates from the bottom, note that it's either start => openImmediately => activating => end, or start => visuallyHidden => activating => openSmoothly => end
-        openingSmoothly: {}
+        // Decide how to transition to the open state based on what the initialState is
+        transition: {}
+        // Fast enter animation, sheet is open by default
+        immediately: {
+          states: {
+            open: {}
+            activating: {}
+          }
+        }
+        smoothly: {
+          states: {
+            // This state only happens when the overlay should start in an open state, instead of animating from the bottom
+            // openImmediately: {}
+            // visuallyHidden will render the overlay in the open state, but with opacity 0
+            // doing this solves two problems:
+            // on Android focusing an input element will trigger the softkeyboard to show up, which will change the viewport height
+            // on iOS the focus event will break the view by triggering a scrollIntoView event if focus happens while the overlay is below the viewport and body got overflow:hidden
+            // by rendering things with opacity 0 we ensure keyboards and scrollIntoView all happen in a way that match up with what the sheet will look like.
+            // we can then move it to the opening position below the viewport, and animate it into view without worrying about height changes or scrolling overflow:hidden events
+            visuallyHidden: {}
+            // In this state we're activating focus traps, scroll locks and more, this will sometimes trigger soft keyboards and scrollIntoView
+            // @TODO we might want to add a delay here before proceeding to open, to give android and iOS enough time to adjust the viewport when focusing an interactive element
+            activating: {}
+            // Animates from the bottom
+            open: {}
+          }
+        }
         // Used to fire off the springEnd event
         end: {}
         // And finally we're ready to transition to open
@@ -65,7 +79,7 @@ type OverlayEvent =
 
 // The context (extended state) of the machine
 interface OverlayContext {
-  // @TODO
+  initialState: 'OPEN' | 'CLOSED'
 }
 function sleep(ms = 10000) {
   return new Promise((resolve) => setTimeout(resolve, ms))
@@ -78,6 +92,9 @@ const openToDrag = {
   DRAG: { target: '#overlay.dragging', actions: 'onOpenEnd' },
 }
 
+const initiallyOpen = ({ initialState }) => initialState === 'OPEN'
+const initiallyClosed = ({ initialState }) => initialState === 'CLOSED'
+
 // Copy paste the machine into https://xstate.js.org/viz/ to make sense of what's going on in here ;)
 
 export const overlayMachine = Machine<
@@ -88,7 +105,7 @@ export const overlayMachine = Machine<
   {
     id: 'overlay',
     initial: 'closed',
-    context: {},
+    context: { initialState: 'CLOSED' },
     states: {
       closed: { on: { OPEN: 'opening', CLOSE: undefined } },
       opening: {
@@ -98,18 +115,43 @@ export const overlayMachine = Machine<
             invoke: {
               id: 'onOpenStart',
               src: 'onSpringStart',
-              onDone: 'visuallyHidden',
+              onDone: 'transition',
             },
           },
-          visuallyHidden: {
-            invoke: { src: 'renderVisuallyHidden', onDone: 'activating' },
+          transition: {
+            on: {
+              '': [
+                { target: 'immediately', cond: 'initiallyOpen' },
+                { target: 'smoothly', cond: 'initiallyClosed' },
+              ],
+            },
           },
-          activating: {
-            invoke: { src: 'activate', onDone: 'openingSmoothly' },
+          immediately: {
+            initial: 'open',
+            states: {
+              open: {
+                invoke: { src: 'openImmediately', onDone: 'activating' },
+              },
+              activating: {
+                invoke: { src: 'activate', onDone: '#overlay.opening.end' },
+                on: { ...openToDrag },
+              },
+            },
           },
-          openingSmoothly: {
-            invoke: { src: 'openSmoothly', onDone: 'end' },
-            on: { ...openToDrag },
+          smoothly: {
+            initial: 'visuallyHidden',
+            states: {
+              visuallyHidden: {
+                invoke: { src: 'renderVisuallyHidden', onDone: 'activating' },
+              },
+              activating: {
+                invoke: { src: 'activate', onDone: 'open' },
+              },
+              open: {
+                invoke: { src: 'openSmoothly', onDone: '#overlay.opening.end' },
+                on: { ...openToDrag },
+              },
+            },
           },
           end: {
             invoke: { id: 'onOpenEnd', src: 'onSpringEnd', onDone: 'done' },
@@ -215,9 +257,6 @@ export const overlayMachine = Machine<
       onSnapEnd: (context, event) => {
         console.log('onSnapEnd', { context, event })
       },
-      onDrag: (context, event) => {
-        console.log('onDrag', { context, event })
-      },
     },
     services: {
       // onSpringStart|onSpringEnd will await on the prop callbacks, allowing userland to delay transitions
@@ -257,6 +296,12 @@ export const overlayMachine = Machine<
         await sleep()
         console.groupEnd()
       },
+      openImmediately: async (context, event) => {
+        console.group('openImmediately')
+        console.log({ context, event })
+        await sleep()
+        console.groupEnd()
+      },
       snapSmoothly: async (context, event) => {
         console.group('snapSmoothly')
         console.log({ context, event })
@@ -270,5 +315,6 @@ export const overlayMachine = Machine<
         console.groupEnd()
       },
     },
+    guards: { initiallyClosed, initiallyOpen },
   }
 )

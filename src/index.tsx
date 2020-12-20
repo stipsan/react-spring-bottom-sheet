@@ -23,6 +23,9 @@ export const BottomSheet = forwardRef<RefHandles, Props>(function BottomSheet(
   // It's only when initialState and props.open is mismatching that a intial transition should happen
   // If they match then transitions will only happen when a user interaction or resize event happen.
   const openRef = useRef(props.open)
+  const initialStateRef = useRef<'OPEN' | 'CLOSED'>(
+    props.open ? 'OPEN' : 'CLOSED'
+  )
 
   // Using layout effect to support cases where the bottom sheet have to appear already open, no transition
   useLayoutEffect(() => {
@@ -65,6 +68,7 @@ export const BottomSheet = forwardRef<RefHandles, Props>(function BottomSheet(
           defaultOpen={openRef.current}
           lastSnapRef={lastSnapRef}
           ref={ref}
+          initialState={initialStateRef.current}
           onSpringStart={onSpringStart}
           onSpringEnd={onSpringEnd}
         />
