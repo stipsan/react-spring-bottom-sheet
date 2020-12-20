@@ -97,9 +97,12 @@ export const mainMachine = Machine<MainContext, MainStateSchema, MainEvent>(
         onDone: 'open',
       },
       open: {
-        on: { DRAG: '#overlay.dragging' },
+        on: { DRAG: '#overlay.dragging', SNAP: 'snapping' },
       },
-      dragging: {},
+      dragging: {
+        entry: 'onDrag',
+        on: { SNAP: 'snapping', DRAG: 'dragging' },
+      },
       snapping: { onDone: 'open' },
       closing: { onDone: 'closed' },
     },
@@ -117,6 +120,9 @@ export const mainMachine = Machine<MainContext, MainStateSchema, MainEvent>(
       },
       onOpenEnd: (context, event) => {
         console.log('onOpenCancel', { context, event })
+      },
+      onDrag: (context, event) => {
+        console.log('onDrag', { context, event })
       },
     },
     services: {
