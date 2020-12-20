@@ -114,8 +114,10 @@ export const mainMachine = Machine<MainContext, MainStateSchema, MainEvent>(
             },
           },
           snappingSmoothly: {
-            invoke: { src: 'openSmoothly', onDone: 'end' },
-            on: { DRAG: { target: '#overlay.dragging', actions: 'onSnapEnd' } },
+            invoke: { src: 'snapSmoothly', onDone: 'end' },
+            on: {
+              DRAG: { target: '#overlay.dragging', actions: 'onSnapCancel' },
+            },
           },
           end: {
             invoke: { id: 'onSnapEnd', src: 'onSpringEnd', onDone: 'done' },
@@ -139,6 +141,9 @@ export const mainMachine = Machine<MainContext, MainStateSchema, MainEvent>(
       },
       onOpenCancel: (context, event) => {
         console.log('onOpenCancel', { context, event })
+      },
+      onSnapCancel: (context, event) => {
+        console.log('onSnapCancel', { context, event })
       },
       onOpenEnd: (context, event) => {
         console.log('onOpenCancel', { context, event })
