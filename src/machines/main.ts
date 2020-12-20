@@ -51,9 +51,11 @@ interface MainContext {
 function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms))
 }
-
 const cancelOpen = {
-  CLOSE: { target: '#overlay.closing', actions: 'onSpringCancel' },
+  CLOSE: { target: '#overlay.closing', actions: 'onOpenCancel' },
+}
+const openToDrag = {
+  DRAG: { target: '#overlay.dragging', actions: 'onOpenEnd' },
 }
 
 export const mainMachine = Machine<MainContext, MainStateSchema, MainEvent>(
@@ -67,28 +69,31 @@ export const mainMachine = Machine<MainContext, MainStateSchema, MainEvent>(
         initial: 'start',
         states: {
           start: {
-            invoke: { src: 'onSpringStart', onDone: 'visuallyHidden' },
-            on: { ...cancelOpen },
+            invoke: {
+              id: 'onOpenStart',
+              src: 'onSpringStart',
+              onDone: 'visuallyHidden',
+            },
           },
           visuallyHidden: {
             invoke: { src: 'renderVisuallyHidden', onDone: 'activating' },
-            on: { ...cancelOpen },
           },
           activating: {
             invoke: { src: 'activate', onDone: 'openingSmoothly' },
-            on: { ...cancelOpen },
           },
           openingSmoothly: {
             invoke: { src: 'openSmoothly', onDone: 'end' },
-            on: { ...cancelOpen },
+            on: { ...cancelOpen, ...openToDrag },
           },
           end: {
-            invoke: { src: 'onSpringEnd', onDone: 'done' },
+            invoke: { id: 'onOpenEnd', src: 'onSpringEnd', onDone: 'done' },
+            on: { CLOSE: '#overlay.closing' },
           },
           done: {
             type: 'final',
           },
         },
+        on: { ...cancelOpen },
         onDone: 'open',
       },
       open: {},
@@ -104,6 +109,12 @@ export const mainMachine = Machine<MainContext, MainStateSchema, MainEvent>(
     actions: {
       onSpringCancel: (context, event) => {
         console.log('onSpringCancel', { context, event })
+      },
+      onOpenCancel: (context, event) => {
+        console.log('onOpenCancel', { context, event })
+      },
+      onOpenEnd: (context, event) => {
+        console.log('onOpenCancel', { context, event })
       },
     },
     services: {
