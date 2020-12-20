@@ -47,10 +47,10 @@ type MainEvent = { type: 'OPEN' } | { type: 'CLOSE' }
 interface MainContext {
   // @TODO
 }
-
-function sleep(ms) {
+function sleep(ms = 10000) {
   return new Promise((resolve) => setTimeout(resolve, ms))
 }
+
 const cancelOpen = {
   CLOSE: { target: '#overlay.closing', actions: 'onOpenCancel' },
 }
@@ -83,11 +83,11 @@ export const mainMachine = Machine<MainContext, MainStateSchema, MainEvent>(
           },
           openingSmoothly: {
             invoke: { src: 'openSmoothly', onDone: 'end' },
-            on: { ...cancelOpen, ...openToDrag },
+            on: { ...openToDrag },
           },
           end: {
             invoke: { id: 'onOpenEnd', src: 'onSpringEnd', onDone: 'done' },
-            on: { CLOSE: '#overlay.closing' },
+            on: { CLOSE: '#overlay.closing', DRAG: '#overlay.dragging' },
           },
           done: {
             type: 'final',
@@ -96,7 +96,9 @@ export const mainMachine = Machine<MainContext, MainStateSchema, MainEvent>(
         on: { ...cancelOpen },
         onDone: 'open',
       },
-      open: {},
+      open: {
+        on: { DRAG: '#overlay.dragging' },
+      },
       dragging: {},
       snapping: { onDone: 'open' },
       closing: { onDone: 'closed' },
@@ -122,13 +124,31 @@ export const mainMachine = Machine<MainContext, MainStateSchema, MainEvent>(
       onSpringStart: async (context, event) => {
         console.group('onSpringStart')
         console.log({ context, event })
-        await sleep(1000)
+        await sleep()
         console.groupEnd()
       },
       onSpringEnd: async (context, event) => {
         console.group('onSpringEnd')
         console.log({ context, event })
-        await sleep(1000)
+        await sleep()
+        console.groupEnd()
+      },
+      renderVisuallyHidden: async (context, event) => {
+        console.group('renderVisuallyHidden')
+        console.log({ context, event })
+        await sleep()
+        console.groupEnd()
+      },
+      activate: async (context, event) => {
+        console.group('activate')
+        console.log({ context, event })
+        await sleep()
+        console.groupEnd()
+      },
+      openSmoothly: async (context, event) => {
+        console.group('openSmoothly')
+        console.log({ context, event })
+        await sleep()
         console.groupEnd()
       },
     },
