@@ -2,21 +2,20 @@ import type { InferGetStaticPropsType } from 'next'
 import type { AppProps } from 'next/app'
 import Head from 'next/head'
 import { capitalize } from '../docs/utils'
+import { inspect } from '@xstate/inspect'
 
 import '../docs/style.css'
 import '../src/style.css'
 
 // Setup xstate debugging, but only when in dev mode
 if (process.env.NODE_ENV === 'development' && typeof window !== 'undefined') {
-  import('@xstate/inspect').then(({ inspect }) => {
-    inspect({
-      url: 'https://statecharts.io/inspect',
-      iframe: false,
-    })
-    console.log(
-      '@xstate/inspect setup and running! Open https://statecharts.io/inspect in another tab to see the nitty gritty details. It also works with the Redux DevTools, but it lacks chart visualization.'
-    )
+  inspect({
+    url: 'https://statecharts.io/inspect',
+    iframe: false,
   })
+  console.log(
+    '@xstate/inspect setup and running! Open https://statecharts.io/inspect in another tab to see the nitty gritty details. It also works with the Redux DevTools, but it lacks chart visualization.'
+  )
 }
 
 export async function getStaticProps() {

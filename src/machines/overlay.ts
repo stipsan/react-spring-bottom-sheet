@@ -127,7 +127,7 @@ export const overlayMachine = Machine<
       },
       dragging: {
         entry: 'onDrag',
-        on: { SNAP: 'snapping', DRAG: 'dragging' },
+        on: { SNAP: 'snapping', DRAG: { actions: 'onDrag', internal: true } },
       },
       snapping: {
         initial: 'start',
