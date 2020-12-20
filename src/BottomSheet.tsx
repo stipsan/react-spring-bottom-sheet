@@ -25,6 +25,7 @@ import type {
   SnapPointProps,
 } from './types'
 
+// @TODO rename to SpringBottomSheet and allow userland to import it directly, for those who want maximum control and minimal bundlesize
 export const BottomSheet = React.forwardRef<
   RefHandles,
   {
@@ -502,6 +503,9 @@ export const BottomSheet = React.forwardRef<
     <animated.div
       {...props}
       data-rsbs-root
+      // @TODO expose a state thingy, super handy for things like control over when you want the backdrop to change opacity
+      // when responding to y being out of bounds
+      //data-rsbs-state=closed|opening|open|dragging|snapping|closing
       data-rsbs-is-blocking={blocking}
       data-rsbs-is-dismissable={!!onDismiss}
       data-rsbs-has-header={!!header}
