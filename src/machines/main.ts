@@ -52,6 +52,10 @@ function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms))
 }
 
+const cancelOpen = {
+  CLOSE: { target: '#overlay.closing', actions: 'onSpringCancel' },
+}
+
 export const mainMachine = Machine<MainContext, MainStateSchema, MainEvent>(
   {
     id: 'overlay',
@@ -64,33 +68,22 @@ export const mainMachine = Machine<MainContext, MainStateSchema, MainEvent>(
         states: {
           start: {
             invoke: { src: 'onSpringStart', onDone: 'visuallyHidden' },
-            on: {
-              CLOSE: { actions: 'onSpringCancel' },
-            },
+            on: { ...cancelOpen },
           },
           visuallyHidden: {
             invoke: { src: 'renderVisuallyHidden', onDone: 'activating' },
-            on: {
-              CLOSE: { actions: 'onSpringCancel' },
-            },
+            on: { ...cancelOpen },
           },
           activating: {
             invoke: { src: 'activate', onDone: 'openingSmoothly' },
-            on: {
-              CLOSE: { actions: 'onSpringCancel' },
-            },
+            on: { ...cancelOpen },
           },
           openingSmoothly: {
             invoke: { src: 'openSmoothly', onDone: 'end' },
-            on: {
-              CLOSE: { actions: 'onSpringCancel' },
-            },
+            on: { ...cancelOpen },
           },
           end: {
             invoke: { src: 'onSpringEnd', onDone: 'done' },
-            on: {
-              CLOSE: { actions: 'onSpringCancel' },
-            },
           },
           done: {
             type: 'final',
@@ -116,12 +109,16 @@ export const mainMachine = Machine<MainContext, MainStateSchema, MainEvent>(
     services: {
       // onSpringStart|onSpringEnd will await on the prop callbacks, allowing userland to delay transitions
       onSpringStart: async (context, event) => {
-        console.log('onSpringStart', { context, event })
-        await sleep(100)
-        console.log('async test')
+        console.group('onSpringStart')
+        console.log({ context, event })
+        await sleep(1000)
+        console.groupEnd()
       },
       onSpringEnd: async (context, event) => {
-        console.log('onSpringEnd', { context, event })
+        console.group('onSpringEnd')
+        console.log({ context, event })
+        await sleep(1000)
+        console.groupEnd()
       },
     },
   }
