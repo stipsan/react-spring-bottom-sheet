@@ -67,7 +67,6 @@ export const BottomSheet = React.forwardRef<
   },
   forwardRef
 ) {
-  const off = !_open
   // Before any animations can start we need to measure a few things, like the viewport and the dimensions of content, and header + footer if they exist
   // @TODO make ready its own state perhaps, before open or closed
   const { ready, registerReady } = useReady()
@@ -228,8 +227,6 @@ export const BottomSheet = React.forwardRef<
       ),
       renderVisuallyHidden: useCallback(
         async (context, event) => {
-          console.group('renderVisuallyHidden')
-          console.log({ context, event })
           await asyncSet({
             y: defaultSnapRef.current,
             ready: 0,
@@ -239,7 +236,6 @@ export const BottomSheet = React.forwardRef<
             minSnap: defaultSnapRef.current,
             immediate: true,
           })
-          console.groupEnd()
         },
         [asyncSet]
       ),
@@ -254,65 +250,64 @@ export const BottomSheet = React.forwardRef<
         },
         [ariaHiderRef, focusTrapRef, scrollLockRef]
       ),
-      deactivate: useCallback(
-        async (context, event) => {
-          // @TODO might be better to not await on these
-          await Promise.all([
-            scrollLockRef.current.deactivate(),
-            focusTrapRef.current.deactivate(),
-            ariaHiderRef.current.deactivate(),
-          ])
-          canDragRef.current = false
-        },
-        [ariaHiderRef, focusTrapRef, scrollLockRef]
-      ),
-      openImmediately: useCallback(
-        async (context, event) => {
-          heightRef.current = defaultSnapRef.current
-          await asyncSet({
-            y: defaultSnapRef.current,
-            ready: 1,
-            maxHeight: maxHeightRef.current,
-            maxSnap: maxSnapRef.current,
-            // Using defaultSnapRef instead of minSnapRef to avoid animating `height` on open
-            minSnap: defaultSnapRef.current,
-            immediate: true,
-          })
-        },
-        [asyncSet]
-      ),
-      openSmoothly: useCallback(
-        async (context, event) => {
-          await asyncSet({
-            y: 0,
-            ready: 1,
-            maxHeight: maxHeightRef.current,
-            maxSnap: maxSnapRef.current,
-            // Using defaultSnapRef instead of minSnapRef to avoid animating `height` on open
-            minSnap: defaultSnapRef.current,
-            immediate: true,
-          })
+      deactivate: useCallback(async () => {
+        scrollLockRef.current.deactivate()
+        focusTrapRef.current.deactivate()
+        ariaHiderRef.current.deactivate()
+        canDragRef.current = false
+      }, [ariaHiderRef, focusTrapRef, scrollLockRef]),
+      openImmediately: useCallback(async () => {
+        heightRef.current = defaultSnapRef.current
+        await asyncSet({
+          y: defaultSnapRef.current,
+          ready: 1,
+          maxHeight: maxHeightRef.current,
+          maxSnap: maxSnapRef.current,
+          // Using defaultSnapRef instead of minSnapRef to avoid animating `height` on open
+          minSnap: defaultSnapRef.current,
+          immediate: true,
+        })
+      }, [asyncSet]),
+      openSmoothly: useCallback(async () => {
+        await asyncSet({
+          y: 0,
+          ready: 1,
+          maxHeight: maxHeightRef.current,
+          maxSnap: maxSnapRef.current,
+          // Using defaultSnapRef instead of minSnapRef to avoid animating `height` on open
+          minSnap: defaultSnapRef.current,
+          immediate: true,
+        })
 
-          heightRef.current = defaultSnapRef.current
-          springOnResize.current = true
+        heightRef.current = defaultSnapRef.current
 
+        await asyncSet({
+          y: defaultSnapRef.current,
+          ready: 1,
+          maxHeight: maxHeightRef.current,
+          maxSnap: maxSnapRef.current,
+          // Using defaultSnapRef instead of minSnapRef to avoid animating `height` on open
+          minSnap: defaultSnapRef.current,
+          immediate: prefersReducedMotion.current,
+        })
+      }, [asyncSet, prefersReducedMotion]),
+      snapSmoothly: useCallback(
+        async (context, event) => {
+          const snap = findSnapRef.current(context.y)
+          heightRef.current = snap
+          lastSnapRef.current = snap
           await asyncSet({
-            y: defaultSnapRef.current,
+            y: snap,
             ready: 1,
             maxHeight: maxHeightRef.current,
             maxSnap: maxSnapRef.current,
-            // Using defaultSnapRef instead of minSnapRef to avoid animating `height` on open
-            minSnap: defaultSnapRef.current,
+            minSnap: minSnapRef.current,
             immediate: prefersReducedMotion.current,
+            config: { velocity: context.velocity },
           })
         },
-        [asyncSet, prefersReducedMotion]
+        [asyncSet, lastSnapRef, prefersReducedMotion]
       ),
-      snapSmoothly: useCallback(async (context, event) => {
-        console.group('snapSmoothly')
-        console.log({ context, event })
-        console.groupEnd()
-      }, []),
       resizeSmoothly: useCallback(async () => {
         const snap = findSnapRef.current(heightRef.current)
         heightRef.current = snap
@@ -359,32 +354,32 @@ export const BottomSheet = React.forwardRef<
       send('CLOSE')
     }
   }, [_open, send, ready])
-
-  const springOnResize = useRef(false)
   useEffect(() => {
     // Adjust the height whenever the snap points are changed due to resize events
     if (maxHeight || maxSnap || minSnap) {
       send('RESIZE')
     }
   }, [maxHeight, maxSnap, minSnap, send])
+  useEffect(
+    () => () => {
+      // Ensure effects are cleaned up on unmount, in case they're not cleaend up otherwise
+      scrollLockRef.current.deactivate()
+      focusTrapRef.current.deactivate()
+      ariaHiderRef.current.deactivate()
+    },
+    [ariaHiderRef, focusTrapRef, scrollLockRef]
+  )
+
   useImperativeHandle(
     forwardRef,
     () => ({
       snapTo: (numberOrCallback) => {
-        if (off) return
-
-        // @TODO refactor to setState and useEffect hooks to easier track cancel events
-
-        const snap = findSnap(numberOrCallback)
-        lastSnapRef.current = snap
-        heightRef.current = snap
-        set({
-          y: snap,
-          immediate: prefersReducedMotion.current,
+        send('SNAP', {
+          payload: { y: findSnapRef.current(numberOrCallback), velocity: 1 },
         })
       },
     }),
-    [findSnap, lastSnapRef, off, prefersReducedMotion, set]
+    [send]
   )
 
   const handleDrag = ({
@@ -404,7 +399,6 @@ export const BottomSheet = React.forwardRef<
     // Cancel the drag operation if the canDrag state changed
     if (!canDragRef.current) {
       console.log('handleDrag cancelled dragging because canDragRef is false')
-      springOnResize.current = true
       cancel()
       return memo
     }
@@ -459,19 +453,12 @@ export const BottomSheet = React.forwardRef<
 
     if (first) {
       send('DRAG')
-      springOnResize.current = false
     }
 
     if (last) {
-      send('SNAP')
-      // Restrict y to a valid snap point
-      newY = findSnapRef.current(newY)
-      heightRef.current = newY
-      lastSnapRef.current = newY
-      springOnResize.current = true
+      send('SNAP', { payload: { y: newY, velocity } })
 
-      // @TODO fire SNAP event here with new coordinates
-      //return memo
+      return memo
     }
 
     // @TODO too many rerenders
@@ -483,7 +470,7 @@ export const BottomSheet = React.forwardRef<
       maxHeight: maxHeightRef.current,
       maxSnap: maxSnapRef.current,
       minSnap: minSnapRef.current,
-      immediate: prefersReducedMotion.current || down,
+      immediate: true,
       config: { velocity },
     })
     // */

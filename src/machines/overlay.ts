@@ -1,4 +1,4 @@
-import { Machine } from 'xstate'
+import { Machine, assign } from 'xstate'
 
 // This is the root machine, composing all the other machines and is the brain of the bottom sheet
 
@@ -80,7 +80,7 @@ interface OverlayStateSchema {
 
 type OverlayEvent =
   | { type: 'OPEN' }
-  | { type: 'SNAP' }
+  | { type: 'SNAP'; payload: { y: number; velocity: number } }
   | { type: 'CLOSE' }
   | { type: 'DRAG' }
   | { type: 'RESIZE' }
@@ -185,6 +185,13 @@ export const overlayMachine = Machine<
               src: 'onSnapStart',
               onDone: 'snappingSmoothly',
             },
+            entry: [
+              assign({
+                // @ts-expect-error
+                y: (_, { payload: { y } }) => y,
+                velocity: (_, { payload: { velocity } }) => velocity,
+              }),
+            ],
           },
           snappingSmoothly: {
             invoke: { src: 'snapSmoothly', onDone: 'end' },
