@@ -64,7 +64,7 @@ export const mainMachine = Machine<MainContext, MainStateSchema, MainEvent>(
     initial: 'closed',
     context: {},
     states: {
-      closed: { on: { OPEN: 'opening' } },
+      closed: { on: { OPEN: 'opening', CLOSE: undefined } },
       opening: {
         initial: 'start',
         states: {
@@ -103,7 +103,29 @@ export const mainMachine = Machine<MainContext, MainStateSchema, MainEvent>(
         entry: 'onDrag',
         on: { SNAP: 'snapping', DRAG: 'dragging' },
       },
-      snapping: { onDone: 'open' },
+      snapping: {
+        initial: 'start',
+        states: {
+          start: {
+            invoke: {
+              id: 'onSnapStart',
+              src: 'onSpringStart',
+              onDone: 'snappingSmoothly',
+            },
+          },
+          snappingSmoothly: {
+            invoke: { src: 'openSmoothly', onDone: 'end' },
+            on: { DRAG: { target: '#overlay.dragging', actions: 'onSnapEnd' } },
+          },
+          end: {
+            invoke: { id: 'onSnapEnd', src: 'onSpringEnd', onDone: 'done' },
+            on: { CLOSE: '#overlay.closing', DRAG: '#overlay.dragging' },
+          },
+          done: { type: 'final' },
+        },
+        on: { CLOSE: { target: '#overlay.closing', actions: 'onSnapCancel' } },
+        onDone: 'open',
+      },
       closing: { onDone: 'closed' },
     },
     on: {
@@ -120,6 +142,9 @@ export const mainMachine = Machine<MainContext, MainStateSchema, MainEvent>(
       },
       onOpenEnd: (context, event) => {
         console.log('onOpenCancel', { context, event })
+      },
+      onSnapEnd: (context, event) => {
+        console.log('onSnapCancel', { context, event })
       },
       onDrag: (context, event) => {
         console.log('onDrag', { context, event })
