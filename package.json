@@ -55,6 +55,7 @@
     "@typescript-eslint/eslint-plugin": "^4.9.0",
     "@typescript-eslint/parser": "^4.9.0",
     "@use-it/interval": "^1.0.0",
+    "@xstate/inspect": "^0.3.0",
     "autoprefixer": "^10.0.4",
     "babel-eslint": "^10.1.0",
     "babel-plugin-transform-remove-console": "^6.9.4",

@@ -6,6 +6,20 @@ import { capitalize } from '../docs/utils'
 import '../docs/style.css'
 import '../src/style.css'
 
+// Setup xstate debugging, but only when in dev mode
+if (process.env.NODE_ENV === 'development') {
+  import('@xstate/inspect').then(({ inspect }) => {
+    console.log('loaded', inspect)
+    inspect({
+      url: 'https://statecharts.io/inspect',
+      iframe: false,
+    })
+    console.log(
+      '@xstate/inspect setup and running! Open https://statecharts.io/inspect in another tab to see the nitty gritty details'
+    )
+  })
+}
+
 export async function getStaticProps() {
   const [
     { version, description, homepage, name, meta = {} },

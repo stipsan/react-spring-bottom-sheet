@@ -143,7 +143,9 @@ export const BottomSheet = React.forwardRef<
     defaultSnapRef.current = findSnap(getDefaultSnap)
   }, [findSnap, getDefaultSnap, maxHeight, maxSnap, minSnap])
 
-  const [current, send] = useMachine(overlayMachine)
+  const [current, send] = useMachine(overlayMachine, {
+    devTools: process.env.NODE_ENV === 'development',
+  })
 
   useEffect(() => {
     if (_open) {
