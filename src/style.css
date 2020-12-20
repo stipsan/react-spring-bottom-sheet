@@ -142,3 +142,9 @@
     opacity: var(--rsbs-backdrop-opacity);
   }
 }
+
+[data-rsbs-state='closed'],
+[data-rsbs-state='closing'] {
+  /* Allows interactions on the rest of the page before the close transition is finished */
+  pointer-events: none;
+}

@@ -22,7 +22,6 @@ export const BottomSheet = forwardRef<RefHandles, Props>(function BottomSheet(
   // When initialState = CLOSED, then internal sheet must first render with open={false} before setting open={props.open}
   // It's only when initialState and props.open is mismatching that a intial transition should happen
   // If they match then transitions will only happen when a user interaction or resize event happen.
-  const openRef = useRef(props.open)
   const initialStateRef = useRef<'OPEN' | 'CLOSED'>(
     props.open ? 'OPEN' : 'CLOSED'
   )
@@ -35,7 +34,7 @@ export const BottomSheet = forwardRef<RefHandles, Props>(function BottomSheet(
 
       // Cleanup defaultOpen state on close
       return () => {
-        openRef.current = false
+        initialStateRef.current = 'CLOSED'
       }
     }
   }, [props.open])
@@ -65,7 +64,6 @@ export const BottomSheet = forwardRef<RefHandles, Props>(function BottomSheet(
       {mounted && (
         <_BottomSheet
           {...props}
-          defaultOpen={openRef.current}
           lastSnapRef={lastSnapRef}
           ref={ref}
           initialState={initialStateRef.current}

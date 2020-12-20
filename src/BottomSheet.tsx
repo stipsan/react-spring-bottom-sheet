@@ -32,12 +32,13 @@ import type {
   SnapPointProps,
 } from './types'
 
+// @TODO implement AbortController to deal with race conditions
+
 // @TODO rename to SpringBottomSheet and allow userland to import it directly, for those who want maximum control and minimal bundlesize
 export const BottomSheet = React.forwardRef<
   RefHandles,
   {
     initialState: 'OPEN' | 'CLOSED'
-    defaultOpen: boolean
     lastSnapRef: React.MutableRefObject<number | null>
   } & Props
 >(function BottomSheetInternal(
@@ -49,7 +50,6 @@ export const BottomSheet = React.forwardRef<
     header,
     open: _open,
     initialState,
-    defaultOpen,
     lastSnapRef,
     initialFocusRef,
     onDismiss,
@@ -67,11 +67,9 @@ export const BottomSheet = React.forwardRef<
   },
   forwardRef
 ) {
-  // Just to aid my ADHD brain here and keep track, short names are sweet for public APIs
-  // but confusing as heck when transitioning between touch gestures and spring animations
-  const on = _open
   const off = !_open
   // Before any animations can start we need to measure a few things, like the viewport and the dimensions of content, and header + footer if they exist
+  // @TODO make ready its own state perhaps, before open or closed
   const { ready, registerReady } = useReady()
 
   // Controls the drag handler, used by spring operations that happen outside the render loop in React
@@ -165,43 +163,69 @@ export const BottomSheet = React.forwardRef<
   const [current, send] = useMachine(overlayMachine, {
     devTools: process.env.NODE_ENV === 'development',
     actions: {
-      onSpringCancel: useCallback((context, event) => {
-        console.log('onSpringCancel', { context, event })
-      }, []),
-      onOpenCancel: useCallback((context, event) => {
-        console.log('onOpenCancel', { context, event })
-      }, []),
-      onSnapCancel: useCallback((context, event) => {
-        console.log('onSnapCancel', { context, event })
-      }, []),
-      onCloseCancel: useCallback((context, event) => {
-        console.log('onCloseCancel', { context, event })
-      }, []),
-      onOpenEnd: useCallback((context, event) => {
-        console.log('onOpenCancel', { context, event })
-      }, []),
-      onSnapEnd: useCallback((context, event) => {
-        console.log('onSnapEnd', { context, event })
-      }, []),
-      onDrag: useCallback((context, event) => {
-        console.log('onDrag', { context, event })
-      }, []),
+      onOpenCancel: useCallback(
+        () => onSpringCancelRef.current?.({ type: 'OPEN' }),
+        []
+      ),
+      onSnapCancel: useCallback(
+        () => onSpringCancelRef.current?.({ type: 'SNAP' }),
+        []
+      ),
+      onCloseCancel: useCallback(
+        () => onSpringCancelRef.current?.({ type: 'CLOSE' }),
+        []
+      ),
+      onResizeCancel: useCallback(
+        () => onSpringCancelRef.current?.({ type: 'RESIZE' }),
+        []
+      ),
+      onOpenEnd: useCallback(
+        () => onSpringEndRef.current?.({ type: 'OPEN' }),
+        []
+      ),
+      onSnapEnd: useCallback(
+        () => onSpringEndRef.current?.({ type: 'SNAP' }),
+        []
+      ),
+      onResizeEnd: useCallback(
+        () => onSpringEndRef.current?.({ type: 'RESIZE' }),
+        []
+      ),
     },
     context: { initialState },
     services: {
-      // onSpringStart|onSpringEnd will await on the prop callbacks, allowing userland to delay transitions
-      onSpringStart: useCallback(async (context, event) => {
-        console.group('onSpringStart')
-        console.log({ context, event })
-        await onSpringStartRef.current?.({ type: event.type })
-        console.groupEnd()
-      }, []),
-      onSpringEnd: useCallback(async (context, event) => {
-        console.group('onSpringEnd')
-        console.log({ context, event })
-        await await onSpringEndRef.current?.({ type: event.type })
-        console.groupEnd()
-      }, []),
+      onSnapStart: useCallback(
+        async () => onSpringStartRef.current?.({ type: 'SNAP' }),
+        []
+      ),
+      onOpenStart: useCallback(
+        async () => onSpringStartRef.current?.({ type: 'OPEN' }),
+        []
+      ),
+      onCloseStart: useCallback(
+        async () => onSpringStartRef.current?.({ type: 'CLOSE' }),
+        []
+      ),
+      onResizeStart: useCallback(
+        async () => onSpringStartRef.current?.({ type: 'RESIZE' }),
+        []
+      ),
+      onSnapEnd: useCallback(
+        async () => onSpringEndRef.current?.({ type: 'SNAP' }),
+        []
+      ),
+      onOpenEnd: useCallback(
+        async () => onSpringEndRef.current?.({ type: 'OPEN' }),
+        []
+      ),
+      onCloseEnd: useCallback(
+        async () => onSpringEndRef.current?.({ type: 'CLOSE' }),
+        []
+      ),
+      onResizeEnd: useCallback(
+        async () => onSpringEndRef.current?.({ type: 'RESIZE' }),
+        []
+      ),
       renderVisuallyHidden: useCallback(
         async (context, event) => {
           console.group('renderVisuallyHidden')
@@ -221,22 +245,17 @@ export const BottomSheet = React.forwardRef<
       ),
       activate: useCallback(
         async (context, event) => {
-          console.group('activate')
-          console.log({ context, event })
           canDragRef.current = true
           await Promise.all([
             scrollLockRef.current.activate(),
             focusTrapRef.current.activate(),
             ariaHiderRef.current.activate(),
           ])
-          console.groupEnd()
         },
         [ariaHiderRef, focusTrapRef, scrollLockRef]
       ),
       deactivate: useCallback(
         async (context, event) => {
-          console.group('deactivate')
-          console.log({ context, event })
           // @TODO might be better to not await on these
           await Promise.all([
             scrollLockRef.current.deactivate(),
@@ -244,14 +263,11 @@ export const BottomSheet = React.forwardRef<
             ariaHiderRef.current.deactivate(),
           ])
           canDragRef.current = false
-          console.groupEnd()
         },
         [ariaHiderRef, focusTrapRef, scrollLockRef]
       ),
       openImmediately: useCallback(
         async (context, event) => {
-          console.group('openImmediately')
-          console.log({ context, event })
           heightRef.current = defaultSnapRef.current
           await asyncSet({
             y: defaultSnapRef.current,
@@ -262,14 +278,11 @@ export const BottomSheet = React.forwardRef<
             minSnap: defaultSnapRef.current,
             immediate: true,
           })
-          console.groupEnd()
         },
         [asyncSet]
       ),
       openSmoothly: useCallback(
         async (context, event) => {
-          console.group('openSmoothly')
-          console.log({ context, event })
           await asyncSet({
             y: 0,
             ready: 1,
@@ -292,8 +305,6 @@ export const BottomSheet = React.forwardRef<
             minSnap: defaultSnapRef.current,
             immediate: prefersReducedMotion.current,
           })
-
-          console.groupEnd()
         },
         [asyncSet, prefersReducedMotion]
       ),
@@ -302,27 +313,40 @@ export const BottomSheet = React.forwardRef<
         console.log({ context, event })
         console.groupEnd()
       }, []),
-      closeSmoothly: useCallback(async (context, event) => {
-        console.group('closeSmoothly')
-        console.log({ context, event })
-        // Avoid animating the height property on close and stay within FLIP bounds by upping the minSnap
-        asyncSet({
-          minSnap: heightRef.current,
-          immediate: true,
-        })
-
-        heightRef.current = 0
+      resizeSmoothly: useCallback(async () => {
+        const snap = findSnapRef.current(heightRef.current)
+        heightRef.current = snap
+        lastSnapRef.current = snap
 
         await asyncSet({
-          y: 0,
+          y: snap,
           maxHeight: maxHeightRef.current,
           maxSnap: maxSnapRef.current,
+          minSnap: defaultSnapRef.current,
           immediate: prefersReducedMotion.current,
         })
+      }, [asyncSet, lastSnapRef, prefersReducedMotion]),
+      closeSmoothly: useCallback(
+        async (context, event) => {
+          // Avoid animating the height property on close and stay within FLIP bounds by upping the minSnap
+          asyncSet({
+            minSnap: heightRef.current,
+            immediate: true,
+          })
 
-        await asyncSet({ ready: 0, immediate: true })
-        console.groupEnd()
-      }, []),
+          heightRef.current = 0
+
+          await asyncSet({
+            y: 0,
+            maxHeight: maxHeightRef.current,
+            maxSnap: maxSnapRef.current,
+            immediate: prefersReducedMotion.current,
+          })
+
+          await asyncSet({ ready: 0, immediate: true })
+        },
+        [asyncSet, prefersReducedMotion]
+      ),
     },
   })
 
@@ -336,36 +360,13 @@ export const BottomSheet = React.forwardRef<
     }
   }, [_open, send, ready])
 
-  // Adjust the height whenever the snap points are changed due to resize events
   const springOnResize = useRef(false)
   useEffect(() => {
-    if (springOnResize.current) {
-      set({
-        // @ts-expect-error
-        to: async (next) => {
-          console.group('RESIZE')
-
-          onSpringStartRef.current?.({ type: 'RESIZE' })
-
-          const snap = findSnapRef.current(heightRef.current)
-          heightRef.current = snap
-          lastSnapRef.current = snap
-
-          await next({
-            y: snap,
-            maxHeight,
-            maxSnap,
-            minSnap,
-            immediate: prefersReducedMotion.current,
-          })
-
-          onSpringEndRef.current?.({ type: 'RESIZE' })
-
-          console.groupEnd()
-        },
-      })
+    // Adjust the height whenever the snap points are changed due to resize events
+    if (maxHeight || maxSnap || minSnap) {
+      send('RESIZE')
     }
-  }, [lastSnapRef, maxHeight, maxSnap, minSnap, prefersReducedMotion, set])
+  }, [maxHeight, maxSnap, minSnap, send])
   useImperativeHandle(
     forwardRef,
     () => ({
@@ -507,8 +508,6 @@ export const BottomSheet = React.forwardRef<
     <animated.div
       {...props}
       data-rsbs-root
-      // @TODO expose a state thingy, super handy for things like control over when you want the backdrop to change opacity
-      // when responding to y being out of bounds
       data-rsbs-state={publichStates.find(current.matches)}
       data-rsbs-is-blocking={blocking}
       data-rsbs-is-dismissable={!!onDismiss}
@@ -525,8 +524,6 @@ export const BottomSheet = React.forwardRef<
         // @TODO the line below only fails on TS <4
         // @ts-ignore
         opacity: spring.ready,
-        // Allows interactions on the rest of the page before the close transition is finished
-        pointerEvents: !ready || off ? 'none' : undefined,
       }}
     >
       {sibling}
@@ -587,6 +584,7 @@ const publichStates = [
   'closing',
   'dragging',
   'snapping',
+  'resizing',
 ]
 
 // Default prop values that are callbacks, and it's nice to save some memory and reuse their instances since they're pure

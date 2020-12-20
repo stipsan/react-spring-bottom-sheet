@@ -58,6 +58,14 @@ interface OverlayStateSchema {
         done: {}
       }
     }
+    resizing: {
+      states: {
+        start: {}
+        resizingSmoothly: {}
+        end: {}
+        done: {}
+      }
+    }
     closing: {
       states: {
         start: {}
@@ -75,13 +83,13 @@ type OverlayEvent =
   | { type: 'SNAP' }
   | { type: 'CLOSE' }
   | { type: 'DRAG' }
-//  | { type: 'RESIZE' }
+  | { type: 'RESIZE' }
 
 // The context (extended state) of the machine
 interface OverlayContext {
   initialState: 'OPEN' | 'CLOSED'
 }
-function sleep(ms = 10000) {
+function sleep(ms = 1000) {
   return new Promise((resolve) => setTimeout(resolve, ms))
 }
 
@@ -113,8 +121,7 @@ export const overlayMachine = Machine<
         states: {
           start: {
             invoke: {
-              id: 'onOpenStart',
-              src: 'onSpringStart',
+              src: 'onOpenStart',
               onDone: 'transition',
             },
           },
@@ -154,7 +161,7 @@ export const overlayMachine = Machine<
             },
           },
           end: {
-            invoke: { id: 'onOpenEnd', src: 'onSpringEnd', onDone: 'done' },
+            invoke: { src: 'onOpenEnd', onDone: 'done' },
             on: { CLOSE: '#overlay.closing', DRAG: '#overlay.dragging' },
           },
           done: {
@@ -165,19 +172,17 @@ export const overlayMachine = Machine<
         onDone: 'open',
       },
       open: {
-        on: { DRAG: '#overlay.dragging', SNAP: 'snapping' },
+        on: { DRAG: '#overlay.dragging', SNAP: 'snapping', RESIZE: 'resizing' },
       },
       dragging: {
-        entry: 'onDrag',
-        on: { SNAP: 'snapping', DRAG: { actions: 'onDrag', internal: true } },
+        on: { SNAP: 'snapping' },
       },
       snapping: {
         initial: 'start',
         states: {
           start: {
             invoke: {
-              id: 'onSnapStart',
-              src: 'onSpringStart',
+              src: 'onSnapStart',
               onDone: 'snappingSmoothly',
             },
           },
@@ -185,8 +190,9 @@ export const overlayMachine = Machine<
             invoke: { src: 'snapSmoothly', onDone: 'end' },
           },
           end: {
-            invoke: { id: 'onSnapEnd', src: 'onSpringEnd', onDone: 'done' },
+            invoke: { src: 'onSnapEnd', onDone: 'done' },
             on: {
+              RESIZE: '#overlay.resizing',
               SNAP: '#overlay.snapping',
               CLOSE: '#overlay.closing',
               DRAG: '#overlay.dragging',
@@ -196,8 +202,39 @@ export const overlayMachine = Machine<
         },
         on: {
           SNAP: { target: 'snapping', actions: 'onSnapEnd' },
+          RESIZE: { target: '#overlay.resizing', actions: 'onSnapCancel' },
           DRAG: { target: '#overlay.dragging', actions: 'onSnapCancel' },
           CLOSE: { target: '#overlay.closing', actions: 'onSnapCancel' },
+        },
+        onDone: 'open',
+      },
+      resizing: {
+        initial: 'start',
+        states: {
+          start: {
+            invoke: {
+              src: 'onResizeStart',
+              onDone: 'resizingSmoothly',
+            },
+          },
+          resizingSmoothly: {
+            invoke: { src: 'resizeSmoothly', onDone: 'end' },
+          },
+          end: {
+            invoke: { src: 'onResizeEnd', onDone: 'done' },
+            on: {
+              SNAP: '#overlay.snapping',
+              CLOSE: '#overlay.closing',
+              DRAG: '#overlay.dragging',
+            },
+          },
+          done: { type: 'final' },
+        },
+        on: {
+          RESIZE: { target: 'resizing', actions: 'onResizeEnd' },
+          SNAP: { target: 'snapping', actions: 'onResizeCancel' },
+          DRAG: { target: '#overlay.dragging', actions: 'onResizeCancel' },
+          CLOSE: { target: '#overlay.closing', actions: 'onResizeCancel' },
         },
         onDone: 'open',
       },
@@ -206,8 +243,7 @@ export const overlayMachine = Machine<
         states: {
           start: {
             invoke: {
-              id: 'onCloseStart',
-              src: 'onSpringStart',
+              src: 'onCloseStart',
               onDone: 'deactivating',
             },
             on: { OPEN: { target: '#overlay.open', actions: 'onCloseCancel' } },
@@ -219,7 +255,7 @@ export const overlayMachine = Machine<
             invoke: { src: 'closeSmoothly', onDone: 'end' },
           },
           end: {
-            invoke: { id: 'onCloseEnd', src: 'onSpringEnd', onDone: 'done' },
+            invoke: { src: 'onCloseEnd', onDone: 'done' },
             on: {
               OPEN: { target: '#overlay.opening', actions: 'onCloseCancel' },
             },
@@ -239,14 +275,14 @@ export const overlayMachine = Machine<
   },
   {
     actions: {
-      onSpringCancel: (context, event) => {
-        console.log('onSpringCancel', { context, event })
-      },
       onOpenCancel: (context, event) => {
         console.log('onOpenCancel', { context, event })
       },
       onSnapCancel: (context, event) => {
         console.log('onSnapCancel', { context, event })
+      },
+      onResizeCancel: (context, event) => {
+        console.log('onResizeCancel', { context, event })
       },
       onCloseCancel: (context, event) => {
         console.log('onCloseCancel', { context, event })
@@ -257,20 +293,34 @@ export const overlayMachine = Machine<
       onSnapEnd: (context, event) => {
         console.log('onSnapEnd', { context, event })
       },
+      onRezizeEnd: (context, event) => {
+        console.log('onRezizeEnd', { context, event })
+      },
     },
     services: {
-      // onSpringStart|onSpringEnd will await on the prop callbacks, allowing userland to delay transitions
-      onSpringStart: async (context, event) => {
-        console.group('onSpringStart')
-        console.log({ context, event })
+      onSnapStart: async () => {
         await sleep()
-        console.groupEnd()
       },
-      onSpringEnd: async (context, event) => {
-        console.group('onSpringEnd')
-        console.log({ context, event })
+      onOpenStart: async () => {
         await sleep()
-        console.groupEnd()
+      },
+      onCloseStart: async () => {
+        await sleep()
+      },
+      onResizeStart: async () => {
+        await sleep()
+      },
+      onSnapEnd: async () => {
+        await sleep()
+      },
+      onOpenEnd: async () => {
+        await sleep()
+      },
+      onCloseEnd: async () => {
+        await sleep()
+      },
+      onResizeEnd: async () => {
+        await sleep()
       },
       renderVisuallyHidden: async (context, event) => {
         console.group('renderVisuallyHidden')
@@ -304,6 +354,12 @@ export const overlayMachine = Machine<
       },
       snapSmoothly: async (context, event) => {
         console.group('snapSmoothly')
+        console.log({ context, event })
+        await sleep()
+        console.groupEnd()
+      },
+      resizeSmoothly: async (context, event) => {
+        console.group('resizeSmoothly')
         console.log({ context, event })
         await sleep()
         console.groupEnd()
