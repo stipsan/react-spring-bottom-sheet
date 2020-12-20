@@ -17,7 +17,11 @@ export const BottomSheet = forwardRef<RefHandles, Props>(function BottomSheet(
   const timerRef = useRef<ReturnType<typeof requestAnimationFrame>>()
   // The last point that the user snapped to, useful for open/closed toggling and the user defined height is remembered
   const lastSnapRef = useRef(null)
-  // Workaround annoying race condition
+  // @TODO refactor to an initialState: OPEN | CLOSED property as it's much easier to understand
+  // And informs what we should animate from. If the sheet is mounted with open = true, then initialState = OPEN.
+  // When initialState = CLOSED, then internal sheet must first render with open={false} before setting open={props.open}
+  // It's only when initialState and props.open is mismatching that a intial transition should happen
+  // If they match then transitions will only happen when a user interaction or resize event happen.
   const openRef = useRef(props.open)
 
   // Using layout effect to support cases where the bottom sheet have to appear already open, no transition
