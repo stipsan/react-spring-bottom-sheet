@@ -497,7 +497,7 @@ export const BottomSheet = React.forwardRef<
     <animated.div
       {...props}
       data-rsbs-root
-      data-rsbs-state={publichStates.find(current.matches)}
+      data-rsbs-state={publicStates.find(current.matches)}
       data-rsbs-is-blocking={blocking}
       data-rsbs-is-dismissable={!!onDismiss}
       data-rsbs-has-header={!!header}
@@ -566,7 +566,7 @@ export const BottomSheet = React.forwardRef<
 })
 
 // Used for the data attribute, list over states available to CSS selectors
-const publichStates = [
+const publicStates = [
   'closed',
   'opening',
   'open',
