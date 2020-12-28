@@ -411,6 +411,11 @@ export const BottomSheet = React.forwardRef<
       return memo
     }
 
+    // Filter out taps
+    if (tap) {
+      return memo
+    }
+
     const rawY = memo + my
     const predictedDistance = my * velocity
     const predictedY = Math.max(
