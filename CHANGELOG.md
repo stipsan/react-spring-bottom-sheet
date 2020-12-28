@@ -1,3 +1,24 @@
+# [3.0.0](https://github.com/stipsan/react-spring-bottom-sheet/compare/v2.3.0...v3.0.0) (2020-12-28)
+
+
+### Bug Fixes
+
+* remove padding wrappers ([#57](https://github.com/stipsan/react-spring-bottom-sheet/issues/57)) ([60657fb](https://github.com/stipsan/react-spring-bottom-sheet/commit/60657fbe752abbf07ee77264ad9e2aaff7a32db4))
+
+
+### BREAKING CHANGES
+
+* The resize observer logic is rewritten to no longer require wrapper elements like `[data-rsbs-footer-padding]`. If you're not using custom CSS and are simply importing `react-spring-bottom-sheet/dist/style.css` in your app then this isn't a breaking change for you.
+
+
+If you're using custom CSS, here's the breaking changes:
+- `[data-rsbs-header-padding]` removed, update selectors to `[data-rsbs-header]`
+- `[data-rsbs-content-padding]` removed, update selectors to `[data-rsbs-scroll]`
+- `[data-rsbs-footer-padding]` removed, update selectors to `[data-rsbs-footer]`
+- `[data-rsbs-antigap]` removed, update selectors to `[data-rsbs-root]:after` and make sure to add `content: '';`.
+- `[data-rsbs-content]` is changed, update selectors to `[data-rsbs-scroll]`.
+- The `<div style="overflow:hidden;">` wrapper that used to be between `[data-rsbs-content]` and `[data-rsbs-content-padding]` is now within `[data-rsbs-scroll]`, and no longer hardcode `overflow: hidden`, add `[data-rsbs-content] { overflow: hidden; }` to your CSS.
+
 # [2.3.0](https://github.com/stipsan/react-spring-bottom-sheet/compare/v2.2.7...v2.3.0) (2020-12-28)
 
 
