@@ -13,7 +13,7 @@ import { useReady } from './useReady'
 import { ResizeObserverOptions } from '@juggle/resize-observer/lib/ResizeObserverOptions'
 
 export function useSnapPoints({
-  contentContainerRef,
+  contentRef,
   controlledMaxHeight,
   footerEnabled,
   footerRef,
@@ -25,7 +25,7 @@ export function useSnapPoints({
   ready,
   registerReady,
 }: {
-  contentContainerRef: React.RefObject<Element>
+  contentRef: React.RefObject<Element>
   controlledMaxHeight?: number
   footerEnabled: boolean
   footerRef: React.RefObject<Element>
@@ -38,7 +38,7 @@ export function useSnapPoints({
   registerReady: ReturnType<typeof useReady>['registerReady']
 }) {
   const { maxHeight, minHeight, headerHeight, footerHeight } = useDimensions({
-    contentContainerRef,
+    contentRef: contentRef,
     controlledMaxHeight,
     footerEnabled,
     footerRef,
@@ -93,7 +93,7 @@ export function useSnapPoints({
 }
 
 function useDimensions({
-  contentContainerRef,
+  contentRef,
   controlledMaxHeight,
   footerEnabled,
   footerRef,
@@ -101,7 +101,7 @@ function useDimensions({
   headerRef,
   registerReady,
 }: {
-  contentContainerRef: React.RefObject<Element>
+  contentRef: React.RefObject<Element>
   controlledMaxHeight?: number
   footerEnabled: boolean
   footerRef: React.RefObject<Element>
@@ -119,7 +119,7 @@ function useDimensions({
     label: 'headerHeight',
     enabled: headerEnabled,
   })
-  const contentHeight = useElementSizeObserver(contentContainerRef, {
+  const contentHeight = useElementSizeObserver(contentRef, {
     label: 'contentHeight',
     enabled: true,
   })

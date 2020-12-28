@@ -90,7 +90,7 @@ export const BottomSheet = React.forwardRef<
 
   const containerRef = useRef<HTMLDivElement>(null)
   const scrollRef = useRef<HTMLDivElement>(null)
-  const contentContainerRef = useRef<HTMLDivElement>(null)
+  const contentRef = useRef<HTMLDivElement>(null)
   const headerRef = useRef<HTMLDivElement>(null)
   const footerRef = useRef<HTMLDivElement>(null)
   const overlayRef = useRef<HTMLDivElement | null>(null)
@@ -118,7 +118,7 @@ export const BottomSheet = React.forwardRef<
   })
 
   const { minSnap, maxSnap, maxHeight, findSnap } = useSnapPoints({
-    contentContainerRef,
+    contentRef,
     controlledMaxHeight,
     footerEnabled: !!footer,
     footerRef,
@@ -546,7 +546,7 @@ export const BottomSheet = React.forwardRef<
           </div>
         )}
         <div key="scroll" data-rsbs-scroll ref={scrollRef}>
-          <div data-rsbs-content ref={contentContainerRef}>
+          <div data-rsbs-content ref={contentRef}>
             {children}
           </div>
         </div>
