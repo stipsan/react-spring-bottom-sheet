@@ -1,3 +1,10 @@
+## [3.0.1](https://github.com/stipsan/react-spring-bottom-sheet/compare/v3.0.0...v3.0.1) (2020-12-28)
+
+
+### Bug Fixes
+
+* filter out taps on drag ([bc709a0](https://github.com/stipsan/react-spring-bottom-sheet/commit/bc709a0becd45b37e8661ba530702e86626618b6))
+
 # [3.0.0](https://github.com/stipsan/react-spring-bottom-sheet/compare/v2.3.0...v3.0.0) (2020-12-28)
 
 

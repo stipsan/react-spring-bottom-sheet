@@ -8,7 +8,7 @@
   "bugs": {
     "url": "https://github.com/stipsan/react-spring-bottom-sheet/issues"
   },
-  "version": "3.0.0",
+  "version": "3.0.1",
   "main": "dist/index.js",
   "module": "dist/index.es.js",
   "files": [
