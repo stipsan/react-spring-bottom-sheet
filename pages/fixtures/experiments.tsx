@@ -1,3 +1,4 @@
+import useRaf from '@rooks/use-raf'
 import useInterval from '@use-it/interval'
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import Button from '../../docs/fixtures/Button'
@@ -14,7 +15,7 @@ const MemoBottomSheet = memo(BottomSheet)
 function One() {
   const [open, setOpen] = useState(false)
 
-  const [seconds, setSeconds] = useState(1)
+  const [renders, setRenders] = useState(1)
 
   const style = useMemo(() => ({ ['--rsbs-bg' as any]: '#EFF6FF' }), [])
   const onDismiss = useCallback(() => setOpen(false), [])
@@ -37,23 +38,21 @@ function One() {
     [onDismiss]
   )
 
-  useInterval(() => {
-    if (open) {
-      setSeconds(seconds + 1)
-    }
-  }, 100)
+  useRaf(() => {
+    setRenders(renders + 1)
+  }, open)
 
   useEffect(() => {
     if (open) {
       return () => {
-        setSeconds(1)
+        setRenders(1)
       }
     }
   }, [open])
 
   return (
     <>
-      <Button onClick={() => setOpen(true)}>{seconds}</Button>
+      <Button onClick={() => setOpen(true)}>{renders}</Button>
       <MemoBottomSheet
         style={style}
         open={open}
