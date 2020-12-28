@@ -129,12 +129,10 @@ export const overlayMachine = Machine<
             },
           },
           transition: {
-            on: {
-              '': [
-                { target: 'immediately', cond: 'initiallyOpen' },
-                { target: 'smoothly', cond: 'initiallyClosed' },
-              ],
-            },
+            always: [
+              { target: 'immediately', cond: 'initiallyOpen' },
+              { target: 'smoothly', cond: 'initiallyClosed' },
+            ],
           },
           immediately: {
             initial: 'open',
