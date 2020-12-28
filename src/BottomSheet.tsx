@@ -313,12 +313,12 @@ export const BottomSheet = React.forwardRef<
         const snap = findSnapRef.current(heightRef.current)
         heightRef.current = snap
         lastSnapRef.current = snap
-
         await asyncSet({
           y: snap,
+          ready: 1,
           maxHeight: maxHeightRef.current,
           maxSnap: maxSnapRef.current,
-          minSnap: defaultSnapRef.current,
+          minSnap: minSnapRef.current,
           immediate: prefersReducedMotion.current,
         })
       }, [asyncSet, lastSnapRef, prefersReducedMotion]),
