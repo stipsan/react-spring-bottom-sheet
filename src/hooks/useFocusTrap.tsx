@@ -52,9 +52,9 @@ export function useFocusTrap({
         active = true
 
         await trap.activate()
-        return new Promise((resolve) =>
-          requestAnimationFrame(() => resolve(void 1))
-        )
+        // it's difficult to know exactly when focus is udpated https://github.com/focus-trap/focus-trap/blob/036a72ec48b85414dda00ec0c40d631c8f0ae5ce/index.js#L369-L371
+        // This timeout is attempting to compromise between a reasonable guess, as well as not delaying the open transition more than necessary
+        await new Promise((resolve) => setTimeout(() => resolve(void 1), 0))
       },
       deactivate: () => {
         if (!active) return

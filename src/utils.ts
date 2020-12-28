@@ -58,3 +58,8 @@ export function processSnapPoints(unsafeSnaps: number | number[], maxHeight) {
     maxSnap,
   }
 }
+
+export const debugging =
+  process.env.NODE_ENV === 'development' && typeof window !== 'undefined'
+    ? window.location.search === '?debug'
+    : false

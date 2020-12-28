@@ -34,11 +34,13 @@
   "types": "dist/index.d.ts",
   "dependencies": {
     "@reach/portal": "^0.12.1",
+    "@xstate/react": "^1.2.0",
     "body-scroll-lock": "^3.1.5",
     "focus-trap": "^6.2.2",
     "react-spring": "^8.0.27",
     "react-use-gesture": "^8.0.1",
-    "resize-observer-polyfill": "^1.5.1"
+    "resize-observer-polyfill": "^1.5.1",
+    "xstate": "^4.15.1"
   },
   "peerDependencies": {
     "react": "^16.14.0 || 17"
@@ -53,6 +55,7 @@
     "@typescript-eslint/eslint-plugin": "^4.9.0",
     "@typescript-eslint/parser": "^4.9.0",
     "@use-it/interval": "^1.0.0",
+    "@xstate/inspect": "^0.3.0",
     "autoprefixer": "^10.0.4",
     "babel-eslint": "^10.1.0",
     "babel-plugin-transform-remove-console": "^6.9.4",
