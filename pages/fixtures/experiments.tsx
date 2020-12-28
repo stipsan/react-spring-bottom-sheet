@@ -380,7 +380,6 @@ function Nine() {
       >
         <SheetContent>
           <Button onClick={() => setExpandContent(true)}>Expand</Button>
-          <br />
           {expandContent && (
             <Button onClick={() => setExpandContent(false)}>No!</Button>
           )}
