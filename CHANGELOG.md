@@ -1,3 +1,10 @@
+# [2.3.0](https://github.com/stipsan/react-spring-bottom-sheet/compare/v2.2.7...v2.3.0) (2020-12-28)
+
+
+### Features
+
+* refactor to xstate ([#46](https://github.com/stipsan/react-spring-bottom-sheet/issues/46)) ([6b2f92a](https://github.com/stipsan/react-spring-bottom-sheet/commit/6b2f92ae5556026c3cf2496d7bbb3828996e0673))
+
 ## [2.2.7](https://github.com/stipsan/react-spring-bottom-sheet/compare/v2.2.6...v2.2.7) (2020-12-19)
 
 
