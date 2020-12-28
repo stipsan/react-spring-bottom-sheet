@@ -140,13 +140,13 @@ iOS Safari, and some other mobile culprits, can be tricky if you're on a page th
 
 ## Events
 
-All events receive `SprinngEvent` as their argument. It has a single property, `type`, which can be `'OPEN' | 'RESIZE' | 'CLOSE'` depending on the scenario.
+All events receive `SprinngEvent` as their argument. It has a single property, `type`, which can be `'OPEN' | 'RESIZE' | 'SNAP' | 'CLOSE'` depending on the scenario.
 
 ### onSpringStart
 
 Type: `(event: SpringEvent) => void`
 
-Fired on: `OPEN | RESIZE | CLOSE`.
+Fired on: `OPEN | RESIZE | SNAP | CLOSE`.
 
 If you need to delay the open animation until you're ready, perhaps you're loading some data and showing an inline spinner meanwhile. You can return a Promise or use an async function to make the bottom sheet wait for your work to finish before it starts the open transition.
 
@@ -170,8 +170,6 @@ function Example() {
 }
 ```
 
-The `CLOSE` event also supports async/await and promises, if you need to delay the close transition. The `RESIZE` event does not await on anything, but nothing bad will happen if you give it an async function.
-
 ### onSpringCancel
 
 Type: `(event: SpringEvent) => void`
@@ -185,10 +183,19 @@ In order to be as fluid and delightful as possible, the open state can be interr
 - the user swipes the sheet below the fold, triggering an `onDismiss` event.
 - the user hits the `esc` key, triggering an `onDismiss` event.
 - the parent component sets `open` to `false` before finishing the animation.
+- a `RESIZE` event happens, like when an Android device shows its soft keyboard when an text editable input receives focus, as it changes the viewport height.
 
 #### CLOSE
 
 If the user reopens the sheet before it's done animating it'll trigger this event. Most importantly though it can fire if the bottom sheet is unmounted without enough time to clean animate itself out of the view before it rolls back things like `body-scroll-lock`, `focus-trap` and more. It'll still clean itself up even if React decides to be rude about it. But this also means that the event can fire after the component is unmounted, so you should avoid calling setState or similar without checking for the mounted status of your own wrapper component.
+
+#### RESIZE
+
+Fires whenever there's been a window resize event, or if the header, footer or content have changed its height in such a way that the valid snap points have changed. In the future (#53) you'll be able to differentiate between what triggered the resize.
+
+#### SNAP
+
+Fired after dragging ends, or when calling `ref.snapTo`, and a transition to a valid snap point is happening.
 
 ### onSpringEnd
 
@@ -196,7 +203,7 @@ Type: `(event: SpringEvent) => void`
 
 Fired on: `CLOSE`.
 
-The `yin` to `onSpringStart`'s `yang`. It has the same characteristics. `RESIZE` don't mind if you give it an async function, but it also won't wait for it to finish before carrying on with the resizing. `OPEN` is siding with `RESIZE` on this one too while `CLOSE` still supports awaiting on async work. For `CLOSE` it gives you a hook into the step right after it has cleaned up everything after itself, and right before it unmounts itself. This can be useful if you have some logic that needs to perform some work before it's safe to unmount.
+The `yin` to `onSpringStart`'s `yang`. It has the same characteristics. Including `async/await` and Promise support for delaying a transition. For `CLOSE` it gives you a hook into the step right after it has cleaned up everything after itself, and right before it unmounts itself. This can be useful if you have some logic that needs to perform some work before it's safe to unmount.
 
 ## ref
 
@@ -216,7 +223,7 @@ Type: `(numberOrCallback: number | (state => number)) => void`
 Same signature as the `defaultSnap` prop, calling it will animate the sheet to the new snap point you return. You can either call it with a number, which is the height in px (it'll select the closest snap point that matches your value): `ref.current.snapTo(200)`. Or:
 
 ```js
-ef.current.snapTo(({ // Showing all the available props
+ref.current.snapTo(({ // Showing all the available props
   headerHeight, footerHeight, height, minHeight, maxHeight, snapPoints, lastSnap }) =>
   // Selecting the largest snap point, if you give it a number that doesn't match a snap point then it'll
   // select whichever snap point is nearest the value you gave
