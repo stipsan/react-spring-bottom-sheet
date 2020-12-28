@@ -542,7 +542,7 @@ export const BottomSheet = React.forwardRef<
       >
         {header !== false && (
           <div key="header" data-rsbs-header ref={headerRef} {...bind()}>
-            <div data-rsbs-header-padding>{header}</div>
+            {header}
           </div>
         )}
         <div key="content" data-rsbs-content ref={contentRef}>
@@ -551,12 +551,12 @@ export const BottomSheet = React.forwardRef<
             // The overflow hidden is for the resize observer to get dimensions including margins and paddings
             style={{ overflow: 'hidden' }}
           >
-            <div data-rsbs-content-padding>{children}</div>
+            {children}
           </div>
         </div>
         {footer && (
           <div key="footer" ref={footerRef} data-rsbs-footer {...bind()}>
-            <div data-rsbs-footer-padding>{footer}</div>
+            {footer}
           </div>
         )}
       </div>
