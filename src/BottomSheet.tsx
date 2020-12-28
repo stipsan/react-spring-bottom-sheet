@@ -89,7 +89,7 @@ export const BottomSheet = React.forwardRef<
   const [spring, set] = useSpring()
 
   const containerRef = useRef<HTMLDivElement>(null)
-  const contentRef = useRef<HTMLDivElement>(null)
+  const scrollRef = useRef<HTMLDivElement>(null)
   const contentContainerRef = useRef<HTMLDivElement>(null)
   const headerRef = useRef<HTMLDivElement>(null)
   const footerRef = useRef<HTMLDivElement>(null)
@@ -102,7 +102,7 @@ export const BottomSheet = React.forwardRef<
 
   // "Plugins" huhuhu
   const scrollLockRef = useScrollLock({
-    targetRef: contentRef,
+    targetRef: scrollRef,
     enabled: ready && scrollLocking,
     reserveScrollBarGap,
   })
@@ -545,12 +545,8 @@ export const BottomSheet = React.forwardRef<
             {header}
           </div>
         )}
-        <div key="content" data-rsbs-content ref={contentRef}>
-          <div
-            ref={contentContainerRef}
-            // The overflow hidden is for the resize observer to get dimensions including margins and paddings
-            style={{ overflow: 'hidden' }}
-          >
+        <div key="scroll" data-rsbs-scroll ref={scrollRef}>
+          <div data-rsbs-content ref={contentContainerRef}>
             {children}
           </div>
         </div>
