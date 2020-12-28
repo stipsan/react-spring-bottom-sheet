@@ -16,14 +16,14 @@
     0 -1px 0 rgba(38, 89, 115, 0.05);
 }
 [data-rsbs-overlay],
-[data-rsbs-antigap] {
+[data-rsbs-root]:after {
   max-width: var(--rsbs-max-w);
   margin-left: var(--rsbs-ml);
   margin-right: var(--rsbs-mr);
 }
 [data-rsbs-overlay],
 [data-rsbs-backdrop],
-[data-rsbs-antigap] {
+[data-rsbs-root]:after {
   z-index: 3;
   overscroll-behavior: none;
   touch-action: none;
@@ -47,7 +47,8 @@
   cursor: ns-resize;
 }
 
-[data-rsbs-antigap] {
+[data-rsbs-root]:after {
+  content: '';
   pointer-events: none;
   background: var(--rsbs-bg);
   height: 1px;

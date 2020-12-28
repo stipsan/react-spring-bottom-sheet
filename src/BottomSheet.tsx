@@ -556,7 +556,6 @@ export const BottomSheet = React.forwardRef<
           </div>
         )}
       </div>
-      <div key="antigap" data-rsbs-antigap />
     </animated.div>
   )
 })
