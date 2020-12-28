@@ -7,13 +7,14 @@
   height: 100vh;
 }
 
-.sheet {
-  & {
+@screen sm {
+  :global(.is-window) .sheet {
     --rsbs-max-w: 300px;
     --rsbs-ml: 10px;
     --rsbs-mr: auto;
   }
-
+}
+.sheet {
   & [data-rsbs-overlay] {
     background-color: hsla(0, 0%, 100%, 0.95);
     transform: translate3d(
@@ -34,6 +35,7 @@
     display: none;
   }
 
+  /* iOS safari don't like this, probably because of the CSS transform that's also applied */
   @supports (backdrop-filter: blur(10px)) {
     & [data-rsbs-overlay] {
       background-color: hsla(0, 0%, 100%, 0.63);
@@ -50,8 +52,8 @@
       -webkit-backdrop-filter: blur(10px);
     }
     & [data-rsbs-header] {
-      border-top-left-radius: var(--border-radius);
-      border-top-right-radius: var(--border-radius);
+      border-top-left-radius: var(--rsbs-overlay-rounded);
+      border-top-right-radius: var(--rsbs-overlay-rounded);
     }
     & [data-rsbs-scroll] {
       min-height: 1px;

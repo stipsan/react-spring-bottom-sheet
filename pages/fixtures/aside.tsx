@@ -1,15 +1,15 @@
 import type { NextPage } from 'next'
-import { useEffect, useRef, useState } from 'react'
-import Code from '../../docs/fixtures/Code'
+import React, { useEffect, useRef } from 'react'
+import CloseExample from '../../docs/fixtures/CloseExample'
 import Container from '../../docs/fixtures/Container'
-import SheetContent from '../../docs/fixtures/SheetContent'
 import FakeMap from '../../docs/fixtures/FakeMap'
+import styles from '../../docs/fixtures/FakeMap.module.css'
+import SheetContent from '../../docs/fixtures/SheetContent'
 import { aside } from '../../docs/headings'
 import MetaTags from '../../docs/MetaTags'
-import { BottomSheet } from '../../src'
 import type { BottomSheetRef } from '../../src'
+import { BottomSheet } from '../../src'
 import type { GetStaticProps } from '../_app'
-import styles from '../../docs/fixtures/FakeMap.module.css'
 
 export { getStaticProps } from '../_app'
 
@@ -44,6 +44,7 @@ const AsideFixturePage: NextPage<GetStaticProps> = ({
         <BottomSheet
           open
           className={styles.sheet}
+          sibling={<CloseExample className="z-10" />}
           header={
             <input
               className="mt-1 block w-full rounded-md bg-gray-100 border-transparent focus:border-gray-300 focus:bg-white focus:ring-0"
