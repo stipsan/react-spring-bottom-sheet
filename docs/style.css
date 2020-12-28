@@ -31,10 +31,10 @@
     --rsbs-mr: 0px;
 
     /* the bottom sheet doesn't need display cutout paddings when in the iframe */
-    & [data-rsbs-has-footer='false'] [data-rsbs-content-padding] {
+    & [data-rsbs-has-footer='false'] [data-rsbs-scroll] {
       padding-bottom: 0px !important;
     }
-    & [data-rsbs-footer-padding] {
+    & [data-rsbs-footer] {
       padding-bottom: 16px !important;
     }
   }

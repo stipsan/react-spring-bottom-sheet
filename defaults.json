@@ -9,8 +9,8 @@
     "--rsbs-max-w": "auto",
     "--rsbs-ml": "env(safe-area-inset-left)",
     "--rsbs-mr": "env(safe-area-inset-right)",
+    "--rsbs-overlay-h": "0px",
     "--rsbs-overlay-rounded": "16px",
-    "--rsbs-overlay-translate-y": "0px",
-    "--rsbs-overlay-h": "0px"
+    "--rsbs-overlay-translate-y": "0px"
   }
 }

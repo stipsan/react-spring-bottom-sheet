@@ -89,8 +89,8 @@ export const BottomSheet = React.forwardRef<
   const [spring, set] = useSpring()
 
   const containerRef = useRef<HTMLDivElement>(null)
+  const scrollRef = useRef<HTMLDivElement>(null)
   const contentRef = useRef<HTMLDivElement>(null)
-  const contentContainerRef = useRef<HTMLDivElement>(null)
   const headerRef = useRef<HTMLDivElement>(null)
   const footerRef = useRef<HTMLDivElement>(null)
   const overlayRef = useRef<HTMLDivElement | null>(null)
@@ -102,7 +102,7 @@ export const BottomSheet = React.forwardRef<
 
   // "Plugins" huhuhu
   const scrollLockRef = useScrollLock({
-    targetRef: contentRef,
+    targetRef: scrollRef,
     enabled: ready && scrollLocking,
     reserveScrollBarGap,
   })
@@ -118,7 +118,7 @@ export const BottomSheet = React.forwardRef<
   })
 
   const { minSnap, maxSnap, maxHeight, findSnap } = useSnapPoints({
-    contentContainerRef,
+    contentRef,
     controlledMaxHeight,
     footerEnabled: !!footer,
     footerRef,
@@ -542,25 +542,20 @@ export const BottomSheet = React.forwardRef<
       >
         {header !== false && (
           <div key="header" data-rsbs-header ref={headerRef} {...bind()}>
-            <div data-rsbs-header-padding>{header}</div>
+            {header}
           </div>
         )}
-        <div key="content" data-rsbs-content ref={contentRef}>
-          <div
-            ref={contentContainerRef}
-            // The overflow hidden is for the resize observer to get dimensions including margins and paddings
-            style={{ overflow: 'hidden' }}
-          >
-            <div data-rsbs-content-padding>{children}</div>
+        <div key="scroll" data-rsbs-scroll ref={scrollRef}>
+          <div data-rsbs-content ref={contentRef}>
+            {children}
           </div>
         </div>
         {footer && (
           <div key="footer" ref={footerRef} data-rsbs-footer {...bind()}>
-            <div data-rsbs-footer-padding>{footer}</div>
+            {footer}
           </div>
         )}
       </div>
-      <div key="antigap" data-rsbs-antigap />
     </animated.div>
   )
 })
