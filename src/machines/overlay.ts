@@ -99,6 +99,9 @@ const cancelOpen = {
 const openToDrag = {
   DRAG: { target: '#overlay.dragging', actions: 'onOpenEnd' },
 }
+const openToResize = {
+  RESIZE: { target: '#overlay.resizing', actions: 'onOpenEnd' },
+}
 
 const initiallyOpen = ({ initialState }) => initialState === 'OPEN'
 const initiallyClosed = ({ initialState }) => initialState === 'CLOSED'
@@ -141,7 +144,7 @@ export const overlayMachine = Machine<
               },
               activating: {
                 invoke: { src: 'activate', onDone: '#overlay.opening.end' },
-                on: { ...openToDrag },
+                on: { ...openToDrag, ...openToResize },
               },
             },
           },
@@ -156,7 +159,7 @@ export const overlayMachine = Machine<
               },
               open: {
                 invoke: { src: 'openSmoothly', onDone: '#overlay.opening.end' },
-                on: { ...openToDrag },
+                on: { ...openToDrag, ...openToResize },
               },
             },
           },
