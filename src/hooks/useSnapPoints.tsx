@@ -6,10 +6,11 @@ import React, {
   useRef,
   useState,
 } from 'react'
-import ResizeObserver from 'resize-observer-polyfill'
+import { ResizeObserver, ResizeObserverEntry } from '@juggle/resize-observer'
 import type { defaultSnapProps, snapPoints } from '../types'
 import { processSnapPoints, roundAndCheckForNaN } from '../utils'
 import { useReady } from './useReady'
+import { ResizeObserverOptions } from '@juggle/resize-observer/lib/ResizeObserverOptions'
 
 export function useSnapPoints({
   contentContainerRef,
@@ -58,7 +59,7 @@ export function useSnapPoints({
       : [0],
     maxHeight
   )
-  console.log({ snapPoints, minSnap, maxSnap })
+  //console.log({ snapPoints, minSnap, maxSnap })
 
   // @TODO investigate the gains from memoizing this
   function findSnap(
@@ -114,15 +115,15 @@ function useDimensions({
   const maxHeight = useMaxHeight(controlledMaxHeight, registerReady)
 
   // @TODO probably better to forward props instead of checking refs to decide if it's enabled
-  const { height: headerHeight } = useElementSizeObserver(headerRef, {
+  const headerHeight = useElementSizeObserver(headerRef, {
     label: 'headerHeight',
     enabled: headerEnabled,
   })
-  const { height: contentHeight } = useElementSizeObserver(
-    contentContainerRef,
-    { label: 'contentHeight', enabled: true }
-  )
-  const { height: footerHeight } = useElementSizeObserver(footerRef, {
+  const contentHeight = useElementSizeObserver(contentContainerRef, {
+    label: 'contentHeight',
+    enabled: true,
+  })
+  const footerHeight = useElementSizeObserver(footerRef, {
     label: 'footerHeight',
     enabled: footerEnabled,
   })
@@ -148,26 +149,27 @@ function useDimensions({
   }
 }
 
+const observerOptions: ResizeObserverOptions = {
+  // Respond to changes to padding, happens often on iOS when using env(safe-area-inset-bottom)
+  // And the user hides or shows the Safari browser toolbar
+  box: 'border-box',
+}
 /**
  * Hook for determining the size of an element using the Resize Observer API.
  *
  * @param ref - A React ref to an element
  */
-const defaultSize = { width: 0, height: 0 }
 function useElementSizeObserver(
   ref: React.RefObject<Element>,
   { label, enabled }: { label: string; enabled: boolean }
-): { width: number; height: number } {
-  let [size, setSize] = useState(defaultSize)
+): number {
+  let [size, setSize] = useState(0)
 
-  useDebugValue(`${label}: ${size.height}`)
+  useDebugValue(`${label}: ${size}`)
 
   const handleResize = useCallback((entries: ResizeObserverEntry[]) => {
-    setSize({
-      // we only observe one element, so accessing the first entry here is fine
-      width: entries[0].contentRect.width,
-      height: entries[0].contentRect.height,
-    })
+    // we only observe one element, so accessing the first entry here is fine
+    setSize(entries[0].borderBoxSize[0].blockSize)
   }, [])
 
   useEffect(() => {
@@ -175,19 +177,15 @@ function useElementSizeObserver(
       return
     }
 
-    // Set initial size here, as the one from the observer fires too late on iOS safari
-    const { width, height } = ref.current.getBoundingClientRect()
-    setSize({ width, height })
-
     const resizeObserver = new ResizeObserver(handleResize)
-    resizeObserver.observe(ref.current)
+    resizeObserver.observe(ref.current, observerOptions)
 
     return () => {
       resizeObserver.disconnect()
     }
   }, [ref, handleResize, enabled])
 
-  return enabled ? size : defaultSize
+  return enabled ? size : 0
 }
 
 // Blazingly keep track of the current viewport height without blocking the thread, keeping that sweet 60fps on smartphones
