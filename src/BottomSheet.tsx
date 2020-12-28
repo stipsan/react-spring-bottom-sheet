@@ -31,6 +31,7 @@ import type {
   RefHandles,
   SnapPointProps,
 } from './types'
+import { debugging } from './utils'
 
 // @TODO implement AbortController to deal with race conditions
 
@@ -160,7 +161,7 @@ export const BottomSheet = React.forwardRef<
     [set]
   )
   const [current, send] = useMachine(overlayMachine, {
-    devTools: process.env.NODE_ENV === 'development',
+    devTools: debugging,
     actions: {
       onOpenCancel: useCallback(
         () => onSpringCancelRef.current?.({ type: 'OPEN' }),
