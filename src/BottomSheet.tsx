@@ -406,7 +406,8 @@ export const BottomSheet = React.forwardRef<
 
     if (onDismiss && closeOnTap && tap) {
       cancel()
-      onDismiss()
+      // Runs onDismiss in a timeout to avoid tap events on the backdrop from triggering click events on elements underneath
+      setTimeout(() => onDismiss(), 0)
       return memo
     }
 
