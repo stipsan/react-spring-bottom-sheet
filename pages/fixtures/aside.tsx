@@ -1,13 +1,15 @@
 import type { NextPage } from 'next'
 import { useEffect, useRef, useState } from 'react'
-import Button from '../../docs/fixtures/Button'
 import Code from '../../docs/fixtures/Code'
 import Container from '../../docs/fixtures/Container'
 import SheetContent from '../../docs/fixtures/SheetContent'
+import FakeMap from '../../docs/fixtures/FakeMap'
 import { aside } from '../../docs/headings'
 import MetaTags from '../../docs/MetaTags'
 import { BottomSheet } from '../../src'
+import type { BottomSheetRef } from '../../src'
 import type { GetStaticProps } from '../_app'
+import styles from '../../docs/fixtures/FakeMap.module.css'
 
 export { getStaticProps } from '../_app'
 
@@ -17,12 +19,11 @@ const AsideFixturePage: NextPage<GetStaticProps> = ({
   meta,
   name,
 }) => {
-  const [open, setOpen] = useState(true)
-  const focusRef = useRef<HTMLButtonElement>()
+  const sheetRef = useRef<BottomSheetRef>(null)
 
   useEffect(() => {
     // Setting focus is to aid keyboard and screen reader nav when activating this iframe
-    focusRef.current.focus()
+    window.focus()
   }, [])
 
   return (
@@ -35,31 +36,41 @@ const AsideFixturePage: NextPage<GetStaticProps> = ({
         title={aside}
       />
       <Container>
-        <Button onClick={() => setOpen((open) => !open)} ref={focusRef}>
-          {open ? 'Close' : 'Open'}
-        </Button>
+        <FakeMap
+          onClick={() =>
+            sheetRef.current?.snapTo(({ headerHeight }) => headerHeight)
+          }
+        />
         <BottomSheet
-          open={open}
-          onDismiss={() => setOpen(false)}
-          blocking={false}
+          open
+          className={styles.sheet}
           header={
             <input
               className="mt-1 block w-full rounded-md bg-gray-100 border-transparent focus:border-gray-300 focus:bg-white focus:ring-0"
               type="text"
-              placeholder="Text input field in a sticky header"
+              placeholder="Expands on focus"
+              onFocus={() => {
+                requestAnimationFrame(() => {
+                  sheetRef.current?.snapTo(({ snapPoints }) =>
+                    Math.max(...snapPoints)
+                  )
+                })
+              }}
             />
           }
-          snapPoints={({ maxHeight }) => [maxHeight / 4, maxHeight * 0.6]}
+          ref={sheetRef}
+          blocking={false}
+          snapPoints={({ minHeight, headerHeight, maxHeight }) =>
+            maxHeight < 667
+              ? [headerHeight, minHeight / 2, minHeight - 20]
+              : [headerHeight, Math.min(512, minHeight - 20), minHeight - 20]
+          }
+          defaultSnap={({ headerHeight }) => headerHeight}
         >
           <SheetContent>
-            <p>
-              When <Code>blocking</Code> is <Code>false</Code> it's possible to
-              use the Bottom Sheet as an height adjustable sidebar/panel.
-            </p>
-            <p>
-              You can combine this with <Code>onDismissable</Code> to fine-tune
-              the behavior you want.
-            </p>
+            {Array.from(Array(10).keys()).map((_, i) => (
+              <div key={i.toString()} className={styles.row} />
+            ))}
           </SheetContent>
         </BottomSheet>
       </Container>
