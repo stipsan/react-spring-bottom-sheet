@@ -388,6 +388,32 @@ function Nine() {
   )
 }
 
+function Ten() {
+  const [open, setOpen] = useState(false)
+
+  return (
+    <>
+      <Button onClick={() => setOpen(true)}>10</Button>
+      <BottomSheet
+        open={open}
+        onDismiss={() => setOpen(false)}
+        defaultSnap={({ snapPoints }) => Math.max(...snapPoints)}
+        snapPoints={({ minHeight, maxHeight }) =>
+          [maxHeight, maxHeight * 0.7, maxHeight * 0.3].map((v) =>
+            Math.min(v, minHeight)
+          )
+        }
+      >
+        <SheetContent>
+          <Expandable>
+            <div className="bg-gray-200 block rounded-md h-screen w-full my-10" />
+          </Expandable>
+        </SheetContent>
+      </BottomSheet>
+    </>
+  )
+}
+
 export default function ExperimentsFixturePage() {
   return (
     <Container
@@ -405,6 +431,7 @@ export default function ExperimentsFixturePage() {
       <Seven />
       <Eight />
       <Nine />
+      <Ten />
     </Container>
   )
 }

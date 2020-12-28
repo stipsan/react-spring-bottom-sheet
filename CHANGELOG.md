@@ -1,3 +1,24 @@
+## [3.0.3](https://github.com/stipsan/react-spring-bottom-sheet/compare/v3.0.2...v3.0.3) (2020-12-28)
+
+
+### Bug Fixes
+
+* xstate deprecation warning on null events ([e44e273](https://github.com/stipsan/react-spring-bottom-sheet/commit/e44e273ec2f560228084e2f688e247933f0fa232))
+
+## [3.0.2](https://github.com/stipsan/react-spring-bottom-sheet/compare/v3.0.1...v3.0.2) (2020-12-28)
+
+
+### Bug Fixes
+
+* RESIZE should never animate the content opacity ([2470ccc](https://github.com/stipsan/react-spring-bottom-sheet/commit/2470cccb554ca9cf2efe343bdb8b8e4b836a3ae2))
+
+## [3.0.1](https://github.com/stipsan/react-spring-bottom-sheet/compare/v3.0.0...v3.0.1) (2020-12-28)
+
+
+### Bug Fixes
+
+* filter out taps on drag ([bc709a0](https://github.com/stipsan/react-spring-bottom-sheet/commit/bc709a0becd45b37e8661ba530702e86626618b6))
+
 # [3.0.0](https://github.com/stipsan/react-spring-bottom-sheet/compare/v2.3.0...v3.0.0) (2020-12-28)
 
 
