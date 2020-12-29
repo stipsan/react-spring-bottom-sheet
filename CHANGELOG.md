@@ -1,3 +1,10 @@
+# [3.1.0](https://github.com/stipsan/react-spring-bottom-sheet/compare/v3.0.3...v3.1.0) (2020-12-29)
+
+
+### Features
+
+* add skipInitialTransition to make skipping opt-in ([f200ad0](https://github.com/stipsan/react-spring-bottom-sheet/commit/f200ad04440c34ce1391ebf7cafcf9ecee88e4ae))
+
 ## [3.0.3](https://github.com/stipsan/react-spring-bottom-sheet/compare/v3.0.2...v3.0.3) (2020-12-28)
 
 
