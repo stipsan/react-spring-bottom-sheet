@@ -5,7 +5,10 @@ import { BottomSheet as _BottomSheet } from './BottomSheet'
 import type { Props, RefHandles, SpringEvent } from './types'
 import { useLayoutEffect } from './hooks'
 
-export type { RefHandles as BottomSheetRef } from './types'
+export type {
+  RefHandles as BottomSheetRef,
+  Props as BottomSheetProps,
+} from './types'
 
 // Because SSR is annoying to deal with, and all the million complaints about window, navigator and dom elenents!
 export const BottomSheet = forwardRef<RefHandles, Props>(function BottomSheet(
