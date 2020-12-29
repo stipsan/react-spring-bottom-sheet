@@ -95,8 +95,7 @@ const ScrollableFixturePage: NextPage<GetStaticProps> = ({
             maxHeight / 4,
             maxHeight * 0.6,
           ]}
-        >
-          <SheetContent>
+          header={
             <div className="grid grid-cols-3 w-full gap-4">
               <Button
                 className={[
@@ -137,6 +136,51 @@ const ScrollableFixturePage: NextPage<GetStaticProps> = ({
                 Bottom
               </Button>
             </div>
+          }
+          footer={
+            <div className="grid grid-cols-3 w-full gap-4">
+              <Button
+                className={[
+                  ' text-sm px2 py-1',
+                  { 'text-xl': false, 'px-7': false, 'py-3': false },
+                ]}
+                onClick={() =>
+                  sheetRef.current.snapTo(({ snapPoints }) =>
+                    Math.max(...snapPoints)
+                  )
+                }
+              >
+                Top
+              </Button>
+              <Button
+                ref={focusRef}
+                className={[
+                  ' text-sm px2 py-1',
+                  { 'text-xl': false, 'px-7': false, 'py-3': false },
+                ]}
+                onClick={() =>
+                  sheetRef.current.snapTo(({ maxHeight }) => maxHeight / 2)
+                }
+              >
+                Middle
+              </Button>
+              <Button
+                className={[
+                  ' text-sm px2 py-1',
+                  { 'text-xl': false, 'px-7': false, 'py-3': false },
+                ]}
+                onClick={() =>
+                  sheetRef.current.snapTo(({ snapPoints }) =>
+                    Math.min(...snapPoints)
+                  )
+                }
+              >
+                Bottom
+              </Button>
+            </div>
+          }
+        >
+          <SheetContent>
             <p>
               The sheet will always try to set initial focus on the first
               interactive element it finds.

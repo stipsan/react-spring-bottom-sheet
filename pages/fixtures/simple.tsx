@@ -45,6 +45,11 @@ const SimpleFixturePage: NextPage<GetStaticProps> = ({
           open={open}
           onDismiss={onDismiss}
           snapPoints={({ minHeight }) => minHeight}
+          footer={
+            <Button onClick={onDismiss} className="w-full">
+              Dismiss
+            </Button>
+          }
         >
           <SheetContent>
             <p>
@@ -59,9 +64,6 @@ const SimpleFixturePage: NextPage<GetStaticProps> = ({
               </p>
               <div className="bg-gray-200 block rounded-md h-10 w-full my-10" />
             </Expandable>
-            <Button onClick={onDismiss} className="w-full">
-              Dismiss
-            </Button>
           </SheetContent>
         </BottomSheet>
       </Container>
