@@ -107,6 +107,9 @@ export type Props = {
 
   /* Configures body-scroll-lock to reserve scrollbar gap by setting padding on <body>, clears when closing the bottom sheet. on by default iff blocking=true  */
   reserveScrollBarGap?: boolean
+
+  /* Open immediatly instead of initially animating from a closed => open state, useful if the bottom sheet is visible by default and the animation would be distracting */
+  skipInitialTransition?: boolean
 } & Omit<React.PropsWithoutRef<JSX.IntrinsicElements['div']>, 'children'>
 
 export interface RefHandles {
