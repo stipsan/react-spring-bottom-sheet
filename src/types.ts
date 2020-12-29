@@ -121,7 +121,7 @@ export type Props = {
    * Handler that is called to get the initial height of the bottom sheet when it's opened (or when the viewport is resized).
    * @default ({ snapPoints, lastSnap }) => lastSnap ?? Math.min(...snapPoints)
    */
-  defaultSnap?: (props: defaultSnapProps) => number | number
+  defaultSnap?: number | ((props: defaultSnapProps) => number)
 
   /**
    * Configures body-scroll-lock to reserve scrollbar gap by setting padding on <body>, clears when closing the bottom sheet.
