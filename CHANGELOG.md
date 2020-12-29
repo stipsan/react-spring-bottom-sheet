@@ -1,3 +1,10 @@
+## [3.1.1](https://github.com/stipsan/react-spring-bottom-sheet/compare/v3.1.0...v3.1.1) (2020-12-29)
+
+
+### Bug Fixes
+
+* iOS display cutouts caused a scrollbar in some cases ([45c182c](https://github.com/stipsan/react-spring-bottom-sheet/commit/45c182c1c360ad060a76c50fc3d167876de15317))
+
 # [3.1.0](https://github.com/stipsan/react-spring-bottom-sheet/compare/v3.0.3...v3.1.0) (2020-12-29)
 
 
