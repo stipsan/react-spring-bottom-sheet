@@ -1,3 +1,10 @@
+## [3.1.3](https://github.com/stipsan/react-spring-bottom-sheet/compare/v3.1.2...v3.1.3) (2020-12-29)
+
+
+### Bug Fixes
+
+* export prop types ts definitions ([36cf999](https://github.com/stipsan/react-spring-bottom-sheet/commit/36cf999bfd8d1a0564ba9770a401e09a8650c607))
+
 ## [3.1.2](https://github.com/stipsan/react-spring-bottom-sheet/compare/v3.1.1...v3.1.2) (2020-12-29)
 
 
