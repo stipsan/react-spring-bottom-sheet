@@ -107,7 +107,7 @@
 [data-rsbs-scroll]:focus {
   outline: none;
 }
-[data-rsbs-has-footer='false'] [data-rsbs-scroll] {
+[data-rsbs-has-footer='false'] [data-rsbs-content] {
   padding-bottom: env(safe-area-inset-bottom);
 }
 [data-rsbs-content] {
