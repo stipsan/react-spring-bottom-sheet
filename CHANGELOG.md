@@ -1,3 +1,10 @@
+## [3.1.2](https://github.com/stipsan/react-spring-bottom-sheet/compare/v3.1.1...v3.1.2) (2020-12-29)
+
+
+### Bug Fixes
+
+* avoid dividing by zero during prerender ([ca2b9ae](https://github.com/stipsan/react-spring-bottom-sheet/commit/ca2b9ae2b97d1b871976d34f6b128e9b0386932d))
+
 ## [3.1.1](https://github.com/stipsan/react-spring-bottom-sheet/compare/v3.1.0...v3.1.1) (2020-12-29)
 
 
