@@ -69,6 +69,9 @@ export function useSpringInterpolations({
     // @ts-ignore
     [spring.y, spring.minSnap],
     (y, minSnap) => {
+      if (!minSnap) {
+        return 0
+      }
       const minX = Math.max(minSnap / 2 - 45, 0)
       const maxX = Math.min(minSnap / 2 + 45, minSnap)
       const minY = 0
@@ -83,7 +86,7 @@ export function useSpringInterpolations({
   const interpolateBackdrop = interpolate(
     // @ts-ignore
     [spring.y, spring.minSnap],
-    (y, minSnap) => clamp(y / minSnap, 0, 1)
+    (y, minSnap) => (minSnap ? clamp(y / minSnap, 0, 1) : 0)
   )
 
   return {
