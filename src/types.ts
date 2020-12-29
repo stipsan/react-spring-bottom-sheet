@@ -1,13 +1,23 @@
 export type SnapPointProps = {
-  /** The height of the sticky footer, if there's one */
+  /**
+   * The height of the sticky header, if there's one
+   */
   headerHeight: number
-  /** The height of the sticky footer, if there's one */
+  /**
+   * The height of the sticky footer, if there's one
+   */
   footerHeight: number
-  /** If the bottom sheet is animating to a snap point the height will match the destination height, not the height the bottom sheet might have in the middle of the animation. It includes the header and footer heights. */
+  /**
+   * If the bottom sheet is animating to a snap point the height will match the destination height, not the height the bottom sheet might have in the middle of the animation. It includes the header and footer heights.
+   */
   height: number
-  /** Minimum height needed to avoid scroll overflow in the content area, if possible. */
+  /**
+   * Minimum height needed to avoid scroll overflow in the content area, if possible.
+   */
   minHeight: number
-  /** Max height the sheet can be, your snap points are capped to this value. It's window.innerHeight by default but can be overriden using the maxHeight prop. */
+  /**
+   * Max height the sheet can be, your snap points are capped to this value. It's window.innerHeight by default but can be overriden using the maxHeight prop.
+   */
   maxHeight: number
 }
 
@@ -20,14 +30,15 @@ export type defaultSnapProps = {
   lastSnap: number | null
 } & SnapPointProps
 
-type defaultSnap = (props: defaultSnapProps) => number
-
 /* Might make sense to expose a preventDefault method here */
 export type SpringEvent = {
   type: 'OPEN' | 'CLOSE' | 'RESIZE' | 'SNAP'
 }
 
 export type Props = {
+  /**
+   * Ensure that whatever you put in here have at least 1px height, or else the bottom sheet won't open
+   */
   children: React.ReactNode
 
   /**
@@ -69,6 +80,7 @@ export type Props = {
 
   /**
    * Renders below the drag handle, set to `false` to disable the drag handle
+   * @default true
    */
   header?: React.ReactNode | false
 
@@ -99,16 +111,28 @@ export type Props = {
    */
   scrollLocking?: boolean
 
-  /** Handler that is called to get the height values that the bottom sheet can *snap* to when the user stops dragging. */
+  /**
+   * Handler that is called to get the height values that the bottom sheet can *snap* to when the user stops dragging.
+   * @default ({ minHeight }) => minHeight
+   */
   snapPoints?: snapPoints
 
-  /** Handler that is called to get the initial height of the bottom sheet when it's opened (or when the viewport is resized). */
-  defaultSnap?: defaultSnap | number
+  /**
+   * Handler that is called to get the initial height of the bottom sheet when it's opened (or when the viewport is resized).
+   * @default ({ snapPoints, lastSnap }) => lastSnap ?? Math.min(...snapPoints)
+   */
+  defaultSnap?: (props: defaultSnapProps) => number | number
 
-  /* Configures body-scroll-lock to reserve scrollbar gap by setting padding on <body>, clears when closing the bottom sheet. on by default iff blocking=true  */
+  /**
+   * Configures body-scroll-lock to reserve scrollbar gap by setting padding on <body>, clears when closing the bottom sheet.
+   * If blocking is true, then reserveScrollBarGap is true by default
+   * @default blocking === true
+   */
   reserveScrollBarGap?: boolean
 
-  /* Open immediatly instead of initially animating from a closed => open state, useful if the bottom sheet is visible by default and the animation would be distracting */
+  /**
+   * Open immediatly instead of initially animating from a closed => open state, useful if the bottom sheet is visible by default and the animation would be distracting
+   */
   skipInitialTransition?: boolean
 } & Omit<React.PropsWithoutRef<JSX.IntrinsicElements['div']>, 'children'>
 
@@ -116,7 +140,6 @@ export interface RefHandles {
   /**
    * When given a number it'll find the closest snap point, so you don't need to know the exact value,
    * Use the callback method to access what snap points you can choose from.
-   *
    */
   snapTo: (
     numberOrCallback: number | ((state: defaultSnapProps) => number)
