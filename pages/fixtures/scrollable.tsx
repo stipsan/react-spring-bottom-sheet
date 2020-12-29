@@ -85,6 +85,7 @@ const ScrollableFixturePage: NextPage<GetStaticProps> = ({
         <SnapMarker style={{ top: '75vh', ['--size' as any]: '0.5vh' }} />
         <BottomSheet
           open
+          skipInitialTransition
           sibling={<CloseExample className="z-10" />}
           ref={sheetRef}
           initialFocusRef={focusRef}

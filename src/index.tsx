@@ -9,7 +9,7 @@ export type { RefHandles as BottomSheetRef } from './types'
 
 // Because SSR is annoying to deal with, and all the million complaints about window, navigator and dom elenents!
 export const BottomSheet = forwardRef<RefHandles, Props>(function BottomSheet(
-  { onSpringStart, onSpringEnd, ...props },
+  { onSpringStart, onSpringEnd, skipInitialTransition, ...props },
   ref
 ) {
   // Mounted state, helps SSR but also ensures you can't tab into the sheet while it's closed, or nav there in a screen reader
@@ -23,7 +23,7 @@ export const BottomSheet = forwardRef<RefHandles, Props>(function BottomSheet(
   // It's only when initialState and props.open is mismatching that a intial transition should happen
   // If they match then transitions will only happen when a user interaction or resize event happen.
   const initialStateRef = useRef<'OPEN' | 'CLOSED'>(
-    props.open ? 'OPEN' : 'CLOSED'
+    skipInitialTransition && props.open ? 'OPEN' : 'CLOSED'
   )
 
   // Using layout effect to support cases where the bottom sheet have to appear already open, no transition

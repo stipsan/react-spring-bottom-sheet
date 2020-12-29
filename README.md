@@ -205,6 +205,12 @@ Fired on: `CLOSE`.
 
 The `yin` to `onSpringStart`'s `yang`. It has the same characteristics. Including `async/await` and Promise support for delaying a transition. For `CLOSE` it gives you a hook into the step right after it has cleaned up everything after itself, and right before it unmounts itself. This can be useful if you have some logic that needs to perform some work before it's safe to unmount.
 
+### skipInitialTransition
+
+Type: `boolean`
+
+By default the initial open state is always transitioned to using an spring animation. Set `skipInitialTransition` to `true` and the initial `open` state will render as if it were the default state. Useful to avoid scenarios where the opening transition would be distracting.
+
 ## ref
 
 Methods available when setting a `ref` on the sheet:
