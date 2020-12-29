@@ -1,3 +1,10 @@
+## [3.1.4](https://github.com/stipsan/react-spring-bottom-sheet/compare/v3.1.3...v3.1.4) (2020-12-29)
+
+
+### Bug Fixes
+
+* improve TS definitions ([a8102bf](https://github.com/stipsan/react-spring-bottom-sheet/commit/a8102bfd35e13238e8f09f8edc2fa8ddfa90fe1a))
+
 ## [3.1.3](https://github.com/stipsan/react-spring-bottom-sheet/compare/v3.1.2...v3.1.3) (2020-12-29)
 
 
