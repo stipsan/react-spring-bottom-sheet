@@ -168,7 +168,11 @@ export const BottomSheet = React.forwardRef<
         []
       ),
       onSnapCancel: useCallback(
-        () => onSpringCancelRef.current?.({ type: 'SNAP' }),
+        (context) =>
+          onSpringCancelRef.current?.({
+            type: 'SNAP',
+            source: context.snapSource,
+          }),
         []
       ),
       onCloseCancel: useCallback(
@@ -184,7 +188,11 @@ export const BottomSheet = React.forwardRef<
         []
       ),
       onSnapEnd: useCallback(
-        () => onSpringEndRef.current?.({ type: 'SNAP' }),
+        (context, event) =>
+          onSpringEndRef.current?.({
+            type: 'SNAP',
+            source: context.snapSource,
+          }),
         []
       ),
       onResizeEnd: useCallback(
@@ -195,7 +203,11 @@ export const BottomSheet = React.forwardRef<
     context: { initialState },
     services: {
       onSnapStart: useCallback(
-        async () => onSpringStartRef.current?.({ type: 'SNAP' }),
+        async (context, event) =>
+          onSpringStartRef.current?.({
+            type: 'SNAP',
+            source: event.payload.source || 'custom',
+          }),
         []
       ),
       onOpenStart: useCallback(
@@ -211,7 +223,11 @@ export const BottomSheet = React.forwardRef<
         []
       ),
       onSnapEnd: useCallback(
-        async () => onSpringEndRef.current?.({ type: 'SNAP' }),
+        async (context, event) =>
+          onSpringEndRef.current?.({
+            type: 'SNAP',
+            source: context.snapSource,
+          }),
         []
       ),
       onOpenEnd: useCallback(
@@ -463,7 +479,7 @@ export const BottomSheet = React.forwardRef<
     }
 
     if (last) {
-      send('SNAP', { payload: { y: newY, velocity } })
+      send('SNAP', { payload: { y: newY, velocity, source: 'dragging' } })
 
       return memo
     }
