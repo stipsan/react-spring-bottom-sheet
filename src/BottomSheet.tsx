@@ -390,9 +390,13 @@ export const BottomSheet = React.forwardRef<
   useImperativeHandle(
     forwardRef,
     () => ({
-      snapTo: (numberOrCallback) => {
+      snapTo: (numberOrCallback, { velocity = 1, source = 'custom' } = {}) => {
         send('SNAP', {
-          payload: { y: findSnapRef.current(numberOrCallback), velocity: 1 },
+          payload: {
+            y: findSnapRef.current(numberOrCallback),
+            velocity,
+            source,
+          },
         })
       },
     }),

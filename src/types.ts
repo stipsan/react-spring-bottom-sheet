@@ -142,8 +142,13 @@ export interface RefHandles {
   /**
    * When given a number it'll find the closest snap point, so you don't need to know the exact value,
    * Use the callback method to access what snap points you can choose from.
+   *
+   * Use the second argument for advanced settings like:
+   * `source: string` which is passed to onSpring events, and is 'custom' by default
+   * `velocity: number` which is 1 by default, adjust it to control the speed of the spring transition to the new snap point
    */
   snapTo: (
-    numberOrCallback: number | ((state: defaultSnapProps) => number)
+    numberOrCallback: number | ((state: defaultSnapProps) => number),
+    options?: { source?: string; velocity?: number }
   ) => void
 }

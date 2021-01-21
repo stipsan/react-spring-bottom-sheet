@@ -195,7 +195,7 @@ Fires whenever there's been a window resize event, or if the header, footer or c
 
 #### SNAP
 
-Type: `{ source: 'dragging' | 'custom' }`
+Type: `{ source: 'dragging' | 'custom' | string }`
 
 Fired after dragging ends, or when calling `ref.snapTo`, and a transition to a valid snap point is happening.
 
@@ -205,12 +205,39 @@ Fired after dragging ends, or when calling `ref.snapTo`, and a transition to a v
 function Example() {
   return (
     <BottomSheet
-      onSpringStart={async (event) => {
+      onSpringStart={(event) => {
         if (event.type === 'SNAP' && event.source === 'dragging') {
           console.log('Starting a spring animation to user selected snap point')
         }
       }}
     />
+  )
+}
+```
+
+When using `snapTo` it's possible to use a different `source` than `'custom'`:
+
+```jsx
+function Example() {
+  const sheetRef = useRef()
+  return (
+    <BottomSheet
+      ref={sheetRef}
+      snapPoints={({ minHeight, maxHeight }) => [minHeight, maxHeight]}
+      onSpringEnd={(event) => {
+        if (event.type === 'SNAP' && event.source === 'snap-to-bottom') {
+          console.log(
+            'Just finished an imperativ transition to the bottom snap point'
+          )
+        }
+      }}
+    >
+      <button
+        onClick={() => sheetRef.current.snapTo(0, { source: 'snap-to-bottom' })}
+      >
+        Snap to bottom
+      </button>
+    </BottomSheet>
   )
 }
 ```
@@ -242,7 +269,7 @@ export default function Example() {
 
 ### snapTo
 
-Type: `(numberOrCallback: number | (state => number)) => void`
+Type: `(numberOrCallback: number | (state => number)) => void, options?: {source?: string, velocity?: number}`
 
 Same signature as the `defaultSnap` prop, calling it will animate the sheet to the new snap point you return. You can either call it with a number, which is the height in px (it'll select the closest snap point that matches your value): `ref.current.snapTo(200)`. Or:
 
@@ -253,6 +280,16 @@ ref.current.snapTo(({ // Showing all the available props
   // select whichever snap point is nearest the value you gave
   Math.max(...snapPoints)
 )
+```
+
+There's an optional second argument you can use to override `event.source`, as well as changing the `velocity`:
+
+```js
+ref.current.snapTo(({ snapPoints }) => Math.min(...snapPoints), {
+  // Each property is optional, here showing their default values
+  source: 'custom',
+  velocity: 1,
+})
 ```
 
 # Credits
