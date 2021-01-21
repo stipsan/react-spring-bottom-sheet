@@ -415,6 +415,9 @@ export const BottomSheet = React.forwardRef<
           },
         })
       },
+      get height() {
+        return heightRef.current
+      },
     }),
     [send]
   )

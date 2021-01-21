@@ -151,4 +151,10 @@ export interface RefHandles {
     numberOrCallback: number | ((state: defaultSnapProps) => number),
     options?: { source?: string; velocity?: number }
   ) => void
+
+  /**
+   * Returns the current snap point, in other words the height.
+   * It's update lifecycle with events are onSpringStart and onSpringCancel will give you the old value, while onSpringEnd will give you the current one.
+   */
+  height: number
 }

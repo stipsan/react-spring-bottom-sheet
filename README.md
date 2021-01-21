@@ -292,6 +292,32 @@ ref.current.snapTo(({ snapPoints }) => Math.min(...snapPoints), {
 })
 ```
 
+### height
+
+Type: `number`
+
+The current snap point, in other words the height, of the bottom sheet. This value is updated outside the React render cycle, for performance reasons.
+
+```jsx
+export default function Example() {
+  const sheetRef = React.useRef()
+  return (
+    <BottomSheet
+      ref={sheetRef}
+      onSpringStart={() => {
+        console.log('Transition from:', sheetRef.current.height)
+        requestAnimationFrame(() =>
+          console.log('Transition to:', sheetRef.current.height)
+        )
+      }}
+      onSpringEnd={() =>
+        console.log('Finished transition to:', sheetRef.current.height)
+      }
+    />
+  )
+}
+```
+
 # Credits
 
 - Play icon used on frame overlays: [font-awesome](https://fontawesome.com/icons/play-circle?style=regular)
