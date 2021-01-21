@@ -7,7 +7,7 @@ import Container from '../../docs/fixtures/Container'
 import Expandable from '../../docs/fixtures/Expandable'
 import Kbd from '../../docs/fixtures/Kbd'
 import SheetContent from '../../docs/fixtures/SheetContent'
-import { BottomSheet } from '../../src'
+import { BottomSheet, BottomSheetRef } from '../../src'
 
 // Just to test we can stop re-renders with this pattern when necessary
 const MemoBottomSheet = memo(BottomSheet)
@@ -414,6 +414,51 @@ function Ten() {
   )
 }
 
+function Eleven() {
+  const [open, setOpen] = useState(false)
+  const [height, setHeight] = useState(undefined)
+  const sheetRef = useRef<BottomSheetRef>()
+
+  return (
+    <>
+      <Button onClick={() => setOpen(true)}>11</Button>
+      <BottomSheet
+        ref={sheetRef}
+        open={open}
+        onDismiss={() => setOpen(false)}
+        snapPoints={({ minHeight, maxHeight }) => [
+          height ? minHeight : maxHeight,
+          200,
+        ]}
+        onSpringStart={(event) => {
+          if (event.type === 'SNAP' && event.source === 'custom') {
+            setTimeout(() => setHeight('80vh'), 100)
+          }
+        }}
+        onSpringEnd={(event) => {
+          if (event.type === 'SNAP' && event.source === 'custom') {
+            setHeight(undefined)
+          }
+        }}
+      >
+        <SheetContent style={{ height }}>
+          <Button
+            onClick={() =>
+              sheetRef.current.snapTo(({ height, snapPoints }) => {
+                const minSnap = Math.min(...snapPoints)
+                return height > minSnap ? minSnap : Math.max(...snapPoints)
+              })
+            }
+          >
+            snapTo
+          </Button>
+          <div className="bg-gray-200 block rounded-md h-screen w-full my-10" />
+        </SheetContent>
+      </BottomSheet>
+    </>
+  )
+}
+
 export default function ExperimentsFixturePage() {
   return (
     <Container
@@ -432,6 +477,7 @@ export default function ExperimentsFixturePage() {
       <Eight />
       <Nine />
       <Ten />
+      <Eleven />
     </Container>
   )
 }
