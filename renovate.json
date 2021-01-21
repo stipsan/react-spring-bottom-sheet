@@ -1,9 +1,5 @@
 {
-  "extends": ["github>finn-no/renovate-presets:js"],
-  "dependencyDashboard": true,
-  "lockFileMaintenance": {
-    "automerge": true
-  },
+  "extends": ["github>stipsan/renovate-presets:auto"],
   "packageRules": [
     {
       "depTypeList": ["dependencies", "peerDependencies"],
