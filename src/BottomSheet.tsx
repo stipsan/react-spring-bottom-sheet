@@ -29,6 +29,7 @@ import type {
   defaultSnapProps,
   Props,
   RefHandles,
+  ResizeSource,
   SnapPointProps,
 } from './types'
 import { debugging } from './utils'
@@ -99,6 +100,7 @@ export const BottomSheet = React.forwardRef<
 
   // Keeps track of the current height, or the height transitioning to
   const heightRef = useRef(0)
+  const resizeSourceRef = useRef<ResizeSource>()
 
   const prefersReducedMotion = useReducedMotion()
 
@@ -131,6 +133,7 @@ export const BottomSheet = React.forwardRef<
     lastSnapRef,
     ready,
     registerReady,
+    resizeSourceRef,
   })
 
   // Setup refs that are used in cases where full control is needed over when a side effect is executed
@@ -196,7 +199,11 @@ export const BottomSheet = React.forwardRef<
         []
       ),
       onResizeCancel: useCallback(
-        () => onSpringCancelRef.current?.({ type: 'RESIZE' }),
+        () =>
+          onSpringCancelRef.current?.({
+            type: 'RESIZE',
+            source: resizeSourceRef.current,
+          }),
         []
       ),
       onOpenEnd: useCallback(
@@ -212,7 +219,11 @@ export const BottomSheet = React.forwardRef<
         []
       ),
       onResizeEnd: useCallback(
-        () => onSpringEndRef.current?.({ type: 'RESIZE' }),
+        () =>
+          onSpringEndRef.current?.({
+            type: 'RESIZE',
+            source: resizeSourceRef.current,
+          }),
         []
       ),
     },
@@ -235,7 +246,11 @@ export const BottomSheet = React.forwardRef<
         []
       ),
       onResizeStart: useCallback(
-        async () => onSpringStartRef.current?.({ type: 'RESIZE' }),
+        async () =>
+          onSpringStartRef.current?.({
+            type: 'RESIZE',
+            source: resizeSourceRef.current,
+          }),
         []
       ),
       onSnapEnd: useCallback(
@@ -255,7 +270,11 @@ export const BottomSheet = React.forwardRef<
         []
       ),
       onResizeEnd: useCallback(
-        async () => onSpringEndRef.current?.({ type: 'RESIZE' }),
+        async () =>
+          onSpringEndRef.current?.({
+            type: 'RESIZE',
+            source: resizeSourceRef.current,
+          }),
         []
       ),
       renderVisuallyHidden: useCallback(
