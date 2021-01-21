@@ -12,7 +12,7 @@ import React, {
   useImperativeHandle,
   useRef,
 } from 'react'
-import { animated } from 'react-spring'
+import { animated, config } from 'react-spring'
 import { rubberbandIfOutOfBounds, useDrag } from 'react-use-gesture'
 import {
   useAriaHider,
@@ -32,6 +32,8 @@ import type {
   SnapPointProps,
 } from './types'
 import { debugging } from './utils'
+
+const { tension, friction } = config.default
 
 // @TODO implement AbortController to deal with race conditions
 
@@ -148,10 +150,24 @@ export const BottomSheet = React.forwardRef<
 
   // New utility for using events safely
   const asyncSet = useCallback<typeof set>(
-    ({ onRest, ...opts }) =>
+    // @ts-expect-error
+    ({ onRest, config: { velocity = 1, ...config } = {}, ...opts }) =>
       new Promise((resolve) =>
         set({
           ...opts,
+          config: {
+            velocity,
+            ...config,
+            // @see https://springs.pomb.us
+            mass: 1,
+            // "stiffness"
+            tension,
+            // "damping"
+            friction: Math.max(
+              friction,
+              friction + (friction - friction * velocity)
+            ),
+          },
           onRest: (...args) => {
             resolve(...args)
             onRest?.(...args)
@@ -483,7 +499,13 @@ export const BottomSheet = React.forwardRef<
     }
 
     if (last) {
-      send('SNAP', { payload: { y: newY, velocity, source: 'dragging' } })
+      send('SNAP', {
+        payload: {
+          y: newY,
+          velocity: velocity > 0.05 ? velocity : 1,
+          source: 'dragging',
+        },
+      })
 
       return memo
     }
