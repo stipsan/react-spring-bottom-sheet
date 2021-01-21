@@ -440,6 +440,21 @@ function Eleven() {
             setHeight(undefined)
           }
         }}
+        footer={
+          <Button
+            onClick={() =>
+              sheetRef.current.snapTo(
+                ({ height, snapPoints }) => {
+                  const minSnap = Math.min(...snapPoints)
+                  return height > minSnap ? minSnap : Math.max(...snapPoints)
+                },
+                { velocity: 0, source: 'reset' }
+              )
+            }
+          >
+            Reset
+          </Button>
+        }
       >
         <SheetContent style={{ height }}>
           <Button
