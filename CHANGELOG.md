@@ -1,3 +1,20 @@
+# [3.2.0](https://github.com/stipsan/react-spring-bottom-sheet/compare/v3.1.4...v3.2.0) (2021-01-21)
+
+
+### Bug Fixes
+
+* better velocity physics ([65390c7](https://github.com/stipsan/react-spring-bottom-sheet/commit/65390c7043aa15c415cb5b19bc2ea1799c6cf4fc))
+* only animate on RESIZE if the source = element ([ceb3671](https://github.com/stipsan/react-spring-bottom-sheet/commit/ceb3671887409184924db814226a6355dd795dbe))
+* use layout effect to prevent tearing on Safari ([6b62559](https://github.com/stipsan/react-spring-bottom-sheet/commit/6b62559218d83ac00bd035ae8dc4411aed6b7fb0))
+
+
+### Features
+
+* add height getter to ref ([51c8510](https://github.com/stipsan/react-spring-bottom-sheet/commit/51c8510d2f6b69476877fb549afba49aa5bda5de))
+* add source to RESIZE events ([383e206](https://github.com/stipsan/react-spring-bottom-sheet/commit/383e2062594de202ae77c25ac2ed9ae1137bcb2b)), closes [#53](https://github.com/stipsan/react-spring-bottom-sheet/issues/53)
+* override source and velocity in snapTo ([1afe79f](https://github.com/stipsan/react-spring-bottom-sheet/commit/1afe79f317086d0ab24869a3e312cb766a992c86))
+* SNAP events now have `source` ([240c212](https://github.com/stipsan/react-spring-bottom-sheet/commit/240c21232c155e1c58e5b0526ab6f121706a5161)), closes [#87](https://github.com/stipsan/react-spring-bottom-sheet/issues/87)
+
 ## [3.1.4](https://github.com/stipsan/react-spring-bottom-sheet/compare/v3.1.3...v3.1.4) (2020-12-29)
 
 
