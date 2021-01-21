@@ -17,6 +17,7 @@ import { rubberbandIfOutOfBounds, useDrag } from 'react-use-gesture'
 import {
   useAriaHider,
   useFocusTrap,
+  useLayoutEffect,
   useReady,
   useReducedMotion,
   useScrollLock,
@@ -143,7 +144,7 @@ export const BottomSheet = React.forwardRef<
   const findSnapRef = useRef(findSnap)
   const defaultSnapRef = useRef(0)
   // Sync the refs with current state, giving the spring full control over when to respond to changes
-  useEffect(() => {
+  useLayoutEffect(() => {
     maxHeightRef.current = maxHeight
     maxSnapRef.current = maxSnap
     minSnapRef.current = minSnap
@@ -409,7 +410,7 @@ export const BottomSheet = React.forwardRef<
       send('CLOSE')
     }
   }, [_open, send, ready])
-  useEffect(() => {
+  useLayoutEffect(() => {
     // Adjust the height whenever the snap points are changed due to resize events
     if (maxHeight || maxSnap || minSnap) {
       send('RESIZE')
@@ -417,7 +418,7 @@ export const BottomSheet = React.forwardRef<
   }, [maxHeight, maxSnap, minSnap, send])
   useEffect(
     () => () => {
-      // Ensure effects are cleaned up on unmount, in case they're not cleaend up otherwise
+      // Ensure effects are cleaned up on unmount, in case they're not cleaned up otherwise
       scrollLockRef.current.deactivate()
       focusTrapRef.current.deactivate()
       ariaHiderRef.current.deactivate()
