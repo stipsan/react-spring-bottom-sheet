@@ -474,6 +474,56 @@ function Eleven() {
   )
 }
 
+function Twelve() {
+  const [open, setOpen] = useState(false)
+  const sheetRef = useRef<BottomSheetRef>()
+  const [height, setHeight] = useState(0)
+  const [updating, setUpdating] = useState(false)
+
+  return (
+    <>
+      <Button onClick={() => setOpen(true)}>12</Button>
+      <BottomSheet
+        ref={sheetRef}
+        open={open}
+        onDismiss={() => setOpen(false)}
+        defaultSnap={({ snapPoints }) => Math.max(...snapPoints)}
+        snapPoints={({ minHeight, maxHeight }) =>
+          [maxHeight, maxHeight * 0.7, maxHeight * 0.3].map((v) =>
+            Math.min(v, minHeight)
+          )
+        }
+        onSpringStart={(event) => {
+          console.log('onSpringStart', event, sheetRef.current.height)
+          setUpdating(true)
+          setHeight(sheetRef.current.height)
+        }}
+        onSpringEnd={(event) => {
+          console.log('onSpringEnd', event, sheetRef.current.height)
+          setUpdating(false)
+          setHeight(sheetRef.current.height)
+        }}
+        footer={
+          <div className="w-full text-center">
+            Height:{' '}
+            {updating ? (
+              <del key="height">{height}</del>
+            ) : (
+              <span key="height">{height}</span>
+            )}
+          </div>
+        }
+      >
+        <SheetContent>
+          <Expandable>
+            <div className="bg-gray-200 block rounded-md h-screen w-full my-10" />
+          </Expandable>
+        </SheetContent>
+      </BottomSheet>
+    </>
+  )
+}
+
 export default function ExperimentsFixturePage() {
   return (
     <Container
@@ -493,6 +543,7 @@ export default function ExperimentsFixturePage() {
       <Nine />
       <Ten />
       <Eleven />
+      <Twelve />
     </Container>
   )
 }
