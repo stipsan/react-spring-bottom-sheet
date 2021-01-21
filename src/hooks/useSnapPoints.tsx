@@ -11,6 +11,7 @@ import type { defaultSnapProps, ResizeSource, snapPoints } from '../types'
 import { processSnapPoints, roundAndCheckForNaN } from '../utils'
 import { useReady } from './useReady'
 import { ResizeObserverOptions } from '@juggle/resize-observer/lib/ResizeObserverOptions'
+import { useLayoutEffect } from './useLayoutEffect'
 
 export function useSnapPoints({
   contentRef,
@@ -187,13 +188,16 @@ function useElementSizeObserver(
 
   useDebugValue(`${label}: ${size}`)
 
-  const handleResize = useCallback((entries: ResizeObserverEntry[]) => {
-    // we only observe one element, so accessing the first entry here is fine
-    setSize(entries[0].borderBoxSize[0].blockSize)
-    resizeSourceRef.current = 'element'
-  }, [])
+  const handleResize = useCallback(
+    (entries: ResizeObserverEntry[]) => {
+      // we only observe one element, so accessing the first entry here is fine
+      setSize(entries[0].borderBoxSize[0].blockSize)
+      resizeSourceRef.current = 'element'
+    },
+    [resizeSourceRef]
+  )
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (!ref.current || !enabled) {
       return
     }
@@ -232,7 +236,7 @@ function useMaxHeight(
     }
   }, [ready, setReady])
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     // Bail if the max height is a controlled prop
     if (controlledMaxHeight) {
       setMaxHeight(roundAndCheckForNaN(controlledMaxHeight))
