@@ -140,7 +140,7 @@ iOS Safari, and some other mobile culprits, can be tricky if you're on a page th
 
 ## Events
 
-All events receive `SprinngEvent` as their argument. It has a single property, `type`, which can be `'OPEN' | 'RESIZE' | 'SNAP' | 'CLOSE'` depending on the scenario.
+All events receive `SpringEvent` as their argument. The payload varies, but `type` is always present, which can be `'OPEN' | 'RESIZE' | 'SNAP' | 'CLOSE'` depending on the scenario.
 
 ### onSpringStart
 
@@ -195,7 +195,25 @@ Fires whenever there's been a window resize event, or if the header, footer or c
 
 #### SNAP
 
+Type: `{ source: 'dragging' | 'custom' }`
+
 Fired after dragging ends, or when calling `ref.snapTo`, and a transition to a valid snap point is happening.
+
+`source` is `'dragging'` if the snapping is responding to a drag gesture that just ended. And it's set to `'custom'` when using `ref.snapTo`.
+
+```jsx
+function Example() {
+  return (
+    <BottomSheet
+      onSpringStart={async (event) => {
+        if (event.type === 'SNAP' && event.source === 'dragging') {
+          console.log('Starting a spring animation to user selected snap point')
+        }
+      }}
+    />
+  )
+}
+```
 
 ### onSpringEnd
 

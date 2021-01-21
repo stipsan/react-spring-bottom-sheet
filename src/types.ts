@@ -31,9 +31,11 @@ export type defaultSnapProps = {
 } & SnapPointProps
 
 /* Might make sense to expose a preventDefault method here */
-export type SpringEvent = {
-  type: 'OPEN' | 'CLOSE' | 'RESIZE' | 'SNAP'
-}
+export type SpringEvent =
+  | { type: 'OPEN' }
+  | { type: 'CLOSE' }
+  | { type: 'RESIZE' }
+  | { type: 'SNAP'; source: 'dragging' | 'custom' | string }
 
 export type Props = {
   /**

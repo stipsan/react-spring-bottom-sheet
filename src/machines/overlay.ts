@@ -80,7 +80,14 @@ interface OverlayStateSchema {
 
 type OverlayEvent =
   | { type: 'OPEN' }
-  | { type: 'SNAP'; payload: { y: number; velocity: number } }
+  | {
+      type: 'SNAP'
+      payload: {
+        y: number
+        velocity: number
+        source: 'dragging' | 'custom' | string
+      }
+    }
   | { type: 'CLOSE' }
   | { type: 'DRAG' }
   | { type: 'RESIZE' }
@@ -191,6 +198,7 @@ export const overlayMachine = Machine<
                 // @ts-expect-error
                 y: (_, { payload: { y } }) => y,
                 velocity: (_, { payload: { velocity } }) => velocity,
+                snapSource: (_, { payload: { source = 'custom' } }) => source,
               }),
             ],
           },
