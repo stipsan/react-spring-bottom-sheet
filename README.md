@@ -191,7 +191,10 @@ If the user reopens the sheet before it's done animating it'll trigger this even
 
 #### RESIZE
 
-Fires whenever there's been a window resize event, or if the header, footer or content have changed its height in such a way that the valid snap points have changed. In the future (#53) you'll be able to differentiate between what triggered the resize.
+Type: `{ source: 'window' | 'maxheightprop' | 'element }`
+
+Fires whenever there's been a window resize event, or if the header, footer or content have changed its height in such a way that the valid snap points have changed.
+`source` tells you what caused the resize. If the resize comes from a `window.onresize` event it's set to `'window'`. `'maxheightprop'` is if the `maxHeight` prop is used, and is fired whenever it changes. And `'element'` is whenever the header, footer or content resize observers detect a change.
 
 #### SNAP
 

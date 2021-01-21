@@ -23,6 +23,11 @@ export type SnapPointProps = {
 
 export type snapPoints = (props: SnapPointProps) => number[] | number
 
+/**
+ * `window` comes from window.onresize, maxheightprop is if the `maxHeight` prop is used, and `element` comes from the resize observers that listens to header, footer and the content area
+ */
+export type ResizeSource = 'window' | 'maxheightprop' | 'element'
+
 export type defaultSnapProps = {
   /** The snap points currently in use, this can be controlled by providing a `snapPoints` function on the bottom sheet. */
   snapPoints: number[]
@@ -34,7 +39,7 @@ export type defaultSnapProps = {
 export type SpringEvent =
   | { type: 'OPEN' }
   | { type: 'CLOSE' }
-  | { type: 'RESIZE' }
+  | { type: 'RESIZE'; source: ResizeSource }
   | { type: 'SNAP'; source: 'dragging' | 'custom' | string }
 
 export type Props = {
