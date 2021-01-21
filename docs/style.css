@@ -15,31 +15,30 @@
     --rsbs-backdrop-bg: rgba(15, 23, 42, 0.7);
   }
 }
-@layer components {
-  .is-window {
-    --rsbs-max-w: 640px;
-    --rsbs-ml: auto;
-    --rsbs-mr: auto;
-    @screen sm {
-      & [data-rsbs-overlay] {
-        --rsbs-overlay-rounded: 16px;
-      }
-    }
-  }
-  .is-iframe {
-    --rsbs-ml: 0px;
-    --rsbs-mr: 0px;
 
-    /* the bottom sheet doesn't need display cutout paddings when in the iframe */
-    & [data-rsbs-has-footer='false'] [data-rsbs-scroll] {
-      padding-bottom: 0px !important;
-    }
-    & [data-rsbs-footer] {
-      padding-bottom: 16px !important;
+.is-window {
+  --rsbs-max-w: 640px;
+  --rsbs-ml: auto;
+  --rsbs-mr: auto;
+  @screen sm {
+    & [data-rsbs-overlay] {
+      --rsbs-overlay-rounded: 16px;
     }
   }
-  /* Used by things like the "Close example" links that are only needed when not in the iframe */
-  .is-iframe .only-window {
-    display: none;
+}
+.is-iframe {
+  --rsbs-ml: 0px;
+  --rsbs-mr: 0px;
+
+  /* the bottom sheet doesn't need display cutout paddings when in the iframe */
+  & [data-rsbs-has-footer='false'] [data-rsbs-scroll] {
+    padding-bottom: 0px !important;
   }
+  & [data-rsbs-footer] {
+    padding-bottom: 16px !important;
+  }
+}
+/* Used by things like the "Close example" links that are only needed when not in the iframe */
+.is-iframe .only-window {
+  display: none;
 }
