@@ -478,7 +478,6 @@ function Twelve() {
   const [open, setOpen] = useState(false)
   const sheetRef = useRef<BottomSheetRef>()
   const [height, setHeight] = useState(0)
-  const [updating, setUpdating] = useState(false)
 
   return (
     <>
@@ -495,24 +494,21 @@ function Twelve() {
         }
         onSpringStart={(event) => {
           console.log('onSpringStart', event, sheetRef.current.height)
-          setUpdating(true)
+          setHeight(sheetRef.current.height)
+          requestAnimationFrame(() => setHeight(sheetRef.current.height))
+          if (event.type === 'OPEN') {
+            setTimeout(() => setHeight(sheetRef.current.height), 100)
+          }
+        }}
+        onSpringCancel={(event) => {
+          console.log('onSpringCancel', event, sheetRef.current.height)
           setHeight(sheetRef.current.height)
         }}
         onSpringEnd={(event) => {
           console.log('onSpringEnd', event, sheetRef.current.height)
-          setUpdating(false)
           setHeight(sheetRef.current.height)
         }}
-        footer={
-          <div className="w-full text-center">
-            Height:{' '}
-            {updating ? (
-              <del key="height">{height}</del>
-            ) : (
-              <span key="height">{height}</span>
-            )}
-          </div>
-        }
+        footer={<div className="w-full text-center">Height: {height}</div>}
       >
         <SheetContent>
           <Expandable>
