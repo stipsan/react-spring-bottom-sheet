@@ -1,3 +1,10 @@
+## [3.2.1](https://github.com/stipsan/react-spring-bottom-sheet/compare/v3.2.0...v3.2.1) (2021-01-26)
+
+
+### Bug Fixes
+
+* **deps:** update dependency @reach/portal to ^0.13.0 ([#94](https://github.com/stipsan/react-spring-bottom-sheet/issues/94)) ([1cc8056](https://github.com/stipsan/react-spring-bottom-sheet/commit/1cc8056624d201414c81c8ee7c01b827064eecee))
+
 # [3.2.0](https://github.com/stipsan/react-spring-bottom-sheet/compare/v3.1.4...v3.2.0) (2021-01-21)
 
 
