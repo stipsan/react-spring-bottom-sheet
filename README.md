@@ -155,7 +155,7 @@ function Example() {
   const [data, setData] = useState([])
   return (
     <BottomSheet
-      onSnapStart={async (event) => {
+      onSpringStart={async (event) => {
         if (event.type === 'OPEN') {
           // the bottom sheet gently waits
           const data = await fetch(/* . . . */)
