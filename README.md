@@ -122,9 +122,11 @@ Supports the same value type as the `sibling` prop. Renders the node as a child 
 
 ### initialFocusRef
 
-Type: `React.Ref`
+Type: `React.Ref | false`
 
-A react ref to the element you want to get keyboard focus when opening. If not provided it's automatically selecting the first interactive element it finds.
+A react ref to the element you want to get keyboard focus when opening.
+If not provided it's automatically selecting the first interactive element it finds.
+If set to false keyboard focus when opening is disabled.
 
 ### blocking
 
