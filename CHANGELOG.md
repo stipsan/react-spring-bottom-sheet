@@ -1,3 +1,10 @@
+# [3.3.0](https://github.com/stipsan/react-spring-bottom-sheet/compare/v3.2.1...v3.3.0) (2021-06-15)
+
+
+### Features
+
+* allow the developer to disable focus trap ([#138](https://github.com/stipsan/react-spring-bottom-sheet/issues/138)) ([ef176b3](https://github.com/stipsan/react-spring-bottom-sheet/commit/ef176b365426ed6fa5f14277f76df4dbb04b55db))
+
 ## [3.2.1](https://github.com/stipsan/react-spring-bottom-sheet/compare/v3.2.0...v3.2.1) (2021-01-26)
 
 
