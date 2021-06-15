@@ -91,8 +91,11 @@ export type Props = {
    */
   header?: React.ReactNode | false
 
-  /** A reference to the element that should be focused. By default it'll be the first interactive element. */
-  initialFocusRef?: React.RefObject<HTMLElement>
+  /**
+   * A reference to the element that should be focused. By default it'll be the first interactive element.
+   * Set to false to disable keyboard focus when opening.
+   */
+  initialFocusRef?: React.RefObject<HTMLElement> | false
 
   /**
    * Handler that is called when the user presses *esc*, clicks outside the dialog or drags the sheet to the bottom of the display.
