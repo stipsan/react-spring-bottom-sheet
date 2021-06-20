@@ -143,7 +143,13 @@ export type Props = {
   /**
    * Open immediatly instead of initially animating from a closed => open state, useful if the bottom sheet is visible by default and the animation would be distracting
    */
-  skipInitialTransition?: boolean
+  skipInitialTransition?: boolean,
+
+  /**
+   * Expand the bottom sheet on the content dragging. By default user can expand the bottom sheet only by dragging the header or overlay. This option enables expanding on dragging the content.
+   * @default expandOnContentDrag === false
+   */
+  expandOnContentDrag?: boolean,
 } & Omit<React.PropsWithoutRef<JSX.IntrinsicElements['div']>, 'children'>
 
 export interface RefHandles {
