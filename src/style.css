@@ -89,7 +89,6 @@
   }
 }
 [data-rsbs-has-header='false'] [data-rsbs-header] {
-  box-shadow: none;
   padding-top: calc(12px + env(safe-area-inset-top));
 }
 [data-rsbs-scroll] {
@@ -101,6 +100,8 @@
   -ms-user-select: auto;
   user-select: auto;
   overflow: auto;
+  position: relative;
+  z-index: 1;
   overscroll-behavior: contain;
   -webkit-overflow-scrolling: touch;
 }
@@ -110,6 +111,32 @@
 [data-rsbs-has-footer='false'] [data-rsbs-content] {
   padding-bottom: env(safe-area-inset-bottom);
 }
+[data-rsbs-scroll]:before,
+[data-rsbs-scroll]:after {
+  content: '';
+  display: block;
+  height: 16px;
+  background: var(--rsbs-bg);
+  pointer-events: none;
+  position: absolute;
+  left: 0;
+  right: 0;
+  z-index: 2;
+}
+[data-rsbs-scroll]:before {
+  mask-image: linear-gradient(to bottom, hsla(0, 0%, 0%, 1), transparent);
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    hsla(0, 0%, 0%, 1),
+    transparent
+  );
+  top: 0;
+}
+[data-rsbs-scroll]:after {
+  mask-image: linear-gradient(to top, hsla(0, 0%, 0%, 1), transparent);
+  bottom: 0;
+}
+
 [data-rsbs-content] {
   /* The overflow hidden is to ensure any margin on child nodes are included when the resize observer is measuring the height */
   overflow: hidden;
