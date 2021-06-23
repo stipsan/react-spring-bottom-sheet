@@ -1,6 +1,6 @@
 import cx from 'classnames'
 import type { NextPage } from 'next'
-import { useRef } from 'react'
+import { useRef, useState } from 'react'
 import scrollIntoView from 'smooth-scroll-into-view-if-needed'
 import Button from '../../docs/fixtures/Button'
 import CloseExample from '../../docs/fixtures/CloseExample'
@@ -55,6 +55,7 @@ const ScrollableFixturePage: NextPage<GetStaticProps> = ({
   meta,
   name,
 }) => {
+  const [expandOnContentDrag, setExpandOnContentDrag] = useState(true)
   const focusRef = useRef<HTMLButtonElement>()
   const sheetRef = useRef<BottomSheetRef>()
 
@@ -95,6 +96,7 @@ const ScrollableFixturePage: NextPage<GetStaticProps> = ({
             maxHeight / 4,
             maxHeight * 0.6,
           ]}
+          expandOnContentDrag={expandOnContentDrag}
         >
           <SheetContent>
             <div className="grid grid-cols-3 w-full gap-4">
@@ -135,6 +137,17 @@ const ScrollableFixturePage: NextPage<GetStaticProps> = ({
                 }
               >
                 Bottom
+              </Button>
+            </div>
+            <div className="grid w-full">
+              <Button
+                  className={[
+                    ' text-sm px-2 py-1',
+                    { 'text-xl': false, 'px-7': false, 'py-3': false },
+                  ]}
+                  onClick={() => setExpandOnContentDrag(!expandOnContentDrag)}
+                >
+                {expandOnContentDrag ? 'Disable' : 'Enable'} expand on content drag
               </Button>
             </div>
             <p>

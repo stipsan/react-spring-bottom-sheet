@@ -140,6 +140,12 @@ Type: `boolean`
 
 iOS Safari, and some other mobile culprits, can be tricky if you're on a page that has scrolling overflow on `document.body`. Mobile browsers often prefer scrolling the page in these cases instead of letting you handle the touch interaction for UI such as the bottom sheet. Thus it's enabled by default. However it can be a bit agressive and can affect cases where you're putting a drag and drop element inside the bottom sheet. Such as `<input type="range" />` and more. For these cases you can wrap them in a container and give them this data attribute `[data-body-scroll-lock-ignore]` to prevent intervention. Really handy if you're doing crazy stuff like putting mapbox-gl widgets inside bottom sheets.
 
+### expandOnContentDrag
+
+Type: `boolean`
+
+Disabled by default. By default, a user can expand the bottom sheet only by dragging a header or the overlay. This option enables expanding the bottom sheet on the content dragging.
+
 ## Events
 
 All events receive `SpringEvent` as their argument. The payload varies, but `type` is always present, which can be `'OPEN' | 'RESIZE' | 'SNAP' | 'CLOSE'` depending on the scenario.
