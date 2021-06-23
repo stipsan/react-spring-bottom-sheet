@@ -1,3 +1,10 @@
+# [3.4.0](https://github.com/stipsan/react-spring-bottom-sheet/compare/v3.3.0...v3.4.0) (2021-06-23)
+
+
+### Features
+
+* expand on content drag ([#141](https://github.com/stipsan/react-spring-bottom-sheet/issues/141)) ([ec733a5](https://github.com/stipsan/react-spring-bottom-sheet/commit/ec733a5a64ce5324946305bc9616749fea81ddbd))
+
 # [3.3.0](https://github.com/stipsan/react-spring-bottom-sheet/compare/v3.2.1...v3.3.0) (2021-06-15)
 
 
