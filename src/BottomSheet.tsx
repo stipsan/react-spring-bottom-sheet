@@ -54,6 +54,7 @@ export const BottomSheet = React.forwardRef<
     footer,
     header,
     open: _open,
+    openFrom = 'bottom',
     initialState,
     lastSnapRef,
     initialFocusRef,
@@ -325,7 +326,7 @@ export const BottomSheet = React.forwardRef<
       }, [asyncSet]),
       openSmoothly: useCallback(async () => {
         await asyncSet({
-          y: 0,
+          y: openFrom === 'bottom' ? 0 : maxHeightRef.current,
           ready: 1,
           maxHeight: maxHeightRef.current,
           maxSnap: maxSnapRef.current,
@@ -390,7 +391,7 @@ export const BottomSheet = React.forwardRef<
           heightRef.current = 0
 
           await asyncSet({
-            y: 0,
+            y: openFrom === 'bottom' ? 0 : maxHeightRef.current,
             maxHeight: maxHeightRef.current,
             maxSnap: maxSnapRef.current,
             immediate: prefersReducedMotion.current,
@@ -450,13 +451,13 @@ export const BottomSheet = React.forwardRef<
   useEffect(() => {
     const elem = scrollRef.current
 
-    const preventScrolling = e => {
+    const preventScrolling = (e) => {
       if (preventScrollingRef.current) {
         e.preventDefault()
       }
     }
 
-    const preventSafariOverscroll = e => {
+    const preventSafariOverscroll = (e) => {
       if (elem.scrollTop < 0) {
         requestAnimationFrame(() => {
           elem.style.overflow = 'hidden'
@@ -563,7 +564,7 @@ export const BottomSheet = React.forwardRef<
         newY = maxSnapRef.current
       }
 
-      preventScrollingRef.current = newY < maxSnapRef.current;
+      preventScrollingRef.current = newY < maxSnapRef.current
     } else {
       preventScrollingRef.current = false
     }
@@ -666,7 +667,12 @@ export const BottomSheet = React.forwardRef<
             {header}
           </div>
         )}
-        <div key="scroll" data-rsbs-scroll ref={scrollRef} {...(expandOnContentDrag ? bind({ isContentDragging: true }) : {})}>
+        <div
+          key="scroll"
+          data-rsbs-scroll
+          ref={scrollRef}
+          {...(expandOnContentDrag ? bind({ isContentDragging: true }) : {})}
+        >
           <div data-rsbs-content ref={contentRef}>
             {children}
           </div>

@@ -42,6 +42,7 @@ const SimpleFixturePage: NextPage<GetStaticProps> = ({
       <Container>
         <Button onClick={() => setOpen(true)}>Open</Button>
         <BottomSheet
+          openFrom="top"
           open={open}
           onDismiss={onDismiss}
           snapPoints={({ minHeight }) => minHeight}
