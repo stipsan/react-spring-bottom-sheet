@@ -56,8 +56,10 @@ const ScrollableFixturePage: NextPage<GetStaticProps> = ({
   name,
 }) => {
   const [expandOnContentDrag, setExpandOnContentDrag] = useState(true)
+  const [isInnerOpened, setIsInnerOpened] = useState(false);
   const focusRef = useRef<HTMLButtonElement>()
   const sheetRef = useRef<BottomSheetRef>()
+  const innerSheetRef = useRef<BottomSheetRef>()
 
   return (
     <>
@@ -89,7 +91,7 @@ const ScrollableFixturePage: NextPage<GetStaticProps> = ({
           skipInitialTransition
           sibling={<CloseExample className="z-10" />}
           ref={sheetRef}
-          initialFocusRef={focusRef}
+          initialFocusRef={isInnerOpened ? false : focusRef}
           defaultSnap={({ maxHeight }) => maxHeight / 2}
           snapPoints={({ maxHeight }) => [
             maxHeight - maxHeight / 10,
@@ -150,6 +152,17 @@ const ScrollableFixturePage: NextPage<GetStaticProps> = ({
                 {expandOnContentDrag ? 'Disable' : 'Enable'} expand on content drag
               </Button>
             </div>
+            <div className="grid w-full">
+              <Button
+                  className={[
+                    ' text-sm px-2 py-1',
+                    { 'text-xl': false, 'px-7': false, 'py-3': false },
+                  ]}
+                  onClick={() => setIsInnerOpened(!isInnerOpened)}
+                >
+                {isInnerOpened ? 'Close' : 'Open'} inner sheet
+              </Button>
+            </div>
             <p>
               The sheet will always try to set initial focus on the first
               interactive element it finds.
@@ -172,6 +185,35 @@ const ScrollableFixturePage: NextPage<GetStaticProps> = ({
               }}
             />
           </SheetContent>
+
+          <BottomSheet
+            open={isInnerOpened}
+            skipInitialTransition
+            ref={innerSheetRef}
+            blocking={false}
+            initialFocusRef={false}
+            onDismiss={() => setIsInnerOpened(false)}
+            defaultSnap={({ maxHeight }) => maxHeight / 2}
+            snapPoints={({ maxHeight }) => [
+              maxHeight / 4,
+              maxHeight * 0.4,
+            ]}
+            expandOnContentDrag={true}
+          >
+            <SheetContent>
+            <p>You may need to use a sheet inside another sheet.</p>
+            <p>
+              <Code>expandOnContentDrag</Code> prop on a child sheet won't work
+              if <Code>initialFocusRef</Code> prop on a parent is set to true.
+            </p>
+              {rows.map(({ key, bg, w }) => (
+                <div
+                  key={`row-${key}`}
+                  className={cx('block rounded-md h-8', bg, w)}
+                />
+              ))}
+            </SheetContent>
+          </BottomSheet>
         </BottomSheet>
       </Container>
     </>

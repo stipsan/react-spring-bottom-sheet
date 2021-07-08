@@ -481,6 +481,7 @@ export const BottomSheet = React.forwardRef<
 
   const handleDrag = ({
     args: [{ closeOnTap = false, isContentDragging = false } = {}] = [],
+    event,
     cancel,
     direction: [, direction],
     down,
@@ -491,6 +492,10 @@ export const BottomSheet = React.forwardRef<
     tap,
     velocity,
   }) => {
+    if (!containerRef.current.contains(event.target)) {
+      return;
+    }
+
     const my = _my * -1
 
     // Cancel the drag operation if the canDrag state changed
