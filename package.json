@@ -1,5 +1,5 @@
 {
-  "name": "react-spring-bottom-sheet",
+  "name": "@zoomit/react-mobile-sheet",
   "description": "✨ Accessible, 🪄 Delightful, and 🤯 Performant. Built on react-spring for the web, and react-use-gesture.",
   "license": "MIT",
   "author": "Cody Olsen",
@@ -8,7 +8,7 @@
   "bugs": {
     "url": "https://github.com/stipsan/react-spring-bottom-sheet/issues"
   },
-  "version": "3.4.0",
+  "version": "0.0.3",
   "main": "dist/index.js",
   "module": "dist/index.es.js",
   "files": [
