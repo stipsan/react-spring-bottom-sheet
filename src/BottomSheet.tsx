@@ -624,6 +624,7 @@ export const BottomSheet = React.forwardRef<
       data-rsbs-is-dismissable={!!onDismiss}
       data-rsbs-has-header={!!header}
       data-rsbs-has-footer={!!footer}
+      data-rsbs-open-from-top={openFrom === 'top'}
       className={className}
       ref={containerRef}
       style={{

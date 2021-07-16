@@ -10,7 +10,6 @@ import Code from '../../docs/fixtures/Code'
 import Kbd from '../../docs/fixtures/Kbd'
 import Expandable from '../../docs/fixtures/Expandable'
 import Container from '../../docs/fixtures/Container'
-import styled from 'styled-components'
 
 const OpenFromTop: NextPage<GetStaticProps> = ({
   description,
@@ -40,7 +39,7 @@ const OpenFromTop: NextPage<GetStaticProps> = ({
       />
       <Container>
         <Button onClick={() => setOpen(true)}>Open</Button>
-        <TopSheet
+        <BottomSheet
           openFrom="top"
           open={open}
           onDismiss={onDismiss}
@@ -63,35 +62,10 @@ const OpenFromTop: NextPage<GetStaticProps> = ({
               Dismiss
             </Button>
           </SheetContent>
-        </TopSheet>
+        </BottomSheet>
       </Container>
     </>
   )
 }
 
 export default OpenFromTop
-
-const TopSheet = styled(BottomSheet)`
-  [data-rsbs-overlay] {
-    border-top-left-radius: unset;
-    border-top-right-radius: unset;
-    border-bottom-left-radius: var(--rsbs-overlay-rounded, 16px);
-    border-bottom-right-radius: var(--rsbs-overlay-rounded, 16px);
-    flex-direction: column-reverse;
-  }
-
-  [data-rsbs-header]:before {
-    top: unset;
-    bottom: calc(8px + env(safe-area-inset-top));
-  }
-
-  [data-rsbs-overlay],
-  [data-rsbs-backdrop],
-  [data-rsbs-root]:after {
-    top: 0;
-  }
-
-  [data-rsbs-root]:after {
-    top: 0;
-  }
-`
