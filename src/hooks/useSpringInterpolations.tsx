@@ -9,11 +9,14 @@ import { clamp } from '../utils'
 // so it's important that if anything can change outside of render that needs to be available
 // in the interpolation then a ref must be used
 
-export function useSpringInterpolations({
-  spring,
-}: {
-  spring: Spring
-}): React.CSSProperties {
+export function useSpringInterpolations(
+  {
+    spring,
+  }: {
+    spring: Spring
+  },
+  openFrom: 'top' | 'bottom' = 'bottom'
+): React.CSSProperties {
   // This effect is for removing rounded corners on phones when the sheet touches the top of the browser chrome
   // as it's really ugly with the gaps border radius creates. This ensures it looks sleek.
   // @TODO the ts-ignore comments are because the `extrapolate` param isn't in the TS defs for some reason
@@ -58,7 +61,10 @@ export function useSpringInterpolations({
     // @ts-ignore
     [spring.y, spring.maxSnap],
     (y, maxSnap) => {
-      if (y >= maxSnap) {
+      if (
+        (openFrom === 'bottom' && y >= maxSnap) ||
+        (openFrom === 'top' && y <= maxSnap)
+      ) {
         return Math.ceil(y - maxSnap)
       }
       return 0

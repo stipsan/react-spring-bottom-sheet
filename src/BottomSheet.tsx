@@ -613,7 +613,7 @@ export const BottomSheet = React.forwardRef<
     throw new TypeError('minSnapRef is NaN!!')
   }
 
-  const interpolations = useSpringInterpolations({ spring })
+  const interpolations = useSpringInterpolations({ spring }, openFrom)
 
   return (
     <animated.div

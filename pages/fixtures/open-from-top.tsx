@@ -73,11 +73,16 @@ export default OpenFromTop
 
 const TopSheet = styled(BottomSheet)`
   [data-rsbs-overlay] {
-    border-bottom-left-radius: 16px;
+    border-top-left-radius: unset;
+    border-top-right-radius: unset;
     border-bottom-left-radius: var(--rsbs-overlay-rounded, 16px);
-    border-bottom-right-radius: 16px;
     border-bottom-right-radius: var(--rsbs-overlay-rounded, 16px);
     flex-direction: column-reverse;
+  }
+
+  [data-rsbs-header]:before {
+    top: unset;
+    bottom: calc(8px + env(safe-area-inset-top));
   }
 
   [data-rsbs-overlay],
@@ -86,7 +91,7 @@ const TopSheet = styled(BottomSheet)`
     top: 0;
   }
 
-  [data-rsbs-header]:before {
-    bottom: calc(8px + env(safe-area-inset-top));
+  [data-rsbs-root]:after {
+    top: 0;
   }
 `
