@@ -73,7 +73,7 @@
     "microbundle": "^0.13.0",
     "next": "^10.0.3",
     "postcss": "^8.1.14",
-    "postcss-cli": "^8.3.0",
+    "postcss-cli": "^9.0.0",
     "postcss-custom-properties-fallback": "^1.0.1",
     "postcss-import-svg": "^1.0.1",
     "postcss-preset-env": "^6.7.0",
