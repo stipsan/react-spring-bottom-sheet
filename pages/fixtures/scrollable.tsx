@@ -56,8 +56,14 @@ const ScrollableFixturePage: NextPage<GetStaticProps> = ({
   name,
 }) => {
   const [expandOnContentDrag, setExpandOnContentDrag] = useState(true)
+  const [openInner, setOpenInner] = useState(false)
+
   const focusRef = useRef<HTMLButtonElement>()
   const sheetRef = useRef<BottomSheetRef>()
+
+  function onDismissInner () {
+    setOpenInner(false);
+  }
 
   return (
     <>
@@ -150,6 +156,38 @@ const ScrollableFixturePage: NextPage<GetStaticProps> = ({
                 {expandOnContentDrag ? 'Disable' : 'Enable'} expand on content drag
               </Button>
             </div>
+            <Button
+                onClick={() => setOpenInner(true)}
+                className={[
+                  'w-full text-sm px-2 py-1',
+                  { 'text-xl': false, 'px-7': false, 'py-3': false }
+                ]}
+            >
+              Open Inner Bottom Sheet
+            </Button>
+            <BottomSheet
+              open={openInner}
+              onDismiss={onDismissInner}
+              defaultSnap={({ maxHeight }) => maxHeight / 3}
+              snapPoints={({ maxHeight }) => [
+                maxHeight - maxHeight / 10,
+                maxHeight / 3,
+                maxHeight * 0.6,
+              ]}
+              expandOnContentDrag={true}
+            >
+              <SheetContent>
+                <Button onClick={onDismissInner} className="w-full">
+                  Dismiss
+                </Button>
+                {rows.map(({ key, bg, w }) => (
+                  <div
+                    key={`row-${key}`}
+                    className={cx('block rounded-md h-8', bg, w)}
+                  />
+                ))}
+              </SheetContent>
+            </BottomSheet>
             <p>
               The sheet will always try to set initial focus on the first
               interactive element it finds.

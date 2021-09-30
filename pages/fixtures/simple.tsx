@@ -20,6 +20,7 @@ const SimpleFixturePage: NextPage<GetStaticProps> = ({
   name,
 }) => {
   const [open, setOpen] = useState(false)
+  const [openSecond, setOpenSecond] = useState(false)
 
   // Ensure it animates in when loaded
   useEffect(() => {
@@ -28,6 +29,10 @@ const SimpleFixturePage: NextPage<GetStaticProps> = ({
 
   function onDismiss() {
     setOpen(false)
+  }
+
+  function onDismissSecond () {
+    setOpenSecond(false);
   }
 
   return (
@@ -45,6 +50,7 @@ const SimpleFixturePage: NextPage<GetStaticProps> = ({
           open={open}
           onDismiss={onDismiss}
           snapPoints={({ minHeight }) => minHeight}
+
         >
           <SheetContent>
             <p>
@@ -59,10 +65,28 @@ const SimpleFixturePage: NextPage<GetStaticProps> = ({
               </p>
               <div className="bg-gray-200 block rounded-md h-10 w-full my-10" />
             </Expandable>
+            <Button onClick={() => setOpenSecond(true)} className="w-full">
+              Open Second
+            </Button>
             <Button onClick={onDismiss} className="w-full">
               Dismiss
             </Button>
           </SheetContent>
+
+          <BottomSheet
+            open={openSecond}
+            onDismiss={onDismissSecond}
+            snapPoints={({ minHeight }) => minHeight}
+          >
+            <SheetContent>
+              <p>
+                Hey look the second inside works
+              </p>
+              <Button onClick={onDismissSecond} className="w-full">
+                Dismiss
+              </Button>
+            </SheetContent>
+          </BottomSheet>
         </BottomSheet>
       </Container>
     </>
