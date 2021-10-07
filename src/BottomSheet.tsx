@@ -183,7 +183,7 @@ export const BottomSheet = React.forwardRef<
     [set]
   )
   const [current, send] = useMachine(overlayMachine, {
-    devTools: true,
+    devTools: debugging,
     actions: {
       onOpenCancel: useCallback(
         () => onSpringCancelRef.current?.({ type: 'OPEN' }),
