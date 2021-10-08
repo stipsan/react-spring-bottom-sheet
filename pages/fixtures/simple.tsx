@@ -66,7 +66,7 @@ const SimpleFixturePage: NextPage<GetStaticProps> = ({
               <div className="bg-gray-200 block rounded-md h-10 w-full my-10" />
             </Expandable>
             <Button onClick={() => setOpenSecond(true)} className="w-full">
-              Open Second
+              Open Inner Sheet
             </Button>
             <Button onClick={onDismiss} className="w-full">
               Dismiss
@@ -80,7 +80,7 @@ const SimpleFixturePage: NextPage<GetStaticProps> = ({
           >
             <SheetContent>
               <p>
-                Hey look the second inside works
+                See how you can add a bottom sheet to another one.
               </p>
               <Button onClick={onDismissSecond} className="w-full">
                 Dismiss
