@@ -13,7 +13,7 @@ import React, {
   useRef,
 } from 'react'
 import { animated, config } from 'react-spring'
-import { rubberbandIfOutOfBounds, useDrag, useGesture } from 'react-use-gesture'
+import { rubberbandIfOutOfBounds, useDrag } from 'react-use-gesture'
 import {
   useAriaHider,
   useFocusTrap,
@@ -490,14 +490,7 @@ export const BottomSheet = React.forwardRef<
     movement: [, _my],
     tap,
     velocity,
-    event
   }) => {
-    // @ts-ignore
-    if (!containerRef.current.contains(event.target)) {
-      cancel()
-      return memo
-    }
-
     const my = _my * -1
 
     // Cancel the drag operation if the canDrag state changed
@@ -608,23 +601,8 @@ export const BottomSheet = React.forwardRef<
     return memo
   }
 
-  const bind = useGesture({
-    onDrag: handleDrag,
-    onDragStart: ({
-      event,
-      cancel,
-      memo
-    }) => {
-      // @ts-ignore
-      if (!containerRef.current.contains(event.target)) {
-        cancel()
-        return memo
-      }
-    },
-  }, {
-    drag: {
-      filterTaps: true,
-    }
+  const bind = useDrag(handleDrag, {
+    filterTaps: true,
   })
 
   if (Number.isNaN(maxSnapRef.current)) {
