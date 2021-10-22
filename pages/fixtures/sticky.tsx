@@ -41,13 +41,28 @@ const StickyFixturePage: NextPage<GetStaticProps> = ({
         <BottomSheet
           open={open}
           onDismiss={onDismiss}
-          defaultSnap={({ snapPoints, lastSnap }) =>
-            lastSnap ?? Math.min(...snapPoints)
-          }
-          snapPoints={({ maxHeight }) => [
-            maxHeight - maxHeight / 5,
-            maxHeight * 0.6,
-          ]}
+          defaultSnap={({ snapPoints, lastSnap, ...rest }) => {
+            console.log(
+              'fixture.defaultSnap',
+              lastSnap ?? Math.min(...snapPoints),
+              JSON.parse(
+                JSON.stringify({
+                  snapPoints,
+                  lastSnap,
+                  ...rest,
+                })
+              )
+            )
+            return lastSnap ?? Math.min(...snapPoints)
+          }}
+          snapPoints={({ maxHeight, ...rest }) => {
+            console.log(
+              'fixture.snapPoints',
+              [maxHeight - maxHeight / 5, maxHeight * 0.6],
+              JSON.parse(JSON.stringify({ maxHeight, ...rest }))
+            )
+            return [maxHeight - maxHeight / 5, maxHeight * 0.6]
+          }}
           header={
             <h1 className="flex items-center text-xl justify-center font-bold text-gray-800">
               Sticky!

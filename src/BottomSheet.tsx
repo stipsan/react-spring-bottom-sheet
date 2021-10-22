@@ -25,6 +25,7 @@ import {
   useSpring,
   useSpringInterpolations,
 } from './hooks'
+import useRootStateMachine from './hooks/useRootStateMachine'
 import { overlayMachine } from './machines/overlay'
 import type {
   defaultSnapProps,
@@ -182,7 +183,8 @@ export const BottomSheet = React.forwardRef<
       ),
     [set]
   )
-  const [current, send] = useMachine(overlayMachine, {
+  const [rootSend] = useRootStateMachine()
+  const [currentLegacy, sendLegacy] = useMachine(overlayMachine, {
     devTools: debugging,
     actions: {
       onOpenCancel: useCallback(
@@ -407,17 +409,19 @@ export const BottomSheet = React.forwardRef<
     if (!ready) return
 
     if (_open) {
-      send('OPEN')
+      rootSend('OPEN')
+      sendLegacy('OPEN')
     } else {
-      send('CLOSE')
+      rootSend('CLOSE')
+      sendLegacy('CLOSE')
     }
-  }, [_open, send, ready])
+  }, [_open, ready, rootSend, sendLegacy])
   useLayoutEffect(() => {
     // Adjust the height whenever the snap points are changed due to resize events
     if (maxHeight || maxSnap || minSnap) {
-      send('RESIZE')
+      sendLegacy('RESIZE')
     }
-  }, [maxHeight, maxSnap, minSnap, send])
+  }, [maxHeight, maxSnap, minSnap, sendLegacy])
   useEffect(
     () => () => {
       // Ensure effects are cleaned up on unmount, in case they're not cleaned up otherwise
@@ -432,7 +436,7 @@ export const BottomSheet = React.forwardRef<
     forwardRef,
     () => ({
       snapTo: (numberOrCallback, { velocity = 1, source = 'custom' } = {}) => {
-        send('SNAP', {
+        sendLegacy('SNAP', {
           payload: {
             y: findSnapRef.current(numberOrCallback),
             velocity,
@@ -444,19 +448,19 @@ export const BottomSheet = React.forwardRef<
         return heightRef.current
       },
     }),
-    [send]
+    [sendLegacy]
   )
 
   useEffect(() => {
     const elem = scrollRef.current
 
-    const preventScrolling = e => {
+    const preventScrolling = (e) => {
       if (preventScrollingRef.current) {
         e.preventDefault()
       }
     }
 
-    const preventSafariOverscroll = e => {
+    const preventSafariOverscroll = (e) => {
       if (elem.scrollTop < 0) {
         requestAnimationFrame(() => {
           elem.style.overflow = 'hidden'
@@ -563,17 +567,18 @@ export const BottomSheet = React.forwardRef<
         newY = maxSnapRef.current
       }
 
-      preventScrollingRef.current = newY < maxSnapRef.current;
+      preventScrollingRef.current = newY < maxSnapRef.current
     } else {
       preventScrollingRef.current = false
     }
 
     if (first) {
-      send('DRAG')
+      rootSend('DRAG_START')
+      sendLegacy('DRAG')
     }
 
     if (last) {
-      send('SNAP', {
+      sendLegacy('SNAP', {
         payload: {
           y: newY,
           velocity: velocity > 0.05 ? velocity : 1,
@@ -618,7 +623,7 @@ export const BottomSheet = React.forwardRef<
     <animated.div
       {...props}
       data-rsbs-root
-      data-rsbs-state={publicStates.find(current.matches)}
+      data-rsbs-state={publicStates.find(currentLegacy.matches)}
       data-rsbs-is-blocking={blocking}
       data-rsbs-is-dismissable={!!onDismiss}
       data-rsbs-has-header={!!header}
@@ -666,7 +671,12 @@ export const BottomSheet = React.forwardRef<
             {header}
           </div>
         )}
-        <div key="scroll" data-rsbs-scroll ref={scrollRef} {...(expandOnContentDrag ? bind({ isContentDragging: true }) : {})}>
+        <div
+          key="scroll"
+          data-rsbs-scroll
+          ref={scrollRef}
+          {...(expandOnContentDrag ? bind({ isContentDragging: true }) : {})}
+        >
           <div data-rsbs-content ref={contentRef}>
             {children}
           </div>

@@ -35,12 +35,15 @@
   "dependencies": {
     "@juggle/resize-observer": "^3.2.0",
     "@reach/portal": "^0.13.0",
+    "@xstate/fsm": "^1.6.2",
     "@xstate/react": "^1.2.0",
     "body-scroll-lock": "^3.1.5",
     "focus-trap": "^6.2.2",
     "react-spring": "^8.0.27",
     "react-use-gesture": "^8.0.1",
-    "xstate": "^4.15.1"
+    "use-constant": "^1.1.0",
+    "xstate": "^4.15.1",
+    "zustand": "^3.5.14"
   },
   "peerDependencies": {
     "react": "^16.14.0 || 17"
