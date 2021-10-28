@@ -137,3 +137,4 @@ yarn-error.log*
 
 # vercel
 .vercel
+.vscode/settings.json

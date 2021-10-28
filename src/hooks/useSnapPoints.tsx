@@ -115,9 +115,10 @@ function useDimensions({
   registerReady: ReturnType<typeof useReady>['registerReady']
   resizeSourceRef: React.MutableRefObject<ResizeSource>
 }) {
-  const setReady = useMemo(() => registerReady('contentHeight'), [
-    registerReady,
-  ])
+  const setReady = useMemo(
+    () => registerReady('contentHeight'),
+    [registerReady]
+  )
   const maxHeight = useMaxHeight(
     controlledMaxHeight,
     registerReady,

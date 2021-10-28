@@ -5,38 +5,45 @@
 // It also ensures that when transitioning to open on mount the state is always clean, not affected by previous states that could
 // cause race conditions.
 
-import { useMachine } from '@xstate/react'
+import Portal from '@reach/portal'
 import React, {
   useCallback,
   useEffect,
   useImperativeHandle,
   useRef,
 } from 'react'
-import { animated, config } from 'react-spring'
-import { rubberbandIfOutOfBounds, useDrag } from 'react-use-gesture'
+import {
+  animated,
+  useSpring,
+  useSpringRef,
+  config,
+  to,
+} from '@react-spring/web'
+import { rubberbandIfOutOfBounds, useDrag } from '@use-gesture/react'
 import {
   useAriaHider,
   useFocusTrap,
   useLayoutEffect,
-  useReady,
   useReducedMotion,
   useScrollLock,
-  useSnapPoints,
-  useSpring,
-  useSpringInterpolations,
 } from './hooks'
+import { useMaxHeight } from './hooks/useMaxHeight'
+import {
+  useContentHeight,
+  useFooterHeight,
+  useHeaderHeight,
+} from './hooks/useResizeObserver'
 import useRootStateMachine from './hooks/useRootStateMachine'
-import { overlayMachine } from './machines/overlay'
 import type {
   defaultSnapProps,
   Props,
   RefHandles,
   ResizeSource,
   SnapPointProps,
+  SpringConfigMode,
 } from './types'
-import { debugging } from './utils'
-
-const { tension, friction } = config.default
+import { debugging, clamp } from './utils'
+import type { SheetContext } from './hooks/useStateMachine'
 
 // @TODO implement AbortController to deal with race conditions
 
@@ -59,7 +66,7 @@ export const BottomSheet = React.forwardRef<
     lastSnapRef,
     initialFocusRef,
     onDismiss,
-    maxHeight: controlledMaxHeight,
+    maxHeight: maxHeightProp,
     defaultSnap: getDefaultSnap = _defaultSnap,
     snapPoints: getSnapPoints = _snapPoints,
     blocking = true,
@@ -70,14 +77,11 @@ export const BottomSheet = React.forwardRef<
     onSpringEnd,
     reserveScrollBarGap = blocking,
     expandOnContentDrag = false,
+    UNSTABLE_springConfig,
     ...props
   },
   forwardRef
 ) {
-  // Before any animations can start we need to measure a few things, like the viewport and the dimensions of content, and header + footer if they exist
-  // @TODO make ready its own state perhaps, before open or closed
-  const { ready, registerReady } = useReady()
-
   // Controls the drag handler, used by spring operations that happen outside the render loop in React
   const canDragRef = useRef(false)
 
@@ -92,7 +96,7 @@ export const BottomSheet = React.forwardRef<
   }, [onSpringCancel, onSpringStart, onSpringEnd])
 
   // Behold, the engine of it all!
-  const [spring, set] = useSpring()
+  // const [springLegacy, setLegacy] = useSpringLegacy()
 
   const containerRef = useRef<HTMLDivElement>(null)
   const scrollRef = useRef<HTMLDivElement>(null)
@@ -111,56 +115,27 @@ export const BottomSheet = React.forwardRef<
   // "Plugins" huhuhu
   const scrollLockRef = useScrollLock({
     targetRef: scrollRef,
-    enabled: ready && scrollLocking,
+    enabled: scrollLocking,
     reserveScrollBarGap,
   })
   const ariaHiderRef = useAriaHider({
     targetRef: containerRef,
-    enabled: ready && blocking,
+    enabled: blocking,
   })
   const focusTrapRef = useFocusTrap({
     targetRef: containerRef,
     fallbackRef: overlayRef,
     initialFocusRef: initialFocusRef || undefined,
-    enabled: ready && blocking && initialFocusRef !== false,
+    enabled: blocking && initialFocusRef !== false,
   })
-
-  const { minSnap, maxSnap, maxHeight, findSnap } = useSnapPoints({
-    contentRef,
-    controlledMaxHeight,
-    footerEnabled: !!footer,
-    footerRef,
-    getSnapPoints,
-    headerEnabled: header !== false,
-    headerRef,
-    heightRef,
-    lastSnapRef,
-    ready,
-    registerReady,
-    resizeSourceRef,
-  })
-
-  // Setup refs that are used in cases where full control is needed over when a side effect is executed
-  const maxHeightRef = useRef(maxHeight)
-  const minSnapRef = useRef(minSnap)
-  const maxSnapRef = useRef(maxSnap)
-  const findSnapRef = useRef(findSnap)
-  const defaultSnapRef = useRef(0)
-  // Sync the refs with current state, giving the spring full control over when to respond to changes
-  useLayoutEffect(() => {
-    maxHeightRef.current = maxHeight
-    maxSnapRef.current = maxSnap
-    minSnapRef.current = minSnap
-    findSnapRef.current = findSnap
-    defaultSnapRef.current = findSnap(getDefaultSnap)
-  }, [findSnap, getDefaultSnap, maxHeight, maxSnap, minSnap])
 
   // New utility for using events safely
-  const asyncSet = useCallback<typeof set>(
+  /*
+  const asyncSet = useCallback<typeof setLegacy>(
     // @ts-expect-error
     ({ onRest, config: { velocity = 1, ...config } = {}, ...opts }) =>
       new Promise((resolve) =>
-        set({
+        setLegacy({
           ...opts,
           config: {
             velocity,
@@ -181,257 +156,358 @@ export const BottomSheet = React.forwardRef<
           },
         })
       ),
-    [set]
+    [setLegacy]
   )
-  const [rootSend] = useRootStateMachine()
-  const [currentLegacy, sendLegacy] = useMachine(overlayMachine, {
-    devTools: debugging,
-    actions: {
-      onOpenCancel: useCallback(
-        () => onSpringCancelRef.current?.({ type: 'OPEN' }),
-        []
-      ),
-      onSnapCancel: useCallback(
-        (context) =>
-          onSpringCancelRef.current?.({
-            type: 'SNAP',
-            source: context.snapSource,
-          }),
-        []
-      ),
-      onCloseCancel: useCallback(
-        () => onSpringCancelRef.current?.({ type: 'CLOSE' }),
-        []
-      ),
-      onResizeCancel: useCallback(
-        () =>
-          onSpringCancelRef.current?.({
-            type: 'RESIZE',
-            source: resizeSourceRef.current,
-          }),
-        []
-      ),
-      onOpenEnd: useCallback(
-        () => onSpringEndRef.current?.({ type: 'OPEN' }),
-        []
-      ),
-      onSnapEnd: useCallback(
-        (context, event) =>
-          onSpringEndRef.current?.({
-            type: 'SNAP',
-            source: context.snapSource,
-          }),
-        []
-      ),
-      onResizeEnd: useCallback(
-        () =>
-          onSpringEndRef.current?.({
-            type: 'RESIZE',
-            source: resizeSourceRef.current,
-          }),
-        []
-      ),
-    },
-    context: { initialState },
-    services: {
-      onSnapStart: useCallback(
-        async (context, event) =>
-          onSpringStartRef.current?.({
-            type: 'SNAP',
-            source: event.payload.source || 'custom',
-          }),
-        []
-      ),
-      onOpenStart: useCallback(
-        async () => onSpringStartRef.current?.({ type: 'OPEN' }),
-        []
-      ),
-      onCloseStart: useCallback(
-        async () => onSpringStartRef.current?.({ type: 'CLOSE' }),
-        []
-      ),
-      onResizeStart: useCallback(
-        async () =>
-          onSpringStartRef.current?.({
-            type: 'RESIZE',
-            source: resizeSourceRef.current,
-          }),
-        []
-      ),
-      onSnapEnd: useCallback(
-        async (context, event) =>
-          onSpringEndRef.current?.({
-            type: 'SNAP',
-            source: context.snapSource,
-          }),
-        []
-      ),
-      onOpenEnd: useCallback(
-        async () => onSpringEndRef.current?.({ type: 'OPEN' }),
-        []
-      ),
-      onCloseEnd: useCallback(
-        async () => onSpringEndRef.current?.({ type: 'CLOSE' }),
-        []
-      ),
-      onResizeEnd: useCallback(
-        async () =>
-          onSpringEndRef.current?.({
-            type: 'RESIZE',
-            source: resizeSourceRef.current,
-          }),
-        []
-      ),
-      renderVisuallyHidden: useCallback(
-        async (context, event) => {
-          await asyncSet({
-            y: defaultSnapRef.current,
-            ready: 0,
-            maxHeight: maxHeightRef.current,
-            maxSnap: maxSnapRef.current,
-            // Using defaultSnapRef instead of minSnapRef to avoid animating `height` on open
-            minSnap: defaultSnapRef.current,
-            immediate: true,
-          })
-        },
-        [asyncSet]
-      ),
-      activate: useCallback(
-        async (context, event) => {
-          canDragRef.current = true
-          await Promise.all([
-            scrollLockRef.current.activate(),
-            focusTrapRef.current.activate(),
-            ariaHiderRef.current.activate(),
-          ])
-        },
-        [ariaHiderRef, focusTrapRef, scrollLockRef]
-      ),
-      deactivate: useCallback(async () => {
-        scrollLockRef.current.deactivate()
-        focusTrapRef.current.deactivate()
-        ariaHiderRef.current.deactivate()
-        canDragRef.current = false
-      }, [ariaHiderRef, focusTrapRef, scrollLockRef]),
-      openImmediately: useCallback(async () => {
-        heightRef.current = defaultSnapRef.current
-        await asyncSet({
-          y: defaultSnapRef.current,
-          ready: 1,
-          maxHeight: maxHeightRef.current,
-          maxSnap: maxSnapRef.current,
-          // Using defaultSnapRef instead of minSnapRef to avoid animating `height` on open
-          minSnap: defaultSnapRef.current,
-          immediate: true,
-        })
-      }, [asyncSet]),
-      openSmoothly: useCallback(async () => {
-        await asyncSet({
-          y: 0,
-          ready: 1,
-          maxHeight: maxHeightRef.current,
-          maxSnap: maxSnapRef.current,
-          // Using defaultSnapRef instead of minSnapRef to avoid animating `height` on open
-          minSnap: defaultSnapRef.current,
-          immediate: true,
-        })
-
-        heightRef.current = defaultSnapRef.current
-
-        await asyncSet({
-          y: defaultSnapRef.current,
-          ready: 1,
-          maxHeight: maxHeightRef.current,
-          maxSnap: maxSnapRef.current,
-          // Using defaultSnapRef instead of minSnapRef to avoid animating `height` on open
-          minSnap: defaultSnapRef.current,
-          immediate: prefersReducedMotion.current,
-        })
-      }, [asyncSet, prefersReducedMotion]),
-      snapSmoothly: useCallback(
-        async (context, event) => {
-          const snap = findSnapRef.current(context.y)
-          heightRef.current = snap
-          lastSnapRef.current = snap
-          await asyncSet({
-            y: snap,
-            ready: 1,
-            maxHeight: maxHeightRef.current,
-            maxSnap: maxSnapRef.current,
-            minSnap: minSnapRef.current,
-            immediate: prefersReducedMotion.current,
-            config: { velocity: context.velocity },
-          })
-        },
-        [asyncSet, lastSnapRef, prefersReducedMotion]
-      ),
-      resizeSmoothly: useCallback(async () => {
-        const snap = findSnapRef.current(heightRef.current)
-        heightRef.current = snap
-        lastSnapRef.current = snap
-        await asyncSet({
-          y: snap,
-          ready: 1,
-          maxHeight: maxHeightRef.current,
-          maxSnap: maxSnapRef.current,
-          minSnap: minSnapRef.current,
-          immediate:
-            resizeSourceRef.current === 'element'
-              ? prefersReducedMotion.current
-              : true,
-        })
-      }, [asyncSet, lastSnapRef, prefersReducedMotion]),
-      closeSmoothly: useCallback(
-        async (context, event) => {
-          // Avoid animating the height property on close and stay within FLIP bounds by upping the minSnap
-          asyncSet({
-            minSnap: heightRef.current,
-            immediate: true,
-          })
-
-          heightRef.current = 0
-
-          await asyncSet({
-            y: 0,
-            maxHeight: maxHeightRef.current,
-            maxSnap: maxSnapRef.current,
-            immediate: prefersReducedMotion.current,
-          })
-
-          await asyncSet({ ready: 0, immediate: true })
-        },
-        [asyncSet, prefersReducedMotion]
-      ),
-    },
-  })
-
+  // */
+  /* NEW STUFF START */
+  const maxHeightRef = useRef(0)
+  const minSnapRef = useRef(0)
+  const maxSnapRef = useRef(0)
+  const snapPointsRef = useRef(getSnapPoints)
   useEffect(() => {
-    if (!ready) return
+    snapPointsRef.current = getSnapPoints
+  }, [getSnapPoints])
+  const initialHeightRef = useRef(getDefaultSnap)
+  useEffect(() => {
+    initialHeightRef.current = getDefaultSnap
+  }, [getDefaultSnap])
+  type SpringState = {
+    mode:
+      | 'mounting'
+      | 'closed'
+      | 'opening'
+      | 'open'
+      | 'dragging'
+      | 'snapping'
+      | 'resizing'
+      | 'closing'
+    // height and y are usually the same value, but they behave differently when moving out of bounds
+    // height is always a value between minSnap and maxSnap
+    height: number
+    // y can sometimes be out of minSnap and maxSnap bounds, sometimes rubberbanded, sometimes not
+    y: number
+    // maxHeight, maxSnap and minSnap are synced with the state machine context during specific transition events
+    // the state machine is the source of truth for these values
+    maxHeight: number
+    maxSnap: number
+    minSnap: number
+    // backdropOpacity fires both while dragging, and on open/close, to signal during dragging you are about to close
+    backdropOpacity: number
+    // contentOpacity is only updated during open/close, as the content should always be visible while the user interacts with the sheet
+    contentOpacity: number
+  }
+  // @TODO add example showing how the ref can be used with useChain and useTransition to chain other page animations to sync with the sheet
+  // Maybe scale the background like AppleMusic I dunno go wild
+  const springRef = useSpringRef<SpringState>()
+  const springConfig = useCallback(
+    ({ mode, velocity }: { mode: SpringConfigMode; velocity?: number }) => {
+      // Set the default preset first
+      switch (mode) {
+        case 'opening':
+          springRef.start({
+            config: config.stiff,
+          })
+          break
+        case 'resizing':
+          springRef.start({
+            config: config.slow,
+          })
+          break
+        case 'snapping':
+          springRef.start({
+            config: config.gentle,
+          })
+          break
+        default:
+          springRef.start({ config: config.default })
+          break
+      }
+      // Granular configs per key done in second pass
+      springRef.start({
+        config: (key) => {
+          switch (key) {
+            case 'backdropOpacity':
+            case 'contentOpacity':
+              return {
+                clamp:
+                  mode === 'autofocusing' ||
+                  mode === 'opening' ||
+                  mode === 'closing',
+              }
+            case 'y':
+              return { clamp: mode === 'closing' }
+            default:
+              return {}
+          }
+        },
+      })
 
-    if (_open) {
-      rootSend('OPEN')
-      sendLegacy('OPEN')
-    } else {
-      rootSend('CLOSE')
-      sendLegacy('CLOSE')
+      if (UNSTABLE_springConfig) {
+        springRef.start({ config: UNSTABLE_springConfig({ mode, velocity }) })
+      }
+    },
+    [UNSTABLE_springConfig, springRef]
+  )
+  const springConfigRef = useRef(springConfig)
+  useEffect(() => {
+    springConfigRef.current = springConfig
+  }, [springConfig])
+  // @TODO add support for springConfig prop
+  const [spring] = useSpring<SpringState>(() => ({
+    mode: 'mounting',
+    height: 0,
+    y: 0,
+    maxHeight: 0,
+    maxSnap: 0,
+    minSnap: 0,
+    backdropOpacity: 0,
+    contentOpacity: 0,
+    ref: springRef,
+  }))
+  const [debugDragSpring, debugDragApi] = useSpring(() => ({
+    mode: spring.mode.get(),
+    closeOnTap: false,
+    isContentDragging: false,
+    first: false,
+    last: false,
+    canceled: false,
+    velocity: 0,
+    direction: 0,
+    movement: 0,
+    tap: false,
+    down: false,
+    swipe: 0,
+    offset: 0,
+  }))
+  const dragSpringDebug = to(
+    [
+      debugDragSpring.mode,
+      debugDragSpring.closeOnTap,
+      debugDragSpring.isContentDragging,
+      debugDragSpring.first,
+      debugDragSpring.last,
+      debugDragSpring.canceled,
+      debugDragSpring.velocity,
+      debugDragSpring.direction,
+      debugDragSpring.movement,
+      debugDragSpring.tap,
+      debugDragSpring.down,
+      debugDragSpring.swipe,
+      debugDragSpring.offset,
+    ],
+    (
+      mode,
+      closeOnTap,
+      isContentDragging,
+      first,
+      last,
+      canceled,
+      velocity,
+      direction,
+      movement,
+      tap,
+      down,
+      swipe,
+      offset
+    ) => {
+      console.debug('DEBUG spring interpolate', mode, {
+        closeOnTap,
+        isContentDragging,
+        mode,
+        first,
+        last,
+        canceled,
+        velocity,
+        direction,
+        movement,
+        tap,
+        down,
+        swipe,
+        offset,
+      })
+
+      return `
+      closeOnTap: ${closeOnTap},
+      isContentDragging: ${isContentDragging},
+      first: ${first},
+      last: ${last},
+      canceled: ${canceled},
+      velocity: ${velocity},
+      direction: ${direction},
+      movement: ${movement},
+      tap: ${tap},
+      down: ${down},
+      swipe: ${swipe},
+      offset: ${offset}
+      `
     }
-  }, [_open, ready, rootSend, sendLegacy])
+  )
+  const springClampedHeight = to(
+    [spring.height, spring.minSnap, spring.maxSnap],
+    (height, minSnap, maxSnap) => {
+      console.log('interpolateHeight', clamp(height, minSnap, maxSnap), {
+        height,
+        minSnap,
+        maxSnap,
+      })
+      return clamp(height, minSnap, maxSnap)
+    }
+  )
+  const springHeight = springClampedHeight.to((height) => `${height}px`)
+  const springY = to([spring.y, springClampedHeight], (y, height) => {
+    console.log('interpolateY', `${height - y}px`, { y, height })
+    return `${height - y}px`
+  })
+  /*
+  const springYToMinSnap = to(
+    [spring.y, spring.minSnap],
+    (y, minSnap) => y / minSnap
+  ).to({ range: [0.5, 1], output: [0, 1], extrapolate: 'clamp' })
+  // */
+  const springContentOpacity = spring.contentOpacity
+  /*
+  const springContentOpacity = spring.contentOpacity.to({
+    range: [0.5, 0.9],
+    output: [0, 1],
+    extrapolate: 'clamp',
+  })
+  //*/
+  const springBackdropOpacity = spring.backdropOpacity
+  const springFiller = to([spring.y, springClampedHeight], (y, height) => {
+    if (y >= height) {
+      return Math.ceil(y - height)
+    }
+    return 0
+  })
+  const springBorderRadius = to(
+    [spring.y, spring.maxHeight],
+    (y, maxHeight) => {
+      return `${Math.round(clamp(maxHeight - y, 0, 16))}px`
+    }
+  )
+  const springDebug = to(
+    [
+      spring.mode,
+      spring.height,
+      spring.y,
+      spring.maxHeight,
+      spring.maxSnap,
+      spring.minSnap,
+      springBackdropOpacity,
+      springContentOpacity,
+      springBorderRadius,
+      springFiller,
+    ],
+    (
+      mode,
+      height,
+      y,
+      maxHeight,
+      maxSnap,
+      minSnap,
+      backdropOpacity,
+      contentOpacity,
+      borderRadius,
+      springFiller
+    ) => {
+      if (backdropOpacity < 0 || backdropOpacity > 1) {
+        console.count('backdropOpacity is incorrect')
+        console.error('backdropOpacity is incorrect', backdropOpacity)
+      }
+      if (contentOpacity < 0 || contentOpacity > 1) {
+        console.count('contentOpacity is incorrect')
+        console.error('contentOpacity is incorrect', contentOpacity)
+      }
+
+      console.debug('DEBUG interpolate', mode, {
+        height,
+        y,
+        maxHeight,
+        maxSnap,
+        minSnap,
+        backdropOpacity,
+        contentOpacity,
+        borderRadius,
+        springFiller,
+      })
+
+      return `
+      mode: ${mode},
+      height: ${height}, 
+      y: ${y}, 
+      maxHeight: ${maxHeight}, 
+      maxSnap: ${maxSnap}, 
+      minSnap: ${minSnap}, 
+      springBackdropOpacity: ${backdropOpacity}, 
+      springContentOpacity: ${contentOpacity},
+      springBorderRadius: ${borderRadius},
+      springFiller: ${springFiller}`
+    }
+  )
+
+  const activateDomHooks = useCallback(async () => {
+    await Promise.all([
+      // scrollLockRef.current.activate(),
+      ariaHiderRef.current.activate(),
+    ])
+  }, [ariaHiderRef, focusTrapRef, scrollLockRef])
+  const activateFocusLock = useCallback(async () => {
+    await Promise.all([
+      // scrollLockRef.current.activate(),
+      focusTrapRef.current.activate(),
+    ])
+  }, [ariaHiderRef, focusTrapRef, scrollLockRef])
+  const deactivateDomHooks = useCallback(async () => {
+    // scrollLockRef.current.deactivate()
+    focusTrapRef.current.deactivate()
+    ariaHiderRef.current.deactivate()
+  }, [ariaHiderRef, focusTrapRef, scrollLockRef])
+  useEffect(() => {
+    console.count('DEBUG useEffect')
+    // @ts-expect-error
+    window.cody = springRef
+
+    // this will give you access to the same API documented above
+    console.log('DEBUG useEffect', { spring, springRef }, springRef.current)
+  }, [spring, springRef])
+  const { send, isMounting } = useRootStateMachine({
+    snapPointsRef,
+    initialHeightRef,
+    springRef,
+    springConfigRef,
+    activateDomHooks,
+    deactivateDomHooks,
+    activateFocusLock,
+  })
+  useMaxHeight(maxHeightProp, send)
+  useHeaderHeight(header !== false ? headerRef : undefined, send)
+  useContentHeight(contentRef, send)
+  useFooterHeight(footer ? footerRef : undefined, send)
+  /* NEW STUFF END */
+
   useLayoutEffect(() => {
-    // Adjust the height whenever the snap points are changed due to resize events
-    if (maxHeight || maxSnap || minSnap) {
-      sendLegacy('RESIZE')
+    if (_open) {
+      if (initialState === 'OPEN' && isMounting()) {
+        send('OPEN_IMMEDIATELY')
+      } else {
+        send('OPEN')
+      }
+    } else {
+      send('CLOSE')
     }
-  }, [maxHeight, maxSnap, minSnap, sendLegacy])
+  }, [_open, initialState, isMounting, send])
   useEffect(
     () => () => {
       // Ensure effects are cleaned up on unmount, in case they're not cleaned up otherwise
-      scrollLockRef.current.deactivate()
+      // @TODO move logic into respective hooks
+      // scrollLockRef.current.deactivate()
       focusTrapRef.current.deactivate()
       ariaHiderRef.current.deactivate()
     },
     [ariaHiderRef, focusTrapRef, scrollLockRef]
   )
 
+  /*
   useImperativeHandle(
     forwardRef,
     () => ({
@@ -450,149 +526,97 @@ export const BottomSheet = React.forwardRef<
     }),
     [sendLegacy]
   )
+  // */
 
-  useEffect(() => {
-    const elem = scrollRef.current
+  const startYFromDrag = (y: number) =>
+    springRef.start({ y: y * -1, height: y * -1, immediate: true })
 
-    const preventScrolling = (e) => {
-      if (preventScrollingRef.current) {
-        e.preventDefault()
-      }
-    }
-
-    const preventSafariOverscroll = (e) => {
-      if (elem.scrollTop < 0) {
-        requestAnimationFrame(() => {
-          elem.style.overflow = 'hidden'
-          elem.scrollTop = 0
-          elem.style.removeProperty('overflow')
-        })
-        e.preventDefault()
-      }
-    }
-
-    if (expandOnContentDrag) {
-      elem.addEventListener('scroll', preventScrolling)
-      elem.addEventListener('touchmove', preventScrolling)
-      elem.addEventListener('touchstart', preventSafariOverscroll)
-    }
-    return () => {
-      elem.removeEventListener('scroll', preventScrolling)
-      elem.removeEventListener('touchmove', preventScrolling)
-      elem.removeEventListener('touchstart', preventSafariOverscroll)
-    }
-  }, [expandOnContentDrag, scrollRef])
-
-  const handleDrag = ({
-    args: [{ closeOnTap = false, isContentDragging = false } = {}] = [],
-    cancel,
-    direction: [, direction],
-    down,
-    first,
-    last,
-    memo = spring.y.getValue() as number,
-    movement: [, _my],
-    tap,
-    velocity,
-  }) => {
-    const my = _my * -1
-
-    // Cancel the drag operation if the canDrag state changed
-    if (!canDragRef.current) {
-      console.log('handleDrag cancelled dragging because canDragRef is false')
-      cancel()
-      return memo
-    }
-
-    if (onDismiss && closeOnTap && tap) {
-      cancel()
-      // Runs onDismiss in a timeout to avoid tap events on the backdrop from triggering click events on elements underneath
-      setTimeout(() => onDismiss(), 0)
-      return memo
-    }
-
-    // Filter out taps
-    if (tap) {
-      return memo
-    }
-
-    const rawY = memo + my
-    const predictedDistance = my * velocity
-    const predictedY = Math.max(
-      minSnapRef.current,
-      Math.min(maxSnapRef.current, rawY + predictedDistance * 2)
-    )
-
-    if (
-      !down &&
-      onDismiss &&
-      direction > 0 &&
-      rawY + predictedDistance < minSnapRef.current / 2
-    ) {
-      cancel()
-      onDismiss()
-      return memo
-    }
-
-    let newY = down
-      ? // @TODO figure out a better way to deal with rubberband overshooting if min and max have the same value
-        !onDismiss && minSnapRef.current === maxSnapRef.current
-        ? rawY < minSnapRef.current
-          ? rubberbandIfOutOfBounds(
-              rawY,
-              minSnapRef.current,
-              maxSnapRef.current * 2,
-              0.55
-            )
-          : rubberbandIfOutOfBounds(
-              rawY,
-              minSnapRef.current / 2,
-              maxSnapRef.current,
-              0.55
-            )
-        : rubberbandIfOutOfBounds(
-            rawY,
-            onDismiss ? 0 : minSnapRef.current,
-            maxSnapRef.current,
-            0.55
+  const bind = useDrag(
+    ({
+      args: [{ closeOnTap = false, isContentDragging = false } = {}] = [],
+      cancel,
+      canceled,
+      direction: [, direction],
+      down,
+      first,
+      last,
+      memo = spring.height.get(),
+      movement: [, movement],
+      tap,
+      velocity: [, velocity],
+      swipe: [, swipe],
+      offset: [, offset],
+    }) => {
+      try {
+        // Start by ensuring we don't listen to drag events if we're not supposed to be visible
+        const mode = spring.mode.get()
+        // Cancel the drag operation if the canDrag state changed
+        if (['mounting', 'closed', 'autofocusing'].includes(mode)) {
+          console.error(
+            `handleDrag cancelled because ${mode} isn't a supported mode`
           )
-      : predictedY
+          cancel()
+          return memo
+        }
 
-    if (expandOnContentDrag && isContentDragging) {
-      if (newY >= maxSnapRef.current) {
-        newY = maxSnapRef.current
-      }
+        // Then check if we should  respond to a tap on the backdrop, possibly
+        if (onDismiss && closeOnTap && tap) {
+          cancel()
+          // Runs onDismiss in a timeout to avoid tap events on the backdrop from triggering click events on elements underneath
+          setTimeout(() => onDismiss(), 0)
+          return memo
+        }
 
-      if (memo === maxSnapRef.current && scrollRef.current.scrollTop > 0) {
-        newY = maxSnapRef.current
-      }
+        // @TODO do we need to keep filtering them out?
+        // Filter out taps silently before we do anything at all
+        if (tap) {
+          return
+        }
 
-      preventScrollingRef.current = newY < maxSnapRef.current
-    } else {
-      preventScrollingRef.current = false
-    }
+        if (first) {
+          send('DRAG_START')
+        }
 
-    if (first) {
-      rootSend('DRAG_START')
-      sendLegacy('DRAG')
-    }
+        if (last) {
+          if (onDismiss) {
+            const maybeY =
+              direction > 0
+                ? offset + velocity * 100
+                : direction < 0
+                ? offset - velocity * 100
+                : offset
+            console.log('DEBUG shouldClose', maybeY, spring.minSnap.get() / -2)
+            if (maybeY >= spring.minSnap.get() / -2) {
+              cancel()
+              // Runs onDismiss in a timeout to avoid tap events on the backdrop from triggering click events on elements underneath
+              setTimeout(() => onDismiss(), 0)
+              return
+            }
+          }
+          send({ type: 'DRAG_SNAP', y: offset * -1, velocity, swipe })
 
-    if (last) {
-      sendLegacy('SNAP', {
-        payload: {
-          y: newY,
-          velocity: velocity > 0.05 ? velocity : 1,
-          source: 'dragging',
-        },
-      })
+          /*
+        sendLegacy('SNAP', {
+          payload: {
+            y: newY,
+            velocity: velocity > 0.05 ? velocity : 1,
+            source: 'dragging',
+          },
+        })
+        // */
 
-      return memo
-    }
+          return
+        }
 
-    // @TODO too many rerenders
-    //send('DRAG', { y: newY, velocity })
-    //*
-    set({
+        if (spring.mode.get() === 'dragging') {
+          startYFromDrag(offset)
+        }
+
+        // @TODO too many rerenders
+        //send('DRAG', { y: newY, velocity })
+        //*
+        /*
+    setLegacy({
       y: newY,
       ready: 1,
       maxHeight: maxHeightRef.current,
@@ -602,110 +626,134 @@ export const BottomSheet = React.forwardRef<
       config: { velocity },
     })
     // */
-
-    return memo
-  }
-
-  const bind = useDrag(handleDrag, {
-    filterTaps: true,
-  })
-
-  if (Number.isNaN(maxSnapRef.current)) {
-    throw new TypeError('maxSnapRef is NaN!!')
-  }
-  if (Number.isNaN(minSnapRef.current)) {
-    throw new TypeError('minSnapRef is NaN!!')
-  }
-
-  const interpolations = useSpringInterpolations({ spring })
+        // */
+      } finally {
+        debugDragApi.start({
+          closeOnTap,
+          isContentDragging,
+          mode: spring.mode.get(),
+          first,
+          last,
+          canceled,
+          velocity,
+          direction,
+          movement,
+          tap,
+          down,
+          swipe,
+          offset,
+          immediate: true,
+        })
+      }
+    },
+    {
+      filterTaps: true,
+      from: () => [0, spring.y.get() * -1],
+    }
+  )
 
   return (
-    <animated.div
-      {...props}
-      data-rsbs-root
-      data-rsbs-state={publicStates.find(currentLegacy.matches)}
-      data-rsbs-is-blocking={blocking}
-      data-rsbs-is-dismissable={!!onDismiss}
-      data-rsbs-has-header={!!header}
-      data-rsbs-has-footer={!!footer}
-      className={className}
-      ref={containerRef}
-      style={{
-        // spread in the interpolations yeees
-        ...interpolations,
-        // but allow overriding them/disabling them
-        ...style,
-        // Not overridable as the "focus lock with opacity 0" trick rely on it
-        // @TODO the line below only fails on TS <4
-        // @ts-ignore
-        opacity: spring.ready,
-      }}
-    >
-      {sibling}
-      {blocking && (
-        <div
-          // This component needs to be placed outside bottom-sheet, as bottom-sheet uses transform and thus creates a new context
-          // that clips this element to the container, not allowing it to cover the full page.
-          key="backdrop"
-          data-rsbs-backdrop
-          {...bind({ closeOnTap: true })}
-        />
-      )}
-      <div
-        key="overlay"
-        aria-modal="true"
-        role="dialog"
-        data-rsbs-overlay
-        tabIndex={-1}
-        ref={overlayRef}
-        onKeyDown={(event) => {
-          if (event.key === 'Escape') {
-            // Always stop propagation, to avoid weirdness for bottom sheets inside other bottom sheets
-            event.stopPropagation()
-            if (onDismiss) onDismiss()
-          }
+    <>
+      <Portal>
+        <animated.div
+          style={{ position: 'absolute', top: 30, left: 10, whiteSpace: 'pre' }}
+        >
+          {springDebug}
+        </animated.div>
+        <animated.div
+          style={{
+            position: 'absolute',
+            top: 10,
+            right: 10,
+            whiteSpace: 'pre',
+            textAlign: 'right',
+          }}
+        >
+          {dragSpringDebug}
+        </animated.div>
+      </Portal>
+      <animated.div
+        {...props}
+        data-rsbs-root
+        data-rsbs-mode={spring.mode}
+        data-rsbs-is-blocking={blocking}
+        data-rsbs-is-dismissable={!!onDismiss}
+        data-rsbs-has-header={!!header}
+        data-rsbs-has-footer={!!footer}
+        className={className}
+        ref={containerRef}
+        style={{
+          // Fancy content fade-in effect
+          ['--rsbs-content-opacity' as any]: springContentOpacity,
+          // Fading in the backdrop
+          ['--rsbs-backdrop-opacity' as any]: springBackdropOpacity,
+          // Scaling the antigap in the bottom
+          ['--rsbs-antigap-scale-y' as any]: springFiller,
+          // Shifts the position of the bottom sheet, used on open and close primarily as snap point changes usually only interpolate the height
+          ['--rsbs-overlay-translate-y' as any]: springY,
+          // Remove rounded borders when full height, it looks much better this way
+          ['--rsbs-overlay-rounded' as any]: springBorderRadius,
+          // Animates the height state, not the most performant way but it's the safest with regards to mobile browser and focus/scrolling that could happen while animating
+          ['--rsbs-overlay-h' as any]: springHeight,
+          // allow overriding interpolations/disabling them
+          ...style,
         }}
       >
-        {header !== false && (
-          <div key="header" data-rsbs-header ref={headerRef} {...bind()}>
-            {header}
-          </div>
+        {sibling}
+        {blocking && (
+          <div
+            // This component needs to be placed outside bottom-sheet, as bottom-sheet uses transform and thus creates a new context
+            // that clips this element to the container, not allowing it to cover the full page.
+            key="backdrop"
+            data-rsbs-backdrop
+            {...bind({ closeOnTap: true })}
+          />
         )}
         <div
-          key="scroll"
-          data-rsbs-scroll
-          ref={scrollRef}
-          {...(expandOnContentDrag ? bind({ isContentDragging: true }) : {})}
+          key="overlay"
+          aria-modal="true"
+          role="dialog"
+          data-rsbs-overlay
+          tabIndex={-1}
+          ref={overlayRef}
+          onKeyDown={(event) => {
+            if (event.key === 'Escape') {
+              // Always stop propagation, to avoid weirdness for bottom sheets inside other bottom sheets
+              event.stopPropagation()
+              if (onDismiss) onDismiss()
+            }
+          }}
         >
-          <div data-rsbs-content ref={contentRef}>
-            {children}
+          {header !== false && (
+            <div key="header" data-rsbs-header ref={headerRef} {...bind()}>
+              {header}
+            </div>
+          )}
+          <div
+            key="scroll"
+            data-rsbs-scroll
+            ref={scrollRef}
+            {...(expandOnContentDrag ? bind({ isContentDragging: true }) : {})}
+          >
+            <div data-rsbs-content ref={contentRef}>
+              {children}
+            </div>
           </div>
+          {footer && (
+            <div key="footer" ref={footerRef} data-rsbs-footer {...bind()}>
+              {footer}
+            </div>
+          )}
         </div>
-        {footer && (
-          <div key="footer" ref={footerRef} data-rsbs-footer {...bind()}>
-            {footer}
-          </div>
-        )}
-      </div>
-    </animated.div>
+      </animated.div>
+    </>
   )
 })
-
-// Used for the data attribute, list over states available to CSS selectors
-const publicStates = [
-  'closed',
-  'opening',
-  'open',
-  'closing',
-  'dragging',
-  'snapping',
-  'resizing',
-]
 
 // Default prop values that are callbacks, and it's nice to save some memory and reuse their instances since they're pure
 function _defaultSnap({ snapPoints, lastSnap }: defaultSnapProps) {
   return lastSnap ?? Math.min(...snapPoints)
 }
-function _snapPoints({ minHeight }: SnapPointProps) {
-  return minHeight
+function _snapPoints({ maxContent }: SnapPointProps) {
+  return maxContent
 }

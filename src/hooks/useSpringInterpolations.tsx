@@ -1,4 +1,4 @@
-import { interpolate } from 'react-spring'
+import { interpolate } from '@react-spring/web'
 import type { Spring } from './useSpring'
 import { clamp } from '../utils'
 

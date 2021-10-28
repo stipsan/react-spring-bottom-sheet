@@ -1,5 +1,7 @@
 import type { NextPage } from 'next'
 import { useEffect, useState } from 'react'
+import { config } from '@react-spring/web'
+import * as d3 from 'd3-ease'
 import Button from '../../docs/fixtures/Button'
 import Code from '../../docs/fixtures/Code'
 import Container from '../../docs/fixtures/Container'
@@ -43,8 +45,12 @@ const SimpleFixturePage: NextPage<GetStaticProps> = ({
         <Button onClick={() => setOpen(true)}>Open</Button>
         <BottomSheet
           open={open}
-          onDismiss={onDismiss}
-          snapPoints={({ minHeight }) => minHeight}
+          // onDismiss={onDismiss}
+          snapPoints={({ maxContent, maxHeight }) => [
+            maxContent,
+            maxContent + (maxHeight - maxContent) / 2,
+            maxHeight,
+          ]}
         >
           <SheetContent>
             <p>

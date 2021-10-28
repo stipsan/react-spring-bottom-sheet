@@ -101,6 +101,7 @@
   -ms-user-select: auto;
   user-select: auto;
   overflow: auto;
+  touch-action: pan-y;
   overscroll-behavior: contain;
   -webkit-overflow-scrolling: touch;
 }
@@ -123,7 +124,7 @@
 }
 
 [data-rsbs-is-dismissable='true'],
-[data-rsbs-is-dismissable='false']:matches([data-rsbs-state='opening'], [data-rsbs-state='closing']) {
+[data-rsbs-is-dismissable='false']:matches([data-rsbs-mode='opening'], [data-rsbs-mode='closing']) {
   & :matches([data-rsbs-header], [data-rsbs-scroll], [data-rsbs-footer]) > * {
     opacity: var(--rsbs-content-opacity);
   }
@@ -132,8 +133,12 @@
   }
 }
 
-[data-rsbs-state='closed'],
-[data-rsbs-state='closing'] {
+[data-rsbs-mode='autofocusing'] {
+  opacity: 0;
+}
+
+[data-rsbs-mode='closed'],
+[data-rsbs-mode='closing'] {
   /* Allows interactions on the rest of the page before the close transition is finished */
   pointer-events: none;
 }

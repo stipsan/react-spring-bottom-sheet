@@ -1,5 +1,7 @@
 /* eslint-disable no-self-compare */
 
+import type { SheetContext } from './hooks/useStateMachine'
+
 // stolen from lodash
 export function clamp(number: number, lower: number, upper: number) {
   number = +number
@@ -63,3 +65,18 @@ export const debugging =
   process.env.NODE_ENV === 'development' && typeof window !== 'undefined'
     ? window.location.search === '?debug'
     : false
+
+export const getMinContent = ({
+  maxHeight,
+  headerHeight,
+  footerHeight,
+}: SheetContext) =>
+  Math.min(maxHeight, Math.max(headerHeight + footerHeight, 50))
+
+export const getMaxContent = ({
+  maxHeight,
+  headerHeight,
+  contentHeight,
+  footerHeight,
+}: SheetContext) =>
+  Math.min(maxHeight, headerHeight + contentHeight + footerHeight)

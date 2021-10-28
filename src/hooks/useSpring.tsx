@@ -1,4 +1,4 @@
-import { useSpring as useReactSpring } from 'react-spring'
+import { useSpring as useReactSpring } from '@react-spring/web'
 
 // Behold, the engine of it all!
 // Put in this file befause it makes it easier to type and I'm lazy! :D

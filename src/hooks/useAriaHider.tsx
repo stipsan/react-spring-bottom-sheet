@@ -10,7 +10,7 @@ export function useAriaHider({
 }) {
   const ref = useRef<{ activate: () => void; deactivate: () => void }>({
     activate: () => {
-      throw new TypeError('Tried to activate aria hider too early')
+      // throw new TypeError('Tried to activate aria hider too early')
     },
     deactivate: () => {},
   })

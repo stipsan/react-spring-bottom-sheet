@@ -1,5 +1,7 @@
 import type { NextPage } from 'next'
 import { useEffect, useState } from 'react'
+import { config } from '@react-spring/web'
+import * as d3 from 'd3-ease'
 import Button from '../../docs/fixtures/Button'
 import Container from '../../docs/fixtures/Container'
 import Expandable from '../../docs/fixtures/Expandable'
@@ -41,33 +43,52 @@ const StickyFixturePage: NextPage<GetStaticProps> = ({
         <BottomSheet
           open={open}
           onDismiss={onDismiss}
-          defaultSnap={({ snapPoints, lastSnap, ...rest }) => {
-            console.log(
-              'fixture.defaultSnap',
-              lastSnap ?? Math.min(...snapPoints),
-              JSON.parse(
-                JSON.stringify({
-                  snapPoints,
-                  lastSnap,
-                  ...rest,
-                })
-              )
-            )
-            return lastSnap ?? Math.min(...snapPoints)
-          }}
-          snapPoints={({ maxHeight, ...rest }) => {
-            console.log(
-              'fixture.snapPoints',
-              [maxHeight - maxHeight / 5, maxHeight * 0.6],
-              JSON.parse(JSON.stringify({ maxHeight, ...rest }))
-            )
-            return [maxHeight - maxHeight / 5, maxHeight * 0.6]
-          }}
+          defaultSnap={({ snapPoints, lastSnap }) =>
+            lastSnap ?? Math.min(...snapPoints)
+          }
+          snapPoints={({ maxHeight }) => [
+            maxHeight - maxHeight / 5,
+            maxHeight * 0.6,
+          ]}
+          UNSTABLE_springConfig={({ mode }) =>
+            (key) => {
+              if (mode !== 'opening') {
+                return {
+                  ...config.wobbly,
+                  mass: 10,
+                }
+              }
+              switch (key) {
+                case 'backdropOpacity':
+                case 'contentOpacity':
+                  return {
+                    duration: 5000,
+                    easing: d3.easeCubicInOut,
+                  }
+                default:
+                  return {
+                    duration: 5000,
+                    easing: d3.easeElasticOut,
+                  }
+              }
+            }}
+          // */
+          /*
+          UNSTABLE_springConfig={() => ({
+            ...config.wobbly,
+            mass: 10,
+            // duration: 10000,
+            // easing: d3.easeElasticOut,
+          })}
+          // */
+          //header={false}
+          ///*
           header={
             <h1 className="flex items-center text-xl justify-center font-bold text-gray-800">
               Sticky!
             </h1>
           }
+          // */
           footer={
             <Button onClick={onDismiss} className="w-full">
               Done

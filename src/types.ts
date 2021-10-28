@@ -1,20 +1,31 @@
+import type { SpringConfig } from '@react-spring/web'
+
 export type SnapPointProps = {
   /**
    * The height of the sticky header, if there's one
    */
   headerHeight: number
   /**
+   * The scrollHeight of the content, if it can be measured (if the bottom sheet children prop is resulting in HTML that doesn't have a height then this can be zero)
+   */
+  contentHeight: number
+  /**
    * The height of the sticky footer, if there's one
    */
   footerHeight: number
   /**
-   * If the bottom sheet is animating to a snap point the height will match the destination height, not the height the bottom sheet might have in the middle of the animation. It includes the header and footer heights.
+   * The smallest height possible while still being usable
+   * Similar to height: min-content; in CSS
+   * Calculated as: Math.min(maxHeight, Math.max(headerHeight + footerHeight, 50))
    */
-  height: number
+  minContent: number
   /**
-   * Minimum height needed to avoid scroll overflow in the content area, if possible.
+   * The intrinsic preferred height to show as much of the content as possible.
+   * maxContent is always less than or equal to maxHeight.
+   * And is similar to height: max-content; in CSS
+   * Calculated as: Math.min(maxHeight, headerHeight + contentHeight + footerHeight)
    */
-  minHeight: number
+  maxContent: number
   /**
    * Max height the sheet can be, your snap points are capped to this value. It's window.innerHeight by default but can be overriden using the maxHeight prop.
    */
@@ -34,6 +45,20 @@ export type defaultSnapProps = {
   /** The last snap point the user dragged to, if any. 0 if the user haven't interacted */
   lastSnap: number | null
 } & SnapPointProps
+
+export type SpringConfigMode =
+  | 'autofocusing'
+  | 'opening'
+  | 'open'
+  | 'dragging'
+  | 'resizing'
+  | 'snapping'
+  | 'closing'
+  | 'closed'
+export type springConfig = (props: {
+  mode: SpringConfigMode
+  velocity?: number
+}) => SpringConfig | ((key: string) => SpringConfig)
 
 /* Might make sense to expose a preventDefault method here */
 export type SpringEvent =
@@ -98,6 +123,14 @@ export type Props = {
   initialFocusRef?: React.RefObject<HTMLElement> | false
 
   /**
+   * If reduced motion is preferred then all transitions are immediate, no animation.
+   * The default option is 'auto', which means it'll listen for a media query on (prefers-reduced-motion: reduce) using window.matchMedia.
+   * If you are already managing this in your own app you can pass a boolean to make the bottom sheet stay in sync with your app config
+   * @default 'auto'
+   */
+  prefersReducedMotion?: 'auto' | boolean
+
+  /**
    * Handler that is called when the user presses *esc*, clicks outside the dialog or drags the sheet to the bottom of the display.
    */
   onDismiss?: () => void
@@ -143,13 +176,19 @@ export type Props = {
   /**
    * Open immediatly instead of initially animating from a closed => open state, useful if the bottom sheet is visible by default and the animation would be distracting
    */
-  skipInitialTransition?: boolean,
+  skipInitialTransition?: boolean
+
+  /**
+   * TODO@ document this when the api is stable
+   * See https://react-spring-visualizer.com/
+   */
+  UNSTABLE_springConfig?: springConfig
 
   /**
    * Expand the bottom sheet on the content dragging. By default user can expand the bottom sheet only by dragging the header or overlay. This option enables expanding on dragging the content.
    * @default expandOnContentDrag === false
    */
-  expandOnContentDrag?: boolean,
+  expandOnContentDrag?: boolean
 } & Omit<React.PropsWithoutRef<JSX.IntrinsicElements['div']>, 'children'>
 
 export interface RefHandles {

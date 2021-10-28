@@ -14,7 +14,7 @@ export function useFocusTrap({
 }) {
   const ref = useRef<{ activate: () => void; deactivate: () => void }>({
     activate: () => {
-      throw new TypeError('Tried to activate focus trap too early')
+      // throw new TypeError('Tried to activate focus trap too early')
     },
     deactivate: () => {},
   })

@@ -26,8 +26,8 @@ export async function getStaticProps() {
     { version: reactUseGestureVersion },
   ] = await Promise.all([
     import('../package.json'),
-    import('react-spring/package.json'),
-    import('react-use-gesture/package.json'),
+    import('@react-spring/web/package.json'),
+    import('@use-gesture/react/package.json'),
   ])
   if (!meta['og:site_name']) {
     meta['og:site_name'] = capitalize(name)
