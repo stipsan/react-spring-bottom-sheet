@@ -1,6 +1,7 @@
 import cx from 'classnames'
 import { forwardRef } from 'react'
-import styles from './Code.module.css'
+// import styles from './Code.module.css'
+const styles = {}
 
 type Props = {
   children: React.ReactNode

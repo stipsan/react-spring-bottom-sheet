@@ -1,7 +1,8 @@
 import cx from 'classnames'
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
-import styles from './StickyNugget.module.css'
+// import styles from './StickyNugget.module.css'
+const styles = {}
 
 export default function StickyNugget({
   flip = false,

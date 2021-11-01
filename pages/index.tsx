@@ -7,7 +7,7 @@ import StickyNugget from '../docs/StickyNugget'
 import type { NextPage } from 'next'
 import type { GetStaticProps } from './_app'
 
-export { getStaticProps } from './_app'
+// export { getStaticProps } from './_app'
 
 const IndexPage: NextPage<GetStaticProps> = ({
   name,

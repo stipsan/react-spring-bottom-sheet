@@ -1,15 +1,15 @@
 import type { NextPage } from 'next'
 import { useEffect, useRef, useState } from 'react'
-import Button from '../../docs/fixtures/Button'
+import Button from '../../docs/fixtures/Button.client'
 import Code from '../../docs/fixtures/Code'
 import Container from '../../docs/fixtures/Container'
 import SheetContent from '../../docs/fixtures/SheetContent'
 import { aside } from '../../docs/headings'
 import MetaTags from '../../docs/MetaTags'
 import { BottomSheet } from '../../src'
-import type { GetStaticProps } from '../_app'
+// import type { GetStaticProps } from '../_app'
 
-export { getStaticProps } from '../_app'
+// export { getStaticProps } from '../_app'
 
 const AsideFixturePage: NextPage<GetStaticProps> = ({
   description,

@@ -1,7 +1,8 @@
 import cx from 'classnames'
 import { forwardRef, useEffect, useRef, useState } from 'react'
 import { animated, config, useSpring } from '@react-spring/web'
-import styles from './Hero.module.css'
+// import styles from './Hero.module.css'
+const styles = {}
 
 const subtitle = 'Accessible, Delightful, and Performant'
 

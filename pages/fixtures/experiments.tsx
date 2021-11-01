@@ -1,13 +1,14 @@
 import useRaf from '@rooks/use-raf'
 import useInterval from '@use-it/interval'
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import Button from '../../docs/fixtures/Button'
+import Button from '../../docs/fixtures/Button.client'
 import Code from '../../docs/fixtures/Code'
 import Container from '../../docs/fixtures/Container'
 import Expandable from '../../docs/fixtures/Expandable'
 import Kbd from '../../docs/fixtures/Kbd'
 import SheetContent from '../../docs/fixtures/SheetContent'
-import { BottomSheet, BottomSheetRef } from '../../src'
+import type { BottomSheetRef } from '../../src'
+import { BottomSheet } from '../../docs/BottomSheet.client'
 
 // Just to test we can stop re-renders with this pattern when necessary
 const MemoBottomSheet = memo(BottomSheet)
@@ -88,13 +89,13 @@ function Two() {
             Dismiss
           </Button>
         }
-        defaultSnap={({ headerHeight, footerHeight, minHeight }) =>
+        defaultSnap={({ headerHeight, footerHeight, maxContent }) =>
           //headerHeight + footerHeight
-          minHeight
+          maxContent
         }
-        snapPoints={({ minHeight, headerHeight, footerHeight }) => [
+        snapPoints={({ maxContent, headerHeight, footerHeight }) => [
           headerHeight + footerHeight,
-          minHeight,
+          maxContent,
         ]}
       >
         <SheetContent>
@@ -131,7 +132,10 @@ function Three() {
             Dismiss
           </Button>
         }
-        snapPoints={({ minHeight, headerHeight }) => [headerHeight, minHeight]}
+        snapPoints={({ maxContent, headerHeight }) => [
+          headerHeight,
+          maxContent,
+        ]}
       >
         <SheetContent>
           <p>
@@ -209,10 +213,10 @@ function Five() {
         footer={<strong>Sticky footer</strong>}
         onDismiss={onDismiss}
         defaultSnap={({ lastSnap }) => lastSnap}
-        snapPoints={({ minHeight, headerHeight, footerHeight }) => [
+        snapPoints={({ maxContent, headerHeight, footerHeight }) => [
           headerHeight,
           headerHeight + footerHeight,
-          minHeight,
+          maxContent,
         ]}
       >
         <SheetContent>
@@ -256,7 +260,7 @@ function Six() {
         open={open}
         maxHeight={maxHeight}
         onDismiss={() => setOpen(false)}
-        snapPoints={({ minHeight, maxHeight }) => [minHeight, maxHeight]}
+        snapPoints={({ maxContent, maxHeight }) => [maxContent, maxHeight]}
       >
         <SheetContent>
           <Button onClick={() => setHalf((half) => !half)}>
@@ -311,7 +315,7 @@ function Eight() {
         open={open}
         onDismiss={() => setOpen(false)}
         defaultSnap={defaultSnap}
-        snapPoints={({ minHeight, maxHeight }) => [minHeight, maxHeight]}
+        snapPoints={({ maxContent, maxHeight }) => [maxContent, maxHeight]}
         onSpringEnd={(event) => {
           if (reopenRef.current && event.type === 'CLOSE') {
             reopenRef.current = false
@@ -398,9 +402,9 @@ function Ten() {
         open={open}
         onDismiss={() => setOpen(false)}
         defaultSnap={({ snapPoints }) => Math.max(...snapPoints)}
-        snapPoints={({ minHeight, maxHeight }) =>
+        snapPoints={({ maxContent, maxHeight }) =>
           [maxHeight, maxHeight * 0.7, maxHeight * 0.3].map((v) =>
-            Math.min(v, minHeight)
+            Math.min(v, maxContent)
           )
         }
       >
@@ -426,8 +430,8 @@ function Eleven() {
         ref={sheetRef}
         open={open}
         onDismiss={() => setOpen(false)}
-        snapPoints={({ minHeight, maxHeight }) => [
-          height ? minHeight : maxHeight,
+        snapPoints={({ maxContent, maxHeight }) => [
+          height ? maxContent : maxHeight,
           200,
         ]}
         onSpringStart={(event) => {
@@ -487,9 +491,9 @@ function Twelve() {
         open={open}
         onDismiss={() => setOpen(false)}
         defaultSnap={({ snapPoints }) => Math.max(...snapPoints)}
-        snapPoints={({ minHeight, maxHeight }) =>
+        snapPoints={({ maxContent, maxHeight }) =>
           [maxHeight, maxHeight * 0.7, maxHeight * 0.3].map((v) =>
-            Math.min(v, minHeight)
+            Math.min(v, maxContent)
           )
         }
         onSpringStart={(event) => {

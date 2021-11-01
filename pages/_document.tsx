@@ -31,6 +31,14 @@ gtag('config', '${ga}');
             rel="stylesheet"
           />
           <link
+            href="https://unpkg.com/tailwindcss@^2/dist/tailwind.min.css"
+            rel="stylesheet"
+          />
+          <link
+            href="https://unpkg.com/react-spring-bottom-sheet@^3/dist/style.css"
+            rel="stylesheet"
+          />
+          <link
             rel="alternate icon"
             type="image/png"
             href="/favicon-rounded-64w.png"

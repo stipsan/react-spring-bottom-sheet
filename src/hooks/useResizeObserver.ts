@@ -1,75 +1,44 @@
-// Uses a ResizeObserver to measure the dimensions of an element, if no ref is provided it assumes the hook is disabled
-
-import { useCallback } from 'react'
-import { ResizeObserver } from '@juggle/resize-observer'
-import { ResizeObserverOptions } from '@juggle/resize-observer/lib/ResizeObserverOptions'
 import { useLayoutEffect } from './useLayoutEffect'
-import type { SheetEvent } from './useStateMachine'
+import type { ModeEvent } from '../machines/mode'
 
-const observerOptions: ResizeObserverOptions = {
-  // Respond to changes to padding, happens often on iOS when using env(safe-area-inset-bottom)
-  // And the user hides or shows the Safari browser toolbar
-  box: 'border-box',
-}
-
-export type onChange = (value: number) => void
-
-export function useResizeObserver(
-  ref: React.RefObject<Element> | undefined,
-  onChange: onChange
+export function useHeaderHeight(
+  ref: React.RefObject<Element | null | undefined> | undefined,
+  send: (event: ModeEvent) => void
 ) {
   useLayoutEffect(() => {
     if (ref?.current) {
-      const resizeObserver = new ResizeObserver((entries) => {
-        // we only observe one element, so accessing the first entry here is fine
-        onChange(entries[0].borderBoxSize[0].blockSize)
-      })
-      resizeObserver.observe(ref.current, observerOptions)
-
+      send({ type: 'OBSERVE_HEADER_HEIGHT' })
       return () => {
-        resizeObserver.disconnect()
+        send({ type: 'DISCONNECT_HEADER_HEIGHT' })
       }
     }
-    // Nothing to observe, init with 0
-    onChange(0)
-  }, [ref, onChange])
-}
-
-export function useHeaderHeight(
-  ref: React.RefObject<Element> | undefined,
-  send: (event: SheetEvent) => void
-) {
-  const onChange = useCallback<onChange>(
-    (value) => {
-      send({ type: 'HEADER_HEIGHT', value })
-    },
-    [send]
-  )
-  useResizeObserver(ref, onChange)
+  }, [ref, send])
 }
 
 export function useContentHeight(
   ref: React.RefObject<Element> | undefined,
-  send: (event: SheetEvent) => void
+  send: (event: ModeEvent) => void
 ) {
-  const onChange = useCallback<onChange>(
-    (value) => {
-      send({ type: 'CONTENT_HEIGHT', value })
-    },
-    [send]
-  )
-  useResizeObserver(ref, onChange)
+  useLayoutEffect(() => {
+    if (ref?.current) {
+      send({ type: 'OBSERVE_CONTENT_HEIGHT' })
+      return () => {
+        send({ type: 'DISCONNECT_CONTENT_HEIGHT' })
+      }
+    }
+  }, [ref, send])
 }
 
 export function useFooterHeight(
   ref: React.RefObject<Element> | undefined,
-  send: (event: SheetEvent) => void
+  send: (event: ModeEvent) => void
 ) {
-  const onChange = useCallback<onChange>(
-    (value) => {
-      send({ type: 'FOOTER_HEIGHT', value })
-    },
-    [send]
-  )
-  useResizeObserver(ref, onChange)
+  useLayoutEffect(() => {
+    if (ref?.current) {
+      send({ type: 'OBSERVE_FOOTER_HEIGHT' })
+      return () => {
+        send({ type: 'DISCONNECT_FOOTER_HEIGHT' })
+      }
+    }
+  }, [ref, send])
 }

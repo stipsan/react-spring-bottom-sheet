@@ -1,5 +1,6 @@
 import cx from 'classnames'
-import styles from './Footer.module.css'
+// import styles from './Footer.module.css'
+const styles = {}
 
 function Badge({
   name,

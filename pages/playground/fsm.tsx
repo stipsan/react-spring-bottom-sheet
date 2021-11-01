@@ -1,6 +1,6 @@
 import { useState } from 'react'
 
-import useRootStateMachine from '../../src/hooks/useRootStateMachine'
+import useRootStateMachine from '../../src/hooks/useMachine'
 
 export default () => {
   const [toggle, setToggle] = useState(false)

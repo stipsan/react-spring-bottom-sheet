@@ -42,3 +42,8 @@
 .is-iframe .only-window {
   display: none;
 }
+
+.is-iframe .rsbs-rounded {
+  /* Follows device corner */
+  border-radius: 2vh;
+}

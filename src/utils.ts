@@ -1,6 +1,7 @@
 /* eslint-disable no-self-compare */
 
-import type { SheetContext } from './hooks/useStateMachine'
+import type { defaultSnapProps, SnapPointProps } from './types'
+import type { ModeContext } from './machines/mode'
 
 // stolen from lodash
 export function clamp(number: number, lower: number, upper: number) {
@@ -63,14 +64,14 @@ export function processSnapPoints(unsafeSnaps: number | number[], maxHeight) {
 
 export const debugging =
   process.env.NODE_ENV === 'development' && typeof window !== 'undefined'
-    ? window.location.search === '?debug'
+    ? window.location.search !== '?debug=false'
     : false
 
 export const getMinContent = ({
   maxHeight,
   headerHeight,
   footerHeight,
-}: SheetContext) =>
+}: ModeContext) =>
   Math.min(maxHeight, Math.max(headerHeight + footerHeight, 50))
 
 export const getMaxContent = ({
@@ -78,5 +79,16 @@ export const getMaxContent = ({
   headerHeight,
   contentHeight,
   footerHeight,
-}: SheetContext) =>
+}: ModeContext) =>
   Math.min(maxHeight, headerHeight + contentHeight + footerHeight)
+
+export function defaultInitialHeight({
+  snapPoints,
+  lastSnap,
+}: defaultSnapProps): number {
+  return lastSnap ?? Math.min(...snapPoints)
+}
+
+export function defaultSnapPoints({ maxContent }: SnapPointProps) {
+  return maxContent
+}

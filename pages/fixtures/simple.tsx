@@ -2,7 +2,7 @@ import type { NextPage } from 'next'
 import { useEffect, useState } from 'react'
 import { config } from '@react-spring/web'
 import * as d3 from 'd3-ease'
-import Button from '../../docs/fixtures/Button'
+import Button from '../../docs/fixtures/Button.client'
 import Code from '../../docs/fixtures/Code'
 import Container from '../../docs/fixtures/Container'
 import Expandable from '../../docs/fixtures/Expandable'
@@ -10,18 +10,22 @@ import Kbd from '../../docs/fixtures/Kbd'
 import SheetContent from '../../docs/fixtures/SheetContent'
 import { simple } from '../../docs/headings'
 import MetaTags from '../../docs/MetaTags'
-import { BottomSheet } from '../../src'
+import { BottomSheet } from '../../docs/BottomSheet.client'
 import type { GetStaticProps } from '../_app'
 
-export { getStaticProps } from '../_app'
+// export { getStaticProps } from '../_app'
 
-const SimpleFixturePage: NextPage<GetStaticProps> = ({
-  description,
-  homepage,
-  meta,
-  name,
-}) => {
+const SimpleFixturePage: NextPage<GetStaticProps> = ({}) => {
   const [open, setOpen] = useState(false)
+  const [maxHeight, setMaxHeight] = useState(0)
+  const [label, setLabel] = useState('Open')
+
+  useEffect(() => {
+    // @ts-expect-error
+    window.setMaxHeight = (maxHeight) => setMaxHeight(maxHeight)
+    // @ts-expect-error
+    window.setLabel = (label) => setLabel(label)
+  }, [])
 
   // Ensure it animates in when loaded
   useEffect(() => {
@@ -34,25 +38,21 @@ const SimpleFixturePage: NextPage<GetStaticProps> = ({
 
   return (
     <>
-      <MetaTags
-        {...meta}
-        name={name}
-        description={description}
-        homepage={homepage}
-        title={simple}
-      />
+      <div style={{ height: '100vh' }} />
       <Container>
-        <Button onClick={() => setOpen(true)}>Open</Button>
+        <Button onClick={() => setOpen(true)}>{label}</Button>
         <BottomSheet
           open={open}
-          // onDismiss={onDismiss}
+          maxHeight={maxHeight}
+          onDismiss={onDismiss}
           snapPoints={({ maxContent, maxHeight }) => [
             maxContent,
-            maxContent + (maxHeight - maxContent) / 2,
-            maxHeight,
+            //maxContent + (maxHeight - maxContent) / 2,
+            //maxHeight,
           ]}
         >
           <SheetContent>
+            <input type="text" autoFocus />
             <p>
               Using <Code>onDismiss</Code> lets users close the sheet by swiping
               it down, tapping on the backdrop or by hitting <Kbd>esc</Kbd> on
@@ -71,6 +71,7 @@ const SimpleFixturePage: NextPage<GetStaticProps> = ({
           </SheetContent>
         </BottomSheet>
       </Container>
+      <div style={{ height: '100vh' }} />
     </>
   )
 }

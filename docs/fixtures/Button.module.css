@@ -1,4 +1,0 @@
-:global(.is-iframe) .rounded {
-  /* Follows device corner */
-  border-radius: 2vh;
-}

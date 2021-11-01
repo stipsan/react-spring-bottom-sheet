@@ -1,9 +1,15 @@
 /* eslint-disable react/jsx-pascal-case */
+import React, {
+  forwardRef,
+  useRef,
+  useState,
+  useCallback,
+  useEffect,
+} from 'react'
 import Portal from '@reach/portal'
-import React, { forwardRef, useRef, useState, useCallback } from 'react'
 import { BottomSheet as _BottomSheet } from './BottomSheet'
 import type { Props, RefHandles, SpringEvent } from './types'
-import { useLayoutEffect } from './hooks'
+import { useLayoutEffect } from './hooks/useLayoutEffect'
 
 export type {
   RefHandles as BottomSheetRef,
@@ -12,14 +18,12 @@ export type {
 
 // Because SSR is annoying to deal with, and all the million complaints about window, navigator and dom elenents!
 export const BottomSheet = forwardRef<RefHandles, Props>(function BottomSheet(
-  { onSpringStart, onSpringEnd, skipInitialTransition, ...props },
+  { onSpringStart, onSpringEnd, skipInitialTransition, onClosed, ...props },
   ref
 ) {
   // Mounted state, helps SSR but also ensures you can't tab into the sheet while it's closed, or nav there in a screen reader
   const [mounted, setMounted] = useState(false)
   const timerRef = useRef<ReturnType<typeof requestAnimationFrame>>()
-  // The last point that the user snapped to, useful for open/closed toggling and the user defined height is remembered
-  const lastSnapRef = useRef(null)
   // @TODO refactor to an initialState: OPEN | CLOSED property as it's much easier to understand
   // And informs what we should animate from. If the sheet is mounted with open = true, then initialState = OPEN.
   // When initialState = CLOSED, then internal sheet must first render with open={false} before setting open={props.open}
@@ -68,20 +72,30 @@ export const BottomSheet = forwardRef<RefHandles, Props>(function BottomSheet(
     [onSpringEnd]
   )
 
+  // Working around the fact that handleOnClosed cannot change referencial identity or it will trigger the state machine to restart
+  const onClosedRef = useRef(onClosed)
+  useEffect(() => {
+    onClosedRef.current = onClosed
+  }, [onClosed])
+  const handleOnClosed = useCallback(() => {
+    onClosedRef.current?.()
+    setMounted(false)
+  }, [])
+
   // This isn't just a performance optimization, it's also to avoid issues when running a non-browser env like SSR
   if (!mounted) {
     return null
   }
 
   return (
-    <Portal data-rsbs-portal>
+    <Portal>
       <_BottomSheet
         {...props}
-        lastSnapRef={lastSnapRef}
         ref={ref}
         initialState={initialStateRef.current}
         onSpringStart={handleSpringStart}
         onSpringEnd={handleSpringEnd}
+        onClosed={handleOnClosed}
       />
     </Portal>
   )

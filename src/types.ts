@@ -1,5 +1,31 @@
 import type { SpringConfig } from '@react-spring/web'
 
+export type SpringState = {
+  mode:
+    | 'closed'
+    | 'autofocusing'
+    | 'opening'
+    | 'open'
+    | 'dragging'
+    | 'snapping'
+    | 'resizing'
+    | 'closing'
+  // height and y are usually the same value, but they behave differently when moving out of bounds
+  // height is always a value between minSnap and maxSnap
+  height: number
+  // y can sometimes be out of minSnap and maxSnap bounds, sometimes rubberbanded, sometimes not
+  y: number
+  // maxHeight, maxSnap and minSnap are synced with the state machine context during specific transition events
+  // the state machine is the source of truth for these values
+  maxHeight: number
+  maxSnap: number
+  minSnap: number
+  // backdropOpacity fires both while dragging, and on open/close, to signal during dragging you are about to close
+  backdropOpacity: number
+  // contentOpacity is only updated during open/close, as the content should always be visible while the user interacts with the sheet
+  contentOpacity: number
+}
+
 export type SnapPointProps = {
   /**
    * The height of the sticky header, if there's one
@@ -58,7 +84,7 @@ export type SpringConfigMode =
 export type springConfig = (props: {
   mode: SpringConfigMode
   velocity?: number
-}) => SpringConfig | ((key: string) => SpringConfig)
+}) => SpringConfig | ((key: keyof SpringState) => SpringConfig)
 
 /* Might make sense to expose a preventDefault method here */
 export type SpringEvent =
@@ -96,6 +122,11 @@ export type Props = {
    * Return a promise or async to delay the start of the transition, just remember it can be cancelled.
    */
   onSpringEnd?: (event: SpringEvent) => void
+
+  /**
+   * If the sheet closed, after being open at some point
+   */
+  onClosed?: () => void
 
   /** Whether the bottom sheet is open or not. */
   open: boolean

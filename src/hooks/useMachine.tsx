@@ -1,34 +1,26 @@
-// import { createMachine, interpret } from '@xstate/fsm'
-import { createMachine, interpret, send } from 'xstate'
-import cx from 'classnames'
-import { useState, useEffect, useCallback, useMemo } from 'react'
-import useConstant from 'use-constant'
+import { interpret, spawn } from 'xstate'
+import { useMemo } from 'react'
 import { inspect } from '@xstate/inspect'
 import { useLayoutEffect } from './useLayoutEffect'
-import machine, { sheetModel } from './useStateMachine'
-import type { SheetContext, SheetEvent } from './useStateMachine'
+import modeMachine, { modeModel } from '../machines/mode'
+import maxHeightMachine from '../machines/maxHeight'
+import withConfigResizeObserver from '../machines/resize'
 import type { SpringRef } from '@react-spring/web'
 import {
   getMaxContent,
   getMinContent,
   processSnapPoints as processSnapPointsLegacy,
   roundAndCheckForNaN,
+  debugging,
 } from '../utils'
 import type {
   defaultSnapProps,
   snapPoints,
-  springConfig,
   SpringConfigMode,
+  SpringState,
 } from '../types'
-import {
-  animated,
-  useSpring,
-  useSpringRef,
-  config,
-  to,
-} from '@react-spring/web'
 
-if (typeof window !== 'undefined') {
+if (debugging) {
   inspect({
     // options
     // url: 'https://statecharts.io/inspect', // (default)
@@ -62,38 +54,47 @@ function findMinSnap(snapPoints: number[]) {
 }
 
 type Props = {
-  debugging?: boolean
+  debugging: boolean
   snapPointsRef: React.RefObject<snapPoints>
   initialHeightRef: React.RefObject<
     number | ((props: defaultSnapProps) => number)
   >
-  springRef: SpringRef
+  springRef: SpringRef<SpringState>
   springConfigRef: React.RefObject<
     (props: { mode: SpringConfigMode; velocity?: number }) => void
   >
-  activateDomHooks: () => Promise<void>
-  deactivateDomHooks: () => Promise<void>
-  activateFocusLock: () => Promise<void>
+  headerRef: React.RefObject<Element | null | undefined>
+  contentRef: React.RefObject<Element | null | undefined>
+  footerRef: React.RefObject<Element | null | undefined>
+  onClosed: () => void
 }
+
 export default function useRootStateMachine({
-  debugging = true,
   snapPointsRef,
   initialHeightRef,
   springRef,
   springConfigRef,
-  activateDomHooks,
-  deactivateDomHooks,
-  activateFocusLock,
+  headerRef,
+  contentRef,
+  footerRef,
+  onClosed,
 }: Props) {
   const service = useMemo(
     () =>
       interpret(
-        machine.withConfig({
+        modeMachine.withConfig({
           actions: {
-            openImmediately: () => {
-              throw new TypeError('openImmediately not yet implemented')
-            },
-            updateSnapPoints: sheetModel.assign({
+            onClosed,
+            spawnMachines: modeModel.assign({
+              maxHeightRef: () => spawn(maxHeightMachine, 'maxHeight'),
+              headerHeightRef: () =>
+                withConfigResizeObserver(headerRef, 'headerHeight'),
+              contentHeightRef: () =>
+                withConfigResizeObserver(contentRef, 'contentHeight'),
+              footerHeightRef: () =>
+                withConfigResizeObserver(footerRef, 'footerHeight'),
+            }),
+            updateSnapPoints: modeModel.assign({
               snapPoints: (context) => {
                 const { footerHeight, contentHeight, headerHeight, maxHeight } =
                   context
@@ -119,7 +120,7 @@ export default function useRootStateMachine({
                 )
               },
             }),
-            updateInitialHeight: sheetModel.assign({
+            updateInitialHeight: modeModel.assign({
               initialHeight: (context, event) => {
                 const {
                   snapPoints,
@@ -150,66 +151,19 @@ export default function useRootStateMachine({
                   return nextInitialHeight
                 }
 
-                throw new TypeError(
-                  `The initialHeight prop have to return a number larger than 0, instead it returned ${JSON.stringify(
-                    nextInitialHeight
-                  )}`
-                )
+                return context.initialHeight
               },
             }),
-            onOpeningStart: () => {
-              //
-            },
-            onOpen: () => {
-              //
-            },
-            onClosingStart: () => {
-              //
-            },
-            onClosed: () => {
-              //
-            },
-            activateDomHooks: () => {
-              activateDomHooks()
-            },
-            setSpringMode: (context, event, { state }) => {
-              console.groupEnd()
-              switch (true) {
-                case state.matches('mode.opening.autofocusing'):
-                  console.group('mode.opening.autofocusing')
-                  return springRef.start({
-                    mode: 'autofocusing',
-                    immediate: true,
-                  })
-                case state.matches('mode.opening'):
-                  console.group('mode.opening')
-                  return springRef.start({ mode: 'opening', immediate: true })
-                case state.matches('mode.open.dragging'):
-                  console.group('mode.open.dragging')
-                  return springRef.start({ mode: 'dragging', immediate: true })
-                case state.matches('mode.open.resizing'):
-                  console.group('mode.open.resizing')
-                  return springRef.start({ mode: 'resizing', immediate: true })
-                case state.matches('mode.open.snapping'):
-                  console.group('mode.open.snapping')
-                  return springRef.start({ mode: 'snapping', immediate: true })
-                case state.matches('mode.open'):
-                  console.group('mode.open')
-                  return springRef.start({ mode: 'open', immediate: true })
-                case state.matches('mode.closing'):
-                  console.group('mode.closing')
-                  return springRef.start({ mode: 'closing', immediate: true })
-                case state.matches('mode.closed'):
-                  console.group('mode.closed')
-                  return springRef.start({ mode: 'closed', immediate: true })
-              }
-            },
             springDrag: (context, event, ...args) => {
               springConfigRef.current({ mode: 'dragging' })
-              console.log('onReceive', event, { context, event, args })
+              console.log('onReceive', event, {
+                context,
+                event,
+                args,
+              })
               if (event.type === 'DRAG_SNAP') {
                 const { snapPoints } = context
-                const { y, velocity, swipe } = event
+                const { y, velocity, swipe, direction } = event
 
                 const nextY = findSnapPoint(
                   snapPoints,
@@ -223,34 +177,26 @@ export default function useRootStateMachine({
                 springRef.start({
                   y: nextY,
                   height: nextY,
-                  config: { velocity },
-                })
-              }
-            },
-            onDragStart: () => {
-              // springConfigRef.current({ mode: 'dragging' })
-            },
-            onDragEnd: (context, event, { state }) => {
-              if (event.type === 'DRAG_END') {
-                const { snapPoints } = context
-                const { y, velocity, swipe } = event
-
-                console.log('DRAG_END', findSnapPoint(snapPoints, event.y), {
-                  y,
-                  velocity,
-                  swipe,
+                  config: { velocity: direction > 0 ? -velocity : velocity },
                 })
               }
             },
           },
           services: {
-            activateDomHooksSync: () => activateDomHooks(),
-            deactivateDomHooksSync: () => deactivateDomHooks(),
+            // starts to request snap points and other variables needed to slide in the sheet
+            opening: (context, event) => (callback) => {
+              springConfigRef.current({ mode: 'opening' })
+              springRef.start({
+                mode: 'opening',
+                immediate: true,
+              })
+              callback('REQUEST_INITIAL_HEIGHT')
+            },
             // Renders the sheet in a invisible state, to trigger soft keyboard animations before proceeding
-            autofocusMagicTrick: (context, event) => (callback, onReceive) => {
-              activateFocusLock()
+            autofocusing: (context, event) => (callback, onReceive) => {
               springConfigRef.current({ mode: 'autofocusing' })
               springRef.start({
+                mode: 'autofocusing',
                 height: context.initialHeight,
                 y: context.initialHeight,
                 maxHeight: context.maxHeight,
@@ -258,17 +204,10 @@ export default function useRootStateMachine({
                 minSnap: findMinSnap(context.snapPoints),
                 immediate: true,
               })
-
-              if ('requestIdleCallback' in window) {
-                requestIdleCallback(() => callback('OPEN_START'), {
-                  timeout: 5000,
-                })
-              } else {
-                setTimeout(() => callback('OPEN_START'), 50)
-              }
-              // TODO implment it properly, check if autofocus will happen, skip when possible and detect viewport resizes on android to increase the timeout to reduce jank
+              const rAF = requestAnimationFrame(() => callback('OPEN'))
 
               return () => {
+                cancelAnimationFrame(rAF)
                 springRef.start({
                   y: 0,
                   immediate: true,
@@ -285,6 +224,7 @@ export default function useRootStateMachine({
               )
               // */
               springRef.start({
+                mode: 'opening',
                 height: context.initialHeight,
                 y: context.initialHeight,
                 maxHeight: context.maxHeight,
@@ -293,7 +233,7 @@ export default function useRootStateMachine({
                 backdropOpacity: 1,
                 contentOpacity: 1,
                 // config: { velocity: 1 },
-                onRest: () => callback('OPEN_END'),
+                onRest: () => callback('REST'),
               })
 
               return () => console.log('TODO handle the onSpringOpenCancel')
@@ -301,53 +241,81 @@ export default function useRootStateMachine({
             springClose: (context, event) => (callback, onReceive) => {
               springConfigRef.current({ mode: 'closing' })
               springRef.start({
+                mode: 'closing',
                 y: 0,
                 backdropOpacity: 0,
                 contentOpacity: 0,
-                onRest: () => callback('CLOSE_END'),
+                onRest: () => callback('CLOSE'),
               })
 
               return () => console.log('TODO handle the onSpringCloseCancel')
             },
           },
           guards: {
-            ready: (context, event, { state }) =>
-              state.matches('headerHeight.ready') &&
-              state.matches('contentHeight.ready') &&
-              state.matches('footerHeight.ready'),
+            validInitialHeight: (context) =>
+              context.maxHeight !== null &&
+              context.headerHeight !== null &&
+              context.contentHeight !== null &&
+              context.footerHeight !== null &&
+              context.initialHeight > 0,
           },
         }),
         {
           devTools: debugging,
         }
       ).start(),
-    [activateDomHooks, debugging, initialHeightRef, snapPointsRef, springRef]
+    [
+      contentRef,
+      footerRef,
+      headerRef,
+      initialHeightRef,
+      onClosed,
+      snapPointsRef,
+      springConfigRef,
+      springRef,
+    ]
   )
 
+  // https://xstate.js.org/docs/guides/states.html#state-methods-and-properties
+  /* 
+  const canRef = useRef(machine.initialState.can)
+  const can = useCallback<typeof machine.initialState.can>(
+    (event) => canRef.current(event),
+    []
+  )
+  // */
+
   useLayoutEffect(() => {
+    //@ts-expect-error
+    if (window.changelog) {
+      console.debug(
+        'DEBUG dumping old changelog',
+        //@ts-expect-error
+        JSON.parse(JSON.stringify(window.changelog))
+      )
+    }
+    //@ts-expect-error
+    window.events = []
+    //@ts-expect-error
+    window.changelog = []
     // @ts-expect-error
-    window.test = service
+    window.service = service
 
     service.subscribe(function setStateIfChanged(newState) {
+      if (!debugging) return
+
+      //@ts-expect-error
+      window.events.push(JSON.parse(JSON.stringify(newState)))
       if (newState.changed) {
-        console.log(
-          'changed',
-          newState.event.type,
-          JSON.parse(JSON.stringify(newState))
-        )
+        //@ts-expect-error
+        window.changelog.push(JSON.parse(JSON.stringify(newState)))
       }
     })
     return () => {
-      console.log('stopping root state machine')
+      console.warn('DEBUG stopping root state machine')
       service.stop()
     }
   }, [service])
 
-  // const send = useMemo(() => service.send, [service])
-  const isMounting = useCallback(
-    () => service.state.matches('mode.mounting'),
-    [service]
-  )
-
-  return { send: service.send, isMounting }
+  return { send: service.send }
 }
