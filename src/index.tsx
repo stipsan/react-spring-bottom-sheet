@@ -68,11 +68,6 @@ export const BottomSheet = forwardRef<RefHandles, Props>(function BottomSheet(
     [onSpringEnd]
   )
 
-  // This isn't just a performance optimization, it's also to avoid issues when running a non-browser env like SSR
-  if (!mounted) {
-    return null
-  }
-
   return (
     <Portal data-rsbs-portal>
       <_BottomSheet
@@ -82,7 +77,9 @@ export const BottomSheet = forwardRef<RefHandles, Props>(function BottomSheet(
         initialState={initialStateRef.current}
         onSpringStart={handleSpringStart}
         onSpringEnd={handleSpringEnd}
-      />
+      >
+        {!!mounted && props.children}
+      </_BottomSheet>
     </Portal>
   )
 })
