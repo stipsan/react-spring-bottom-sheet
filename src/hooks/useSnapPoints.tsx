@@ -7,103 +7,14 @@ import React, {
   useState,
 } from 'react'
 import { ResizeObserver, ResizeObserverEntry } from '@juggle/resize-observer'
-import type { defaultSnapProps, ResizeSource, snapPoints } from '../types'
-import { processSnapPoints, roundAndCheckForNaN } from '../utils'
+import type { ResizeSource } from '../types'
+import { roundAndCheckForNaN } from '../utils'
 import { useReady } from './useReady'
 import { ResizeObserverOptions } from '@juggle/resize-observer/lib/ResizeObserverOptions'
 import { useLayoutEffect } from './useLayoutEffect'
 import type { BottomSheetMachineHook } from '@bottom-sheet/react-hooks'
 
-export function useSnapPoints({
-  dispatch,
-  state,
-  contentRef,
-  controlledMaxHeight,
-  footerEnabled,
-  footerRef,
-  getSnapPoints,
-  headerEnabled,
-  headerRef,
-  heightRef,
-  lastSnapRef,
-  ready,
-  registerReady,
-  resizeSourceRef,
-}: {
-  dispatch: BottomSheetMachineHook['dispatch']
-  state: BottomSheetMachineHook['state']
-  contentRef: React.RefObject<Element>
-  controlledMaxHeight?: number
-  footerEnabled: boolean
-  footerRef: React.RefObject<Element>
-  getSnapPoints: snapPoints
-  headerEnabled: boolean
-  headerRef: React.RefObject<Element>
-  heightRef: React.RefObject<number>
-  lastSnapRef: React.RefObject<number>
-  ready: boolean
-  registerReady: ReturnType<typeof useReady>['registerReady']
-  resizeSourceRef: React.MutableRefObject<ResizeSource>
-}) {
-  const { minHeight, headerHeight, footerHeight } = useDimensions({
-    dispatch,
-    state,
-    contentRef: contentRef,
-    controlledMaxHeight,
-    footerEnabled,
-    footerRef,
-    headerEnabled,
-    headerRef,
-    registerReady,
-    resizeSourceRef,
-  })
-
-  const { snapPoints, minSnap, maxSnap } = processSnapPoints(
-    ready
-      ? getSnapPoints({
-          height: heightRef.current,
-          footerHeight,
-          headerHeight,
-          minHeight,
-          maxHeight: state.context.maxHeight,
-        })
-      : [0],
-    state.context.maxHeight
-  )
-  //console.log({ snapPoints, minSnap, maxSnap })
-
-  // @TODO investigate the gains from memoizing this
-  function findSnap(
-    numberOrCallback: number | ((state: defaultSnapProps) => number)
-  ) {
-    let unsafeSearch: number
-    if (typeof numberOrCallback === 'function') {
-      unsafeSearch = numberOrCallback({
-        footerHeight,
-        headerHeight,
-        height: heightRef.current,
-        minHeight,
-        maxHeight: state.context.maxHeight,
-        snapPoints,
-        lastSnap: lastSnapRef.current,
-      })
-    } else {
-      unsafeSearch = numberOrCallback
-    }
-    const querySnap = roundAndCheckForNaN(unsafeSearch)
-    return snapPoints.reduce(
-      (prev, curr) =>
-        Math.abs(curr - querySnap) < Math.abs(prev - querySnap) ? curr : prev,
-      minSnap
-    )
-  }
-
-  useDebugValue(`minSnap: ${minSnap}, maxSnap:${maxSnap}`)
-
-  return { minSnap, maxSnap, findSnap }
-}
-
-function useDimensions({
+export function useDimensions({
   dispatch,
   state,
   contentRef,
@@ -125,7 +36,7 @@ function useDimensions({
   headerRef: React.RefObject<Element>
   registerReady: ReturnType<typeof useReady>['registerReady']
   resizeSourceRef: React.MutableRefObject<ResizeSource>
-}): { minHeight: number; headerHeight: number; footerHeight: number } {
+}): void {
   const setReady = useMemo(
     () => registerReady('contentHeight'),
     [registerReady]
@@ -170,12 +81,6 @@ function useDimensions({
       setReady()
     }
   }, [ready, setReady])
-
-  return {
-    minHeight,
-    headerHeight,
-    footerHeight,
-  }
 }
 
 const observerOptions: ResizeObserverOptions = {

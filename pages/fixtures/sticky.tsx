@@ -41,15 +41,15 @@ const StickyFixturePage: NextPage<GetStaticProps> = ({
         <BottomSheet
           open={open}
           onDismiss={onDismiss}
-          defaultSnap={({ snapPoints, lastSnap }) =>
-            lastSnap ?? Math.min(...snapPoints)
+          initialHeight={({ snapPoints, lastHeight }) =>
+            lastHeight ?? snapPoints[0]
           }
           snapPoints={({ maxHeight }) => [
             maxHeight - maxHeight / 5,
             maxHeight * 0.6,
           ]}
           header={
-            <h1 className="flex items-center text-xl justify-center font-bold text-gray-800">
+            <h1 className="flex items-center justify-center text-xl font-bold text-gray-800">
               Sticky!
             </h1>
           }
@@ -65,14 +65,14 @@ const StickyFixturePage: NextPage<GetStaticProps> = ({
               the sheet will readjust accordingly.
             </p>
             <Expandable>
-              <div className="bg-gray-200 block rounded-md h-10 w-full my-10" />
+              <div className="block w-full h-10 my-10 bg-gray-200 rounded-md" />
               <p>
                 Putting the "Done" button in a sticky footer is a nice touch on
                 long bottom sheets with a lot of content. And on resize events
                 the sticky elements are always visible, unlike the "Dismiss"
                 button in the first example that needs to be animated first.
               </p>
-              <div className="bg-gray-200 block rounded-md h-10 w-full my-10" />
+              <div className="block w-full h-10 my-10 bg-gray-200 rounded-md" />
             </Expandable>
             <p>
               When you provide a header the draggable area increases, making it
@@ -84,7 +84,7 @@ const StickyFixturePage: NextPage<GetStaticProps> = ({
               difficult to reach with one hand.
             </p>
             <Expandable>
-              <div className="bg-gray-200 block rounded-md h-10 w-full my-10" />
+              <div className="block w-full h-10 my-10 bg-gray-200 rounded-md" />
               <p>
                 Additionally this bottom sheet uses stable viewpoints that are
                 equivalent to vh CSS units. Predictable heights like this is
@@ -92,7 +92,7 @@ const StickyFixturePage: NextPage<GetStaticProps> = ({
                 implementing a virtual list so the sheet can't rely on measuring
                 the height of its content.
               </p>
-              <div className="bg-gray-200 block rounded-md h-10 w-full my-10" />
+              <div className="block w-full h-10 my-10 bg-gray-200 rounded-md" />
             </Expandable>
           </SheetContent>
         </BottomSheet>

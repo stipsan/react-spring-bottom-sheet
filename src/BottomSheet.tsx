@@ -6,6 +6,7 @@
 // cause race conditions.
 
 import { useBottomSheetMachine } from '@bottom-sheet/react-hooks'
+import { computeSnapPointBounds } from '@bottom-sheet/state-machine'
 import { useMachine } from '@xstate/react'
 import React, {
   useCallback,
@@ -22,18 +23,12 @@ import {
   useReady,
   useReducedMotion,
   useScrollLock,
-  useSnapPoints,
+  useDimensions,
   useSpring,
   useSpringInterpolations,
 } from './hooks'
 import { overlayMachine } from './machines/overlay'
-import type {
-  defaultSnapProps,
-  Props,
-  RefHandles,
-  ResizeSource,
-  SnapPointProps,
-} from './types'
+import type { Props, RefHandles, ResizeSource } from './types'
 import { debugging } from './utils'
 
 const { tension, friction } = config.default
@@ -60,8 +55,8 @@ export const BottomSheet = React.forwardRef<
     initialFocusRef,
     onDismiss,
     maxHeight: controlledMaxHeight,
-    defaultSnap: getDefaultSnap = _defaultSnap,
-    snapPoints: getSnapPoints = _snapPoints,
+    initialHeight: getInitialHeight,
+    snapPoints: getSnapPoints,
     blocking = true,
     scrollLocking = true,
     style,
@@ -140,37 +135,29 @@ export const BottomSheet = React.forwardRef<
     enabled: ready && blocking && initialFocusRef !== false,
   })
 
-  const { minSnap, maxSnap, findSnap } = useSnapPoints({
+  useDimensions({
     dispatch,
     state,
     contentRef,
     controlledMaxHeight,
     footerEnabled: !!footer,
     footerRef,
-    getSnapPoints,
     headerEnabled: header !== false,
     headerRef,
-    heightRef,
-    lastSnapRef,
-    ready,
     registerReady,
     resizeSourceRef,
   })
 
   // Setup refs that are used in cases where full control is needed over when a side effect is executed
   const maxHeightRef = useRef(state.context.maxHeight)
-  const minSnapRef = useRef(minSnap)
-  const maxSnapRef = useRef(maxSnap)
-  const findSnapRef = useRef(findSnap)
-  const defaultSnapRef = useRef(0)
+  const minSnapRef = useRef(Math.min(...state.context.snapPoints))
+  const maxSnapRef = useRef(Math.max(...state.context.snapPoints))
   // Sync the refs with current state, giving the spring full control over when to respond to changes
   useLayoutEffect(() => {
     maxHeightRef.current = state.context.maxHeight
-    maxSnapRef.current = maxSnap
-    minSnapRef.current = minSnap
-    findSnapRef.current = findSnap
-    defaultSnapRef.current = findSnap(getDefaultSnap)
-  }, [findSnap, getDefaultSnap, maxSnap, minSnap, state.context.maxHeight])
+    minSnapRef.current = Math.min(...state.context.snapPoints)
+    maxSnapRef.current = Math.max(...state.context.snapPoints)
+  }, [state.context.maxHeight, state.context.snapPoints])
 
   // New utility for using events safely
   const asyncSet = useCallback<typeof set>(
@@ -301,16 +288,16 @@ export const BottomSheet = React.forwardRef<
       renderVisuallyHidden: useCallback(
         async (context, event) => {
           await asyncSet({
-            y: defaultSnapRef.current,
+            y: state.context.height,
             ready: 0,
             maxHeight: maxHeightRef.current,
             maxSnap: maxSnapRef.current,
-            // Using defaultSnapRef instead of minSnapRef to avoid animating `height` on open
-            minSnap: defaultSnapRef.current,
+            // Using height instead of minSnapRef to avoid animating `height` on open
+            minSnap: state.context.height,
             immediate: true,
           })
         },
-        [asyncSet]
+        [asyncSet, state.context.height]
       ),
       activate: useCallback(
         async (context, event) => {
@@ -330,43 +317,46 @@ export const BottomSheet = React.forwardRef<
         canDragRef.current = false
       }, [ariaHiderRef, focusTrapRef, scrollLockRef]),
       openImmediately: useCallback(async () => {
-        heightRef.current = defaultSnapRef.current
+        heightRef.current = state.context.height
         await asyncSet({
-          y: defaultSnapRef.current,
+          y: state.context.height,
           ready: 1,
           maxHeight: maxHeightRef.current,
           maxSnap: maxSnapRef.current,
-          // Using defaultSnapRef instead of minSnapRef to avoid animating `height` on open
-          minSnap: defaultSnapRef.current,
+          // Using height instead of minSnapRef to avoid animating `height` on open
+          minSnap: state.context.height,
           immediate: true,
         })
-      }, [asyncSet]),
+      }, [asyncSet, state.context.height]),
       openSmoothly: useCallback(async () => {
         await asyncSet({
           y: 0,
           ready: 1,
           maxHeight: maxHeightRef.current,
           maxSnap: maxSnapRef.current,
-          // Using defaultSnapRef instead of minSnapRef to avoid animating `height` on open
-          minSnap: defaultSnapRef.current,
+          // Using height instead of minSnapRef to avoid animating `height` on open
+          minSnap: state.context.height,
           immediate: true,
         })
 
-        heightRef.current = defaultSnapRef.current
+        heightRef.current = state.context.height
 
         await asyncSet({
-          y: defaultSnapRef.current,
+          y: state.context.height,
           ready: 1,
           maxHeight: maxHeightRef.current,
           maxSnap: maxSnapRef.current,
-          // Using defaultSnapRef instead of minSnapRef to avoid animating `height` on open
-          minSnap: defaultSnapRef.current,
+          // Using height instead of minSnapRef to avoid animating `height` on open
+          minSnap: state.context.height,
           immediate: prefersReducedMotion.current,
         })
-      }, [asyncSet, prefersReducedMotion]),
+      }, [asyncSet, prefersReducedMotion, state.context.height]),
       snapSmoothly: useCallback(
         async (context, event) => {
-          const snap = findSnapRef.current(context.y)
+          const [snap] = computeSnapPointBounds(
+            context.y,
+            state.context.snapPoints as [number, ...number[]]
+          )
           heightRef.current = snap
           lastSnapRef.current = snap
           await asyncSet({
@@ -379,10 +369,13 @@ export const BottomSheet = React.forwardRef<
             config: { velocity: context.velocity },
           })
         },
-        [asyncSet, lastSnapRef, prefersReducedMotion]
+        [asyncSet, lastSnapRef, prefersReducedMotion, state.context.snapPoints]
       ),
       resizeSmoothly: useCallback(async () => {
-        const snap = findSnapRef.current(heightRef.current)
+        const [snap] = computeSnapPointBounds(
+          heightRef.current,
+          state.context.snapPoints as [number, ...number[]]
+        )
         heightRef.current = snap
         lastSnapRef.current = snap
         await asyncSet({
@@ -396,7 +389,12 @@ export const BottomSheet = React.forwardRef<
               ? prefersReducedMotion.current
               : true,
         })
-      }, [asyncSet, lastSnapRef, prefersReducedMotion]),
+      }, [
+        asyncSet,
+        lastSnapRef,
+        prefersReducedMotion,
+        state.context.snapPoints,
+      ]),
       closeSmoothly: useCallback(
         async (context, event) => {
           // Avoid animating the height property on close and stay within FLIP bounds by upping the minSnap
@@ -431,11 +429,13 @@ export const BottomSheet = React.forwardRef<
     }
   }, [_open, send, ready])
   useLayoutEffect(() => {
+    const maxSnap = Math.max(...state.context.snapPoints)
+    const minSnap = Math.min(...state.context.snapPoints)
     // Adjust the height whenever the snap points are changed due to resize events
     if (state.context.maxHeight || maxSnap || minSnap) {
       send('RESIZE')
     }
-  }, [state.context.maxHeight, maxSnap, minSnap, send])
+  }, [state.context.maxHeight, send, state.context.snapPoints])
   useEffect(
     () => () => {
       // Ensure effects are cleaned up on unmount, in case they're not cleaned up otherwise
@@ -452,7 +452,22 @@ export const BottomSheet = React.forwardRef<
       snapTo: (numberOrCallback, { velocity = 1, source = 'custom' } = {}) => {
         send('SNAP', {
           payload: {
-            y: findSnapRef.current(numberOrCallback),
+            y: computeSnapPointBounds(
+              typeof numberOrCallback === 'function'
+                ? numberOrCallback({
+                    maxHeight: state.context.maxHeight,
+                    headerHeight: state.context.headerHeight,
+                    contentHeight: state.context.contentHeight,
+                    footerHeight: state.context.footerHeight,
+                    maxContent: state.context.maxContent,
+                    minContent: state.context.minContent,
+                    snapPoints: state.context.snapPoints,
+                    lastHeight: state.context.lastHeight,
+                    height: state.context.height,
+                  })
+                : numberOrCallback,
+              state.context.snapPoints as [number, ...number[]]
+            )[0],
             velocity,
             source,
           },
@@ -462,7 +477,18 @@ export const BottomSheet = React.forwardRef<
         return heightRef.current
       },
     }),
-    [send]
+    [
+      send,
+      state.context.contentHeight,
+      state.context.footerHeight,
+      state.context.headerHeight,
+      state.context.height,
+      state.context.lastHeight,
+      state.context.maxContent,
+      state.context.maxHeight,
+      state.context.minContent,
+      state.context.snapPoints,
+    ]
   )
 
   useEffect(() => {
@@ -714,11 +740,3 @@ const publicStates = [
   'snapping',
   'resizing',
 ]
-
-// Default prop values that are callbacks, and it's nice to save some memory and reuse their instances since they're pure
-function _defaultSnap({ snapPoints, lastSnap }: defaultSnapProps) {
-  return lastSnap ?? Math.min(...snapPoints)
-}
-function _snapPoints({ minHeight }: SnapPointProps) {
-  return minHeight
-}

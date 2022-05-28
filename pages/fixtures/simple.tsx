@@ -53,11 +53,11 @@ const SimpleFixturePage: NextPage<GetStaticProps> = ({
               their keyboard.
             </p>
             <Expandable>
-              <div className="bg-gray-200 block rounded-md h-10 w-full my-10" />
+              <div className="block w-full h-10 my-10 bg-gray-200 rounded-md" />
               <p>
                 The height adjustment is done automatically, it just works™!
               </p>
-              <div className="bg-gray-200 block rounded-md h-10 w-full my-10" />
+              <div className="block w-full h-10 my-10 bg-gray-200 rounded-md" />
             </Expandable>
             <Button onClick={onDismiss} className="w-full">
               Dismiss

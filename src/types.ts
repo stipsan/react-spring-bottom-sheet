@@ -105,7 +105,7 @@ export type Props = {
    * Handler that is called to get the initial height of the bottom sheet when it's opened (or when the viewport is resized).
    * @default ({ lastHeight, snapPoints }) => lastHeight ?? snapPoints[0]
    */
-  initialHeight?: GetInitialHeight
+  initialHeight?: number | GetInitialHeight
 
   /**
    * Configures body-scroll-lock to reserve scrollbar gap by setting padding on <body>, clears when closing the bottom sheet.
@@ -136,7 +136,9 @@ export interface RefHandles {
    * `velocity: number` which is 1 by default, adjust it to control the speed of the spring transition to the new snap point
    */
   snapTo: (
-    numberOrCallback: number | ((state: GetInitialHeightProps) => number),
+    numberOrCallback:
+      | number
+      | ((state: GetInitialHeightProps & { height: number }) => number),
     options?: { source?: string; velocity?: number }
   ) => void
 

@@ -88,13 +88,13 @@ function Two() {
             Dismiss
           </Button>
         }
-        defaultSnap={({ headerHeight, footerHeight, minHeight }) =>
+        initialHeight={({ headerHeight, footerHeight, maxContent }) =>
           //headerHeight + footerHeight
-          minHeight
+          maxContent
         }
-        snapPoints={({ minHeight, headerHeight, footerHeight }) => [
+        snapPoints={({ maxContent, headerHeight, footerHeight }) => [
           headerHeight + footerHeight,
-          minHeight,
+          maxContent,
         ]}
       >
         <SheetContent>
@@ -131,7 +131,10 @@ function Three() {
             Dismiss
           </Button>
         }
-        snapPoints={({ minHeight, headerHeight }) => [headerHeight, minHeight]}
+        snapPoints={({ maxContent, headerHeight }) => [
+          headerHeight,
+          maxContent,
+        ]}
       >
         <SheetContent>
           <p>
@@ -159,14 +162,14 @@ function Four() {
         onDismiss={onDismiss}
         header={
           <input
-            className="mt-1 block w-full rounded-md bg-gray-100 border-transparent focus:border-gray-300 focus:bg-white focus:ring-0"
+            className="block w-full mt-1 bg-gray-100 border-transparent rounded-md focus:border-gray-300 focus:bg-white focus:ring-0"
             type="text"
             placeholder="Text input field in a sticky header"
           />
         }
         footer={
           <input
-            className="mt-1 block w-full rounded-md bg-gray-100 border-transparent focus:border-gray-300 focus:bg-white focus:ring-0"
+            className="block w-full mt-1 bg-gray-100 border-transparent rounded-md focus:border-gray-300 focus:bg-white focus:ring-0"
             type="text"
             placeholder="Text input field in a sticky header"
           />
@@ -174,17 +177,17 @@ function Four() {
       >
         <SheetContent>
           <input
-            className="mt-1 block w-full rounded-md bg-gray-100 border-transparent focus:border-gray-300 focus:bg-white focus:ring-0"
+            className="block w-full mt-1 bg-gray-100 border-transparent rounded-md focus:border-gray-300 focus:bg-white focus:ring-0"
             type="text"
             placeholder="Text input field in a sticky header"
           />
           <Expandable>
-            <div className="bg-gray-200 block rounded-md h-10 w-full my-10" />
+            <div className="block w-full h-10 my-10 bg-gray-200 rounded-md" />
             <p>Testing focus management and keyboard behavior on open.</p>
-            <div className="bg-gray-200 block rounded-md h-10 w-full my-10" />
+            <div className="block w-full h-10 my-10 bg-gray-200 rounded-md" />
           </Expandable>
           <input
-            className="mt-1 block w-full rounded-md bg-gray-100 border-transparent focus:border-gray-300 focus:bg-white focus:ring-0"
+            className="block w-full mt-1 bg-gray-100 border-transparent rounded-md focus:border-gray-300 focus:bg-white focus:ring-0"
             type="text"
             placeholder="Text input field in a sticky header"
           />
@@ -208,11 +211,11 @@ function Five() {
         open={open}
         footer={<strong>Sticky footer</strong>}
         onDismiss={onDismiss}
-        defaultSnap={({ lastSnap }) => lastSnap}
-        snapPoints={({ minHeight, headerHeight, footerHeight }) => [
+        initialHeight={({ lastHeight }) => lastHeight}
+        snapPoints={({ maxContent, headerHeight, footerHeight }) => [
           headerHeight,
           headerHeight + footerHeight,
-          minHeight,
+          maxContent,
         ]}
       >
         <SheetContent>
@@ -256,7 +259,7 @@ function Six() {
         open={open}
         maxHeight={maxHeight}
         onDismiss={() => setOpen(false)}
-        snapPoints={({ minHeight, maxHeight }) => [minHeight, maxHeight]}
+        snapPoints={({ maxContent, maxHeight }) => [maxContent, maxHeight]}
       >
         <SheetContent>
           <Button onClick={() => setHalf((half) => !half)}>
@@ -310,8 +313,8 @@ function Eight() {
       <BottomSheet
         open={open}
         onDismiss={() => setOpen(false)}
-        defaultSnap={defaultSnap}
-        snapPoints={({ minHeight, maxHeight }) => [minHeight, maxHeight]}
+        initialHeight={defaultSnap}
+        snapPoints={({ maxContent, maxHeight }) => [maxContent, maxHeight]}
         onSpringEnd={(event) => {
           if (reopenRef.current && event.type === 'CLOSE') {
             reopenRef.current = false
@@ -397,16 +400,16 @@ function Ten() {
       <BottomSheet
         open={open}
         onDismiss={() => setOpen(false)}
-        defaultSnap={({ snapPoints }) => Math.max(...snapPoints)}
-        snapPoints={({ minHeight, maxHeight }) =>
+        initialHeight={({ snapPoints }) => Math.max(...snapPoints)}
+        snapPoints={({ maxContent, maxHeight }) =>
           [maxHeight, maxHeight * 0.7, maxHeight * 0.3].map((v) =>
-            Math.min(v, minHeight)
-          )
+            Math.min(v, maxContent)
+          ) as [number, ...number[]]
         }
       >
         <SheetContent>
           <Expandable>
-            <div className="bg-gray-200 block rounded-md h-screen w-full my-10" />
+            <div className="block w-full h-screen my-10 bg-gray-200 rounded-md" />
           </Expandable>
         </SheetContent>
       </BottomSheet>
@@ -417,6 +420,7 @@ function Ten() {
 function Eleven() {
   const [open, setOpen] = useState(false)
   const [height, setHeight] = useState(undefined)
+
   const sheetRef = useRef<BottomSheetRef>()
 
   return (
@@ -426,8 +430,8 @@ function Eleven() {
         ref={sheetRef}
         open={open}
         onDismiss={() => setOpen(false)}
-        snapPoints={({ minHeight, maxHeight }) => [
-          height ? minHeight : maxHeight,
+        snapPoints={({ maxContent, maxHeight }) => [
+          height ? maxContent : maxHeight,
           200,
         ]}
         onSpringStart={(event) => {
@@ -467,7 +471,7 @@ function Eleven() {
           >
             snapTo
           </Button>
-          <div className="bg-gray-200 block rounded-md h-screen w-full my-10" />
+          <div className="block w-full h-screen my-10 bg-gray-200 rounded-md" />
         </SheetContent>
       </BottomSheet>
     </>
@@ -486,11 +490,11 @@ function Twelve() {
         ref={sheetRef}
         open={open}
         onDismiss={() => setOpen(false)}
-        defaultSnap={({ snapPoints }) => Math.max(...snapPoints)}
-        snapPoints={({ minHeight, maxHeight }) =>
+        initialHeight={({ snapPoints }) => Math.max(...snapPoints)}
+        snapPoints={({ maxContent, maxHeight }) =>
           [maxHeight, maxHeight * 0.7, maxHeight * 0.3].map((v) =>
-            Math.min(v, minHeight)
-          )
+            Math.min(v, maxContent)
+          ) as [number, ...number[]]
         }
         onSpringStart={(event) => {
           console.log('onSpringStart', event, sheetRef.current.height)
@@ -512,7 +516,7 @@ function Twelve() {
       >
         <SheetContent>
           <Expandable>
-            <div className="bg-gray-200 block rounded-md h-screen w-full my-10" />
+            <div className="block w-full h-screen my-10 bg-gray-200 rounded-md" />
           </Expandable>
         </SheetContent>
       </BottomSheet>

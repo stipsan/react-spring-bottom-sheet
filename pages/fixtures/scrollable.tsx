@@ -90,7 +90,7 @@ const ScrollableFixturePage: NextPage<GetStaticProps> = ({
           sibling={<CloseExample className="z-10" />}
           ref={sheetRef}
           initialFocusRef={focusRef}
-          defaultSnap={({ maxHeight }) => maxHeight / 2}
+          initialHeight={({ maxHeight }) => maxHeight / 2}
           snapPoints={({ maxHeight }) => [
             maxHeight - maxHeight / 10,
             maxHeight / 4,
@@ -99,7 +99,7 @@ const ScrollableFixturePage: NextPage<GetStaticProps> = ({
           expandOnContentDrag={expandOnContentDrag}
         >
           <SheetContent>
-            <div className="grid grid-cols-3 w-full gap-4">
+            <div className="grid w-full grid-cols-3 gap-4">
               <Button
                 className={[
                   ' text-sm px2 py-1',
@@ -141,13 +141,14 @@ const ScrollableFixturePage: NextPage<GetStaticProps> = ({
             </div>
             <div className="grid w-full">
               <Button
-                  className={[
-                    ' text-sm px-2 py-1',
-                    { 'text-xl': false, 'px-7': false, 'py-3': false },
-                  ]}
-                  onClick={() => setExpandOnContentDrag(!expandOnContentDrag)}
-                >
-                {expandOnContentDrag ? 'Disable' : 'Enable'} expand on content drag
+                className={[
+                  ' text-sm px-2 py-1',
+                  { 'text-xl': false, 'px-7': false, 'py-3': false },
+                ]}
+                onClick={() => setExpandOnContentDrag(!expandOnContentDrag)}
+              >
+                {expandOnContentDrag ? 'Disable' : 'Enable'} expand on content
+                drag
               </Button>
             </div>
             <p>
