@@ -1,39 +1,13 @@
-export type SnapPointProps = {
-  /**
-   * The height of the sticky header, if there's one
-   */
-  headerHeight: number
-  /**
-   * The height of the sticky footer, if there's one
-   */
-  footerHeight: number
-  /**
-   * If the bottom sheet is animating to a snap point the height will match the destination height, not the height the bottom sheet might have in the middle of the animation. It includes the header and footer heights.
-   */
-  height: number
-  /**
-   * Minimum height needed to avoid scroll overflow in the content area, if possible.
-   */
-  minHeight: number
-  /**
-   * Max height the sheet can be, your snap points are capped to this value. It's window.innerHeight by default but can be overriden using the maxHeight prop.
-   */
-  maxHeight: number
-}
-
-export type snapPoints = (props: SnapPointProps) => number[] | number
+import type {
+  GetInitialHeight,
+  GetInitialHeightProps,
+  GetSnapPoints,
+} from '@bottom-sheet/types'
 
 /**
  * `window` comes from window.onresize, maxheightprop is if the `maxHeight` prop is used, and `element` comes from the resize observers that listens to header, footer and the content area
  */
 export type ResizeSource = 'window' | 'maxheightprop' | 'element'
-
-export type defaultSnapProps = {
-  /** The snap points currently in use, this can be controlled by providing a `snapPoints` function on the bottom sheet. */
-  snapPoints: number[]
-  /** The last snap point the user dragged to, if any. 0 if the user haven't interacted */
-  lastSnap: number | null
-} & SnapPointProps
 
 /* Might make sense to expose a preventDefault method here */
 export type SpringEvent =
@@ -123,15 +97,15 @@ export type Props = {
 
   /**
    * Handler that is called to get the height values that the bottom sheet can *snap* to when the user stops dragging.
-   * @default ({ minHeight }) => minHeight
+   * @default ({ maxContent }) => maxContent
    */
-  snapPoints?: snapPoints
+  snapPoints?: GetSnapPoints
 
   /**
    * Handler that is called to get the initial height of the bottom sheet when it's opened (or when the viewport is resized).
-   * @default ({ snapPoints, lastSnap }) => lastSnap ?? Math.min(...snapPoints)
+   * @default ({ lastHeight, snapPoints }) => lastHeight ?? snapPoints[0]
    */
-  defaultSnap?: number | ((props: defaultSnapProps) => number)
+  initialHeight?: GetInitialHeight
 
   /**
    * Configures body-scroll-lock to reserve scrollbar gap by setting padding on <body>, clears when closing the bottom sheet.
@@ -143,13 +117,13 @@ export type Props = {
   /**
    * Open immediatly instead of initially animating from a closed => open state, useful if the bottom sheet is visible by default and the animation would be distracting
    */
-  skipInitialTransition?: boolean,
+  skipInitialTransition?: boolean
 
   /**
    * Expand the bottom sheet on the content dragging. By default user can expand the bottom sheet only by dragging the header or overlay. This option enables expanding on dragging the content.
    * @default expandOnContentDrag === false
    */
-  expandOnContentDrag?: boolean,
+  expandOnContentDrag?: boolean
 } & Omit<React.PropsWithoutRef<JSX.IntrinsicElements['div']>, 'children'>
 
 export interface RefHandles {
@@ -162,7 +136,7 @@ export interface RefHandles {
    * `velocity: number` which is 1 by default, adjust it to control the speed of the spring transition to the new snap point
    */
   snapTo: (
-    numberOrCallback: number | ((state: defaultSnapProps) => number),
+    numberOrCallback: number | ((state: GetInitialHeightProps) => number),
     options?: { source?: string; velocity?: number }
   ) => void
 
