@@ -5,6 +5,7 @@
 // It also ensures that when transitioning to open on mount the state is always clean, not affected by previous states that could
 // cause race conditions.
 
+import { useBottomSheetMachine } from '@bottom-sheet/react-hooks'
 import { useMachine } from '@xstate/react'
 import React, {
   useCallback,
@@ -73,6 +74,21 @@ export const BottomSheet = React.forwardRef<
   },
   forwardRef
 ) {
+  // @TODO: migrating everything to the new hooks
+  const { dispatch, state, getTransientSnapshot } = useBottomSheetMachine()
+  useEffect(() => {
+    console.debug('useBottomSheetMachine.dispatch', dispatch)
+  }, [dispatch])
+  useEffect(() => {
+    console.debug('useBottomSheetMachine.state', state)
+  }, [state])
+  useEffect(() => {
+    console.debug(
+      'useBottomSheetMachine.getTransientSnapshot',
+      getTransientSnapshot
+    )
+  }, [getTransientSnapshot])
+
   // Before any animations can start we need to measure a few things, like the viewport and the dimensions of content, and header + footer if they exist
   // @TODO make ready its own state perhaps, before open or closed
   const { ready, registerReady } = useReady()
@@ -450,13 +466,13 @@ export const BottomSheet = React.forwardRef<
   useEffect(() => {
     const elem = scrollRef.current
 
-    const preventScrolling = e => {
+    const preventScrolling = (e) => {
       if (preventScrollingRef.current) {
         e.preventDefault()
       }
     }
 
-    const preventSafariOverscroll = e => {
+    const preventSafariOverscroll = (e) => {
       if (elem.scrollTop < 0) {
         requestAnimationFrame(() => {
           elem.style.overflow = 'hidden'
@@ -563,7 +579,7 @@ export const BottomSheet = React.forwardRef<
         newY = maxSnapRef.current
       }
 
-      preventScrollingRef.current = newY < maxSnapRef.current;
+      preventScrollingRef.current = newY < maxSnapRef.current
     } else {
       preventScrollingRef.current = false
     }
@@ -666,7 +682,12 @@ export const BottomSheet = React.forwardRef<
             {header}
           </div>
         )}
-        <div key="scroll" data-rsbs-scroll ref={scrollRef} {...(expandOnContentDrag ? bind({ isContentDragging: true }) : {})}>
+        <div
+          key="scroll"
+          data-rsbs-scroll
+          ref={scrollRef}
+          {...(expandOnContentDrag ? bind({ isContentDragging: true }) : {})}
+        >
           <div data-rsbs-content ref={contentRef}>
             {children}
           </div>
