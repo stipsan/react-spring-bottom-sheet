@@ -140,7 +140,9 @@ export const BottomSheet = React.forwardRef<
     enabled: ready && blocking && initialFocusRef !== false,
   })
 
-  const { minSnap, maxSnap, maxHeight, findSnap } = useSnapPoints({
+  const { minSnap, maxSnap, findSnap } = useSnapPoints({
+    dispatch,
+    state,
     contentRef,
     controlledMaxHeight,
     footerEnabled: !!footer,
@@ -156,19 +158,19 @@ export const BottomSheet = React.forwardRef<
   })
 
   // Setup refs that are used in cases where full control is needed over when a side effect is executed
-  const maxHeightRef = useRef(maxHeight)
+  const maxHeightRef = useRef(state.context.maxHeight)
   const minSnapRef = useRef(minSnap)
   const maxSnapRef = useRef(maxSnap)
   const findSnapRef = useRef(findSnap)
   const defaultSnapRef = useRef(0)
   // Sync the refs with current state, giving the spring full control over when to respond to changes
   useLayoutEffect(() => {
-    maxHeightRef.current = maxHeight
+    maxHeightRef.current = state.context.maxHeight
     maxSnapRef.current = maxSnap
     minSnapRef.current = minSnap
     findSnapRef.current = findSnap
     defaultSnapRef.current = findSnap(getDefaultSnap)
-  }, [findSnap, getDefaultSnap, maxHeight, maxSnap, minSnap])
+  }, [findSnap, getDefaultSnap, maxSnap, minSnap, state.context.maxHeight])
 
   // New utility for using events safely
   const asyncSet = useCallback<typeof set>(
@@ -430,10 +432,10 @@ export const BottomSheet = React.forwardRef<
   }, [_open, send, ready])
   useLayoutEffect(() => {
     // Adjust the height whenever the snap points are changed due to resize events
-    if (maxHeight || maxSnap || minSnap) {
+    if (state.context.maxHeight || maxSnap || minSnap) {
       send('RESIZE')
     }
-  }, [maxHeight, maxSnap, minSnap, send])
+  }, [state.context.maxHeight, maxSnap, minSnap, send])
   useEffect(
     () => () => {
       // Ensure effects are cleaned up on unmount, in case they're not cleaned up otherwise

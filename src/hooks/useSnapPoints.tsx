@@ -12,8 +12,11 @@ import { processSnapPoints, roundAndCheckForNaN } from '../utils'
 import { useReady } from './useReady'
 import { ResizeObserverOptions } from '@juggle/resize-observer/lib/ResizeObserverOptions'
 import { useLayoutEffect } from './useLayoutEffect'
+import type { BottomSheetMachineHook } from '@bottom-sheet/react-hooks'
 
 export function useSnapPoints({
+  dispatch,
+  state,
   contentRef,
   controlledMaxHeight,
   footerEnabled,
@@ -27,6 +30,8 @@ export function useSnapPoints({
   registerReady,
   resizeSourceRef,
 }: {
+  dispatch: BottomSheetMachineHook['dispatch']
+  state: BottomSheetMachineHook['state']
   contentRef: React.RefObject<Element>
   controlledMaxHeight?: number
   footerEnabled: boolean
@@ -40,7 +45,9 @@ export function useSnapPoints({
   registerReady: ReturnType<typeof useReady>['registerReady']
   resizeSourceRef: React.MutableRefObject<ResizeSource>
 }) {
-  const { maxHeight, minHeight, headerHeight, footerHeight } = useDimensions({
+  const { minHeight, headerHeight, footerHeight } = useDimensions({
+    dispatch,
+    state,
     contentRef: contentRef,
     controlledMaxHeight,
     footerEnabled,
@@ -58,10 +65,10 @@ export function useSnapPoints({
           footerHeight,
           headerHeight,
           minHeight,
-          maxHeight,
+          maxHeight: state.context.maxHeight,
         })
       : [0],
-    maxHeight
+    state.context.maxHeight
   )
   //console.log({ snapPoints, minSnap, maxSnap })
 
@@ -76,7 +83,7 @@ export function useSnapPoints({
         headerHeight,
         height: heightRef.current,
         minHeight,
-        maxHeight,
+        maxHeight: state.context.maxHeight,
         snapPoints,
         lastSnap: lastSnapRef.current,
       })
@@ -93,10 +100,12 @@ export function useSnapPoints({
 
   useDebugValue(`minSnap: ${minSnap}, maxSnap:${maxSnap}`)
 
-  return { minSnap, maxSnap, findSnap, maxHeight }
+  return { minSnap, maxSnap, findSnap }
 }
 
 function useDimensions({
+  dispatch,
+  state,
   contentRef,
   controlledMaxHeight,
   footerEnabled,
@@ -106,6 +115,8 @@ function useDimensions({
   registerReady,
   resizeSourceRef,
 }: {
+  dispatch: BottomSheetMachineHook['dispatch']
+  state: BottomSheetMachineHook['state']
   contentRef: React.RefObject<Element>
   controlledMaxHeight?: number
   footerEnabled: boolean
@@ -114,11 +125,14 @@ function useDimensions({
   headerRef: React.RefObject<Element>
   registerReady: ReturnType<typeof useReady>['registerReady']
   resizeSourceRef: React.MutableRefObject<ResizeSource>
-}) {
-  const setReady = useMemo(() => registerReady('contentHeight'), [
-    registerReady,
-  ])
-  const maxHeight = useMaxHeight(
+}): { minHeight: number; headerHeight: number; footerHeight: number } {
+  const setReady = useMemo(
+    () => registerReady('contentHeight'),
+    [registerReady]
+  )
+  useMaxHeight(
+    dispatch,
+    state,
     controlledMaxHeight,
     registerReady,
     resizeSourceRef
@@ -141,7 +155,10 @@ function useDimensions({
     resizeSourceRef,
   })
   const minHeight =
-    Math.min(maxHeight - headerHeight - footerHeight, contentHeight) +
+    Math.min(
+      state.context.maxHeight - headerHeight - footerHeight,
+      contentHeight
+    ) +
     headerHeight +
     footerHeight
 
@@ -155,7 +172,6 @@ function useDimensions({
   }, [ready, setReady])
 
   return {
-    maxHeight,
     minHeight,
     headerHeight,
     footerHeight,
@@ -215,17 +231,14 @@ function useElementSizeObserver(
 
 // Blazingly keep track of the current viewport height without blocking the thread, keeping that sweet 60fps on smartphones
 function useMaxHeight(
-  controlledMaxHeight,
+  dispatch: BottomSheetMachineHook['dispatch'],
+  state: BottomSheetMachineHook['state'],
+  controlledMaxHeight: number | undefined,
   registerReady: ReturnType<typeof useReady>['registerReady'],
   resizeSourceRef: React.MutableRefObject<ResizeSource>
-) {
+): void {
   const setReady = useMemo(() => registerReady('maxHeight'), [registerReady])
-  const [maxHeight, setMaxHeight] = useState(() =>
-    roundAndCheckForNaN(controlledMaxHeight) || typeof window !== 'undefined'
-      ? window.innerHeight
-      : 0
-  )
-  const ready = maxHeight > 0
+  const ready = state.context.maxHeight > 0
   const raf = useRef(0)
 
   useDebugValue(controlledMaxHeight ? 'controlled' : 'auto')
@@ -239,7 +252,10 @@ function useMaxHeight(
   useLayoutEffect(() => {
     // Bail if the max height is a controlled prop
     if (controlledMaxHeight) {
-      setMaxHeight(roundAndCheckForNaN(controlledMaxHeight))
+      dispatch({
+        type: 'SET_MAX_HEIGHT',
+        payload: { maxHeight: roundAndCheckForNaN(controlledMaxHeight) },
+      })
       resizeSourceRef.current = 'maxheightprop'
 
       return
@@ -253,14 +269,20 @@ function useMaxHeight(
 
       // throttle state changes using rAF
       raf.current = requestAnimationFrame(() => {
-        setMaxHeight(window.innerHeight)
+        dispatch({
+          type: 'SET_MAX_HEIGHT',
+          payload: { maxHeight: window.innerHeight },
+        })
         resizeSourceRef.current = 'window'
 
         raf.current = 0
       })
     }
     window.addEventListener('resize', handleResize)
-    setMaxHeight(window.innerHeight)
+    dispatch({
+      type: 'SET_MAX_HEIGHT',
+      payload: { maxHeight: window.innerHeight },
+    })
     resizeSourceRef.current = 'window'
     setReady()
 
@@ -268,7 +290,5 @@ function useMaxHeight(
       window.removeEventListener('resize', handleResize)
       cancelAnimationFrame(raf.current)
     }
-  }, [controlledMaxHeight, setReady, resizeSourceRef])
-
-  return maxHeight
+  }, [controlledMaxHeight, dispatch, resizeSourceRef, setReady])
 }
