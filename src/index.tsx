@@ -10,6 +10,9 @@ export type {
   Props as BottomSheetProps,
 } from './types'
 
+// @TODO: re-enable this and remove the constant after testing is complete
+const UNMOUNT_ON_CLOSED = false
+
 // Because SSR is annoying to deal with, and all the million complaints about window, navigator and dom elenents!
 export const BottomSheet = forwardRef<RefHandles, Props>(function BottomSheet(
   { onSpringStart, onSpringEnd, skipInitialTransition, ...props },
@@ -69,7 +72,7 @@ export const BottomSheet = forwardRef<RefHandles, Props>(function BottomSheet(
   )
 
   // This isn't just a performance optimization, it's also to avoid issues when running a non-browser env like SSR
-  if (!mounted) {
+  if (!mounted && UNMOUNT_ON_CLOSED) {
     return null
   }
 
