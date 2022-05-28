@@ -424,18 +424,29 @@ export const BottomSheet = React.forwardRef<
 
     if (_open) {
       send('OPEN')
+      dispatch({ type: 'OPEN' })
+      // @TODO: firing ready right away until the overall hooks logic is rewritten to use the new machine
+      dispatch({ type: 'READY' })
     } else {
+      dispatch({ type: 'CLOSE' })
       send('CLOSE')
     }
-  }, [_open, send, ready])
+  }, [_open, send, ready, dispatch])
   useLayoutEffect(() => {
     const maxSnap = Math.max(...state.context.snapPoints)
     const minSnap = Math.min(...state.context.snapPoints)
     // Adjust the height whenever the snap points are changed due to resize events
     if (state.context.maxHeight || maxSnap || minSnap) {
       send('RESIZE')
+      dispatch({ type: 'RESIZE', payload: { height: state.context.height } })
     }
-  }, [state.context.maxHeight, send, state.context.snapPoints])
+  }, [
+    state.context.maxHeight,
+    send,
+    state.context.snapPoints,
+    state.context.height,
+    dispatch,
+  ])
   useEffect(
     () => () => {
       // Ensure effects are cleaned up on unmount, in case they're not cleaned up otherwise
@@ -662,7 +673,7 @@ export const BottomSheet = React.forwardRef<
     <animated.div
       {...props}
       data-rsbs-root
-      data-rsbs-state={publicStates.find(current.matches)}
+      data-rsbs-state={publicStates.find(state.matches)}
       data-rsbs-is-blocking={blocking}
       data-rsbs-is-dismissable={!!onDismiss}
       data-rsbs-has-header={!!header}

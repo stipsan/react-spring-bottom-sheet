@@ -65,17 +65,34 @@ export function useDimensions({
     enabled: footerEnabled,
     resizeSourceRef,
   })
-  const minHeight =
-    Math.min(
-      state.context.maxHeight - headerHeight - footerHeight,
-      contentHeight
-    ) +
-    headerHeight +
-    footerHeight
 
-  useDebugValue(`minHeight: ${minHeight}`)
+  // @TODO: temporary hooks to send the height states into the state machine
+  useEffect(() => {
+    if (headerHeight) {
+      dispatch({
+        type: 'SET_HEADER_HEIGHT',
+        payload: { headerHeight },
+      })
+    }
+  }, [headerHeight, dispatch])
+  useEffect(() => {
+    if (contentHeight) {
+      dispatch({
+        type: 'SET_CONTENT_HEIGHT',
+        payload: { contentHeight },
+      })
+    }
+  }, [contentHeight, dispatch])
+  useEffect(() => {
+    if (footerHeight) {
+      dispatch({
+        type: 'SET_FOOTER_HEIGHT',
+        payload: { footerHeight },
+      })
+    }
+  }, [footerHeight, dispatch])
 
-  const ready = contentHeight > 0
+  const ready = state.context.contentHeight > 0
   useEffect(() => {
     if (ready) {
       setReady()
