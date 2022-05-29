@@ -1,5 +1,6 @@
 import type { NextPage } from 'next'
 import { useEffect, useState } from 'react'
+
 import Button from '../../docs/fixtures/Button'
 import Container from '../../docs/fixtures/Container'
 import Expandable from '../../docs/fixtures/Expandable'
@@ -41,13 +42,23 @@ const StickyFixturePage: NextPage<GetStaticProps> = ({
         <BottomSheet
           open={open}
           onDismiss={onDismiss}
-          initialHeight={({ snapPoints, lastHeight }) =>
-            lastHeight ?? snapPoints[0]
-          }
-          snapPoints={({ maxHeight }) => [
-            maxHeight - maxHeight / 5,
-            maxHeight * 0.6,
-          ]}
+          initialHeight={(props) => {
+            const { snapPoints, lastHeight, maxContent } = props
+            console.count('initialHeight')
+            console.log('initialHeight: ', props)
+            return lastHeight ?? maxContent
+          }}
+          snapPoints={(props) => {
+            const { maxHeight, maxContent, minContent } = props
+            console.count('snapPoints')
+            console.log('snapPoints: ', props)
+            return [
+              minContent,
+              maxContent,
+              maxHeight - maxHeight / 5,
+              maxHeight * 0.6,
+            ]
+          }}
           header={
             <h1 className="flex items-center justify-center text-xl font-bold text-gray-800">
               Sticky!

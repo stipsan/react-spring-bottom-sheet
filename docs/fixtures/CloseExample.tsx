@@ -1,6 +1,6 @@
 import cx from 'classnames/dedupe'
-import { forwardRef } from 'react'
 import Link from 'next/link'
+import { forwardRef } from 'react'
 
 type Props = {
   className?: Parameters<typeof cx>[0]

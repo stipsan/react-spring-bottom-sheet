@@ -1,5 +1,6 @@
 import cx from 'classnames/dedupe'
 import { forwardRef } from 'react'
+
 import styles from './Button.module.css'
 
 type Props = {

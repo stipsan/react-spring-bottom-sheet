@@ -1,4 +1,4 @@
-import { Machine, assign } from 'xstate'
+import { assign, Machine } from 'xstate'
 
 // This is the root machine, composing all the other machines and is the brain of the bottom sheet
 

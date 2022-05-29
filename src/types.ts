@@ -98,6 +98,8 @@ export type Props = {
   /**
    * Handler that is called to get the height values that the bottom sheet can *snap* to when the user stops dragging.
    * @default ({ maxContent }) => maxContent
+   * TODO: support number, to create a distributed range between minContent, maxContent and maxHeight
+   *       given minContent: 100, maxContent: 200, maxHeight: 300 and snapPoints={50} then create [100, 150, 200, 250, 300]
    */
   snapPoints?: GetSnapPoints
 

@@ -1,7 +1,8 @@
 import cx from 'classnames/dedupe'
 import { useEffect } from 'react'
-import { useDetectEnv } from './hooks'
+
 import CloseExample from './CloseExample'
+import { useDetectEnv } from './hooks'
 
 export default function Container({
   children,

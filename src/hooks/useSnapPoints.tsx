@@ -1,3 +1,6 @@
+import type { BottomSheetMachineHook } from '@bottom-sheet/react-hooks'
+import { ResizeObserver, ResizeObserverEntry } from '@juggle/resize-observer'
+import { ResizeObserverOptions } from '@juggle/resize-observer/lib/ResizeObserverOptions'
 import React, {
   useCallback,
   useDebugValue,
@@ -6,13 +9,11 @@ import React, {
   useRef,
   useState,
 } from 'react'
-import { ResizeObserver, ResizeObserverEntry } from '@juggle/resize-observer'
+
 import type { ResizeSource } from '../types'
 import { roundAndCheckForNaN } from '../utils'
-import { useReady } from './useReady'
-import { ResizeObserverOptions } from '@juggle/resize-observer/lib/ResizeObserverOptions'
 import { useLayoutEffect } from './useLayoutEffect'
-import type { BottomSheetMachineHook } from '@bottom-sheet/react-hooks'
+import { useReady } from './useReady'
 
 export function useDimensions({
   dispatch,

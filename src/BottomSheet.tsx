@@ -16,14 +16,15 @@ import React, {
 } from 'react'
 import { animated, config } from 'react-spring'
 import { rubberbandIfOutOfBounds, useDrag } from 'react-use-gesture'
+
 import {
   useAriaHider,
+  useDimensions,
   useFocusTrap,
   useLayoutEffect,
   useReady,
   useReducedMotion,
   useScrollLock,
-  useDimensions,
   useSpring,
   useSpringInterpolations,
 } from './hooks'
@@ -55,8 +56,8 @@ export const BottomSheet = React.forwardRef<
     initialFocusRef,
     onDismiss,
     maxHeight: controlledMaxHeight,
-    initialHeight: getInitialHeight,
-    snapPoints: getSnapPoints,
+    initialHeight,
+    snapPoints,
     blocking = true,
     scrollLocking = true,
     style,
@@ -70,7 +71,10 @@ export const BottomSheet = React.forwardRef<
   forwardRef
 ) {
   // @TODO: migrating everything to the new hooks
-  const { dispatch, state, getTransientSnapshot } = useBottomSheetMachine()
+  const { dispatch, state, getTransientSnapshot } = useBottomSheetMachine({
+    initialHeight,
+    snapPoints,
+  })
   useEffect(() => {
     console.debug('useBottomSheetMachine.dispatch', dispatch)
   }, [dispatch])

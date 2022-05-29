@@ -1,5 +1,6 @@
 import type { NextPage } from 'next'
 import { useEffect, useRef, useState } from 'react'
+
 import Button from '../../docs/fixtures/Button'
 import Code from '../../docs/fixtures/Code'
 import Container from '../../docs/fixtures/Container'

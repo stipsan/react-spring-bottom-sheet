@@ -1,5 +1,6 @@
 import type { NextPage } from 'next'
 import { useEffect, useState } from 'react'
+
 import Button from '../../docs/fixtures/Button'
 import Code from '../../docs/fixtures/Code'
 import Container from '../../docs/fixtures/Container'
@@ -44,7 +45,7 @@ const SimpleFixturePage: NextPage<GetStaticProps> = ({
         <BottomSheet
           open={open}
           onDismiss={onDismiss}
-          snapPoints={({ minHeight }) => minHeight}
+          snapPoints={({ maxContent }) => maxContent}
         >
           <SheetContent>
             <p>

@@ -2,6 +2,7 @@ import cx from 'classnames'
 import type { NextPage } from 'next'
 import { useRef, useState } from 'react'
 import scrollIntoView from 'smooth-scroll-into-view-if-needed'
+
 import Button from '../../docs/fixtures/Button'
 import CloseExample from '../../docs/fixtures/CloseExample'
 import Code from '../../docs/fixtures/Code'

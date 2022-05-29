@@ -1,6 +1,7 @@
 import cx from 'classnames'
 import { forwardRef, useEffect, useRef, useState } from 'react'
 import { animated, config, useSpring } from 'react-spring'
+
 import styles from './Hero.module.css'
 
 const subtitle = 'Accessible, Delightful, and Performant'

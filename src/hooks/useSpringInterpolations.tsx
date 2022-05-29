@@ -1,6 +1,7 @@
 import { interpolate } from 'react-spring'
-import type { Spring } from './useSpring'
+
 import { clamp } from '../utils'
+import type { Spring } from './useSpring'
 
 // It's a bit easier to ensure interpolations don't accidentally use the wrong variables by
 // putting them here, in their own closure with explicitly defined variables used

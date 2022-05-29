@@ -1,5 +1,6 @@
 import cx from 'classnames'
 import { forwardRef } from 'react'
+
 import styles from './SnapMarker.module.css'
 
 const SnapMarker = forwardRef<

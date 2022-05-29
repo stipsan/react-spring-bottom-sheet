@@ -1,6 +1,7 @@
 import cx from 'classnames'
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
+
 import styles from './StickyNugget.module.css'
 
 export default function StickyNugget({

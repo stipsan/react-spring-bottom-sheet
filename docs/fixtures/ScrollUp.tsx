@@ -1,5 +1,6 @@
 import cx from 'classnames'
 import { forwardRef } from 'react'
+
 import styles from './ScrollUp.module.css'
 
 const ScrollUp = forwardRef<
