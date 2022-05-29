@@ -27,7 +27,7 @@ export function useReady() {
     }
 
     const isReady = states.every(Boolean)
-    console.log('check if we are rready', readyMap, isReady)
+    console.log('check if we are ready', readyMap, isReady)
     if (isReady) {
       console.warn('ready!')
       setReady(true)
