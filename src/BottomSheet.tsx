@@ -10,15 +10,16 @@ import {
   type BottomSheetEvent,
   computeSnapPointBounds,
 } from '@bottom-sheet/state-machine'
-import { animated, config } from '@react-spring/web'
+import { animated } from '@react-spring/web'
+import { rubberbandIfOutOfBounds, useDrag } from '@use-gesture/react'
 import { useMachine } from '@xstate/react'
 import React, {
+  Fragment,
   useCallback,
   useEffect,
   useImperativeHandle,
   useRef,
 } from 'react'
-import { rubberbandIfOutOfBounds, useDrag } from 'react-use-gesture'
 
 import {
   useAriaHider,
@@ -33,9 +34,6 @@ import {
 } from './hooks'
 import { overlayMachine } from './machines/overlay'
 import type { Props, RefHandles, ResizeSource } from './types'
-import { debugging } from './utils'
-
-const { tension, friction } = config.default
 
 // @TODO implement AbortController to deal with race conditions
 
@@ -89,7 +87,7 @@ export const BottomSheet = React.forwardRef<
   const { dispatch, state, getTransientSnapshot } = useBottomSheetMachine({
     initialHeight,
     snapPoints,
-    unstable__requestAnimationFrame: true,
+    // unstable__requestAnimationFrame: true,
   })
   useEffect(() => {
     console.debug(
@@ -97,22 +95,10 @@ export const BottomSheet = React.forwardRef<
       getTransientSnapshot()
     )
   }, [getTransientSnapshot])
-  useEffect(() => {
-    console.log('nextEvents', state.nextEvents)
-  }, [state.nextEvents])
 
   // Before any animations can start we need to measure a few things, like the viewport and the dimensions of content, and header + footer if they exist
   // @TODO make ready its own state perhaps, before open or closed
   const { ready, registerReady } = useReady()
-
-  // Controls the drag handler, used by spring operations that happen outside the render loop in React
-  const canDragRef = useRef(false)
-  useEffect(() => {
-    const closed = state.matches('closed')
-    const preOpening = state.matches('open.opening.transition')
-    const closing = state.matches('open.closing')
-    canDragRef.current = !closed && !preOpening && !closing
-  }, [state])
 
   // This way apps don't have to remember to wrap their callbacks in useCallback to avoid breaking the sheet
   const onSpringStartRef = useRef(onSpringStart)
@@ -214,105 +200,11 @@ export const BottomSheet = React.forwardRef<
     [springApi]
   )
   //*/
+
   // @TODO deprecate this state machine in favor of the new one
   useMachine(overlayMachine, {
-    devTools: debugging,
-    actions: {
-      onOpenCancel: useCallback(
-        () => onSpringCancelRef.current?.({ type: 'OPEN' }),
-        []
-      ),
-      onSnapCancel: useCallback(
-        (context) =>
-          onSpringCancelRef.current?.({
-            type: 'SNAP',
-            source: context.snapSource,
-          }),
-        []
-      ),
-      onCloseCancel: useCallback(
-        () => onSpringCancelRef.current?.({ type: 'CLOSE' }),
-        []
-      ),
-      onResizeCancel: useCallback(
-        () =>
-          onSpringCancelRef.current?.({
-            type: 'RESIZE',
-            source: resizeSourceRef.current,
-          }),
-        []
-      ),
-      onOpenEnd: useCallback(
-        () => onSpringEndRef.current?.({ type: 'OPEN' }),
-        []
-      ),
-      onSnapEnd: useCallback(
-        (context, event) =>
-          onSpringEndRef.current?.({
-            type: 'SNAP',
-            source: context.snapSource,
-          }),
-        []
-      ),
-      onResizeEnd: useCallback(
-        () =>
-          onSpringEndRef.current?.({
-            type: 'RESIZE',
-            source: resizeSourceRef.current,
-          }),
-        []
-      ),
-    },
     context: { initialState },
     services: {
-      onSnapStart: useCallback(
-        async (context, event) =>
-          onSpringStartRef.current?.({
-            type: 'SNAP',
-            source: event.payload.source || 'custom',
-          }),
-        []
-      ),
-      onOpenStart: useCallback(
-        async () => onSpringStartRef.current?.({ type: 'OPEN' }),
-        []
-      ),
-      onCloseStart: useCallback(
-        async () => onSpringStartRef.current?.({ type: 'CLOSE' }),
-        []
-      ),
-      onResizeStart: useCallback(
-        async () =>
-          onSpringStartRef.current?.({
-            type: 'RESIZE',
-            source: resizeSourceRef.current,
-          }),
-        []
-      ),
-      onSnapEnd: useCallback(
-        async (context, event) =>
-          onSpringEndRef.current?.({
-            type: 'SNAP',
-            source: context.snapSource,
-          }),
-        []
-      ),
-      onOpenEnd: useCallback(
-        async () => onSpringEndRef.current?.({ type: 'OPEN' }),
-        []
-      ),
-      onCloseEnd: useCallback(
-        async () => onSpringEndRef.current?.({ type: 'CLOSE' }),
-        []
-      ),
-      onResizeEnd: useCallback(
-        async () =>
-          onSpringEndRef.current?.({
-            type: 'RESIZE',
-            source: resizeSourceRef.current,
-          }),
-        []
-      ),
       renderVisuallyHidden: useCallback(
         async (context, event) => {
           await asyncSet({
@@ -446,7 +338,7 @@ export const BottomSheet = React.forwardRef<
         maxHeight: state.context.maxHeight,
         maxSnap: state.context.snapPoints.at(-1),
         minSnap: state.context.snapPoints[0],
-        y: state.context.height,
+        height: state.context.height,
         onRest: () => dispatch({ type: 'OPENED' }),
       })
     }
@@ -456,7 +348,7 @@ export const BottomSheet = React.forwardRef<
         maxHeight: state.context.maxHeight,
         maxSnap: state.context.snapPoints.at(-1),
         minSnap: state.context.snapPoints[0],
-        y: state.context.height,
+        height: state.context.height,
         onRest: () => dispatch({ type: 'DRAGGED' }),
       })
     }
@@ -572,140 +464,145 @@ export const BottomSheet = React.forwardRef<
     }
   }, [expandOnContentDrag, scrollRef])
 
-  const handleDrag = ({
-    args: [{ closeOnTap = false, isContentDragging = false } = {}] = [],
-    cancel,
-    direction: [, direction],
-    down,
-    first,
-    last,
-    memo = springStyles.y.get(),
-    movement: [, _my],
-    tap,
-    velocity,
-  }) => {
-    // Cancel the drag operation if the canDrag state changed
-    if (!getTransientSnapshot().nextEvents.some(canDrag)) {
-      console.debug('Cancelling drag', getTransientSnapshot().nextEvents)
-      cancel()
-      return memo
-    }
+  const bind = useDrag(
+    ({
+      args: [{ closeOnTap = false, isContentDragging = false } = {}] = [],
+      cancel,
+      direction: [, direction],
+      down,
+      last,
+      memo = springStyles.height.get(),
+      movement: [, _my],
+      tap,
+      velocity,
+    }) => {
+      try {
+        console.group('useDrag')
+        console.warn('start', { last })
 
-    if (onDismiss && closeOnTap && tap) {
-      cancel()
-      // Runs onDismiss in a timeout to avoid tap events on the backdrop from triggering click events on elements underneath
-      setTimeout(() => onDismiss(), 0)
-      return memo
-    }
+        // Cancel the drag operation if the canDrag state changed
+        if (!getTransientSnapshot().nextEvents.some(canDrag)) {
+          console.debug('Cancelling drag', getTransientSnapshot().nextEvents)
+          cancel()
+          return memo
+        }
 
-    // Filter out taps
-    if (tap) {
-      return memo
-    }
+        if (onDismiss && closeOnTap && tap) {
+          console.debug('Closing on tap')
+          cancel()
+          // Runs onDismiss in a timeout to avoid tap events on the backdrop from triggering click events on elements underneath
+          setTimeout(() => onDismiss(), 0)
+          return memo
+        }
 
-    const my = _my * -1
-    const rawY = memo + my
-    const predictedDistance = my * velocity
-    const predictedY = Math.max(
-      minSnapRef.current,
-      Math.min(maxSnapRef.current, rawY + predictedDistance * 2)
-    )
+        // Filter out taps
+        if (tap) {
+          console.debug('Filter out tap')
+          return memo
+        }
 
-    if (
-      !down &&
-      onDismiss &&
-      direction > 0 &&
-      rawY + predictedDistance < minSnapRef.current / 2
-    ) {
-      cancel()
-      onDismiss()
-      return memo
-    }
+        const my = _my * -1
+        const rawY = memo + my
+        const predictedDistance = my * velocity[1]
+        const predictedY = Math.max(
+          minSnapRef.current,
+          Math.min(maxSnapRef.current, rawY + predictedDistance * 2)
+        )
 
-    let newY = down
-      ? // @TODO figure out a better way to deal with rubberband overshooting if min and max have the same value
-        !onDismiss && minSnapRef.current === maxSnapRef.current
-        ? rawY < minSnapRef.current
-          ? rubberbandIfOutOfBounds(
-              rawY,
-              minSnapRef.current,
-              maxSnapRef.current * 2,
-              0.55
-            )
-          : rubberbandIfOutOfBounds(
-              rawY,
-              minSnapRef.current / 2,
-              maxSnapRef.current,
-              0.55
-            )
-        : rubberbandIfOutOfBounds(
-            rawY,
-            onDismiss ? 0 : minSnapRef.current,
-            maxSnapRef.current,
-            0.55
-          )
-      : predictedY
+        if (
+          !down &&
+          onDismiss &&
+          direction > 0 &&
+          rawY + predictedDistance < minSnapRef.current / 2
+        ) {
+          console.debug('closing on swipe')
+          cancel()
+          onDismiss()
+          return memo
+        }
 
-    if (expandOnContentDrag && isContentDragging) {
-      if (newY >= maxSnapRef.current) {
-        newY = maxSnapRef.current
-      }
+        let newY = down
+          ? // @TODO figure out a better way to deal with rubberband overshooting if min and max have the same value
+            !onDismiss && minSnapRef.current === maxSnapRef.current
+            ? rawY < minSnapRef.current
+              ? rubberbandIfOutOfBounds(
+                  rawY,
+                  minSnapRef.current,
+                  maxSnapRef.current * 2,
+                  0.55
+                )
+              : rubberbandIfOutOfBounds(
+                  rawY,
+                  minSnapRef.current / 2,
+                  maxSnapRef.current,
+                  0.55
+                )
+            : rubberbandIfOutOfBounds(
+                rawY,
+                onDismiss ? 0 : minSnapRef.current,
+                maxSnapRef.current,
+                0.55
+              )
+          : predictedY
 
-      if (memo === maxSnapRef.current && scrollRef.current.scrollTop > 0) {
-        newY = maxSnapRef.current
-      }
+        if (expandOnContentDrag && isContentDragging) {
+          if (newY >= maxSnapRef.current) {
+            newY = maxSnapRef.current
+          }
 
-      preventScrollingRef.current = newY < maxSnapRef.current
-    } else {
-      preventScrollingRef.current = false
-    }
+          if (memo === maxSnapRef.current && scrollRef.current.scrollTop > 0) {
+            newY = maxSnapRef.current
+          }
 
-    if (first) {
-      dispatch({ type: 'DRAG' })
-    }
+          preventScrollingRef.current = newY < maxSnapRef.current
+        } else {
+          preventScrollingRef.current = false
+        }
 
-    if (last) {
-      dispatch({
-        type: 'TRANSITION_DRAG',
-        payload: {
+        if (getTransientSnapshot().can('DRAG')) {
+          dispatch({ type: 'DRAG' })
+        }
+
+        if (last) {
+          console.debug('Last')
+          console.log('TRANSITION_DRAG,', { newY })
+
+          dispatch({
+            type: 'TRANSITION_DRAG',
+            payload: {
+              height: newY,
+              //@ts-expect-error due to extra props
+              velocity: velocity[1] > 0.05 ? velocity[1] : 1,
+              source: 'dragging',
+            },
+          })
+          springApi.start({
+            height: newY,
+            maxHeight: maxHeightRef.current,
+            maxSnap: maxSnapRef.current,
+            minSnap: minSnapRef.current,
+            onRest: () => dispatch({ type: 'DRAGGED' }),
+          })
+
+          return memo
+        }
+
+        springApi.set({
           height: newY,
-          //@ts-expect-error due to extra props
-          velocity: velocity > 0.05 ? velocity : 1,
-          source: 'dragging',
-        },
-      })
+          maxHeight: maxHeightRef.current,
+          maxSnap: maxSnapRef.current,
+          minSnap: minSnapRef.current,
+        })
 
-      return memo
-    }
-
-    // @TODO too many rerenders
-    //send('DRAG', { y: newY, velocity })
-    //*
-    // @TODO maybe a getTransientSnapshot().matches('open.dragging.gesture') is enough?
-    console.log(
-      'handleDrag',
-      { last, first },
-      {
-        y: newY,
-        maxHeight: maxHeightRef.current,
-        maxSnap: maxSnapRef.current,
-        minSnap: minSnapRef.current,
+        return memo
+      } finally {
+        console.groupEnd()
       }
-    )
-    springApi.set({
-      y: newY,
-      maxHeight: maxHeightRef.current,
-      maxSnap: maxSnapRef.current,
-      minSnap: minSnapRef.current,
-    })
-    // */
-
-    return memo
-  }
-
-  const bind = useDrag(handleDrag, {
-    filterTaps: true,
-  })
+    },
+    {
+      filterTaps: true,
+    }
+  )
 
   if (Number.isNaN(maxSnapRef.current)) {
     throw new TypeError('maxSnapRef is NaN!!')
@@ -753,17 +650,90 @@ export const BottomSheet = React.forwardRef<
             position: 'fixed',
             top: 10,
             right: 10,
-            zIndex: 9999,
-            background: 'hsla(0,0%,0%,0.25)',
+            overflow: 'auto',
+            width: '33vw',
+            maxHeight: 'calc(100vh - 20px)',
+            zIndex: 99999999,
+            background: 'hsla(0,0%,10%,0.95)',
             color: 'hsla(0,0%,100%,0.75)',
             padding: '0.2rem 0.4rem',
             borderRadius: '0.2rem',
             fontSize: '0.8rem',
+            resize: 'vertical',
           }}
-          // @ts-expect-error
-          inert
         >
-          {JSON.stringify(state.value)}
+          <div>Bottom Sheet Debugger</div>
+          <hr style={{ opacity: 0.6 }} />
+          <details open>
+            <summary>State Machine ({state.toStrings().at(-1)})</summary>
+            <details>
+              <summary>
+                context:{' '}
+                {`{"height": ${JSON.stringify(state.context.height)}, ...}`}
+              </summary>
+              <pre>{JSON.stringify(state.context, null, 2)}</pre>
+            </details>
+            <details>
+              <summary>nextEvents</summary>
+              <pre>{JSON.stringify(state.nextEvents, null, 2)}</pre>
+            </details>
+          </details>
+          <hr style={{ opacity: 0.6 }} />
+          <details>
+            <summary>
+              Spring: {`{`}"height": "
+              <animated.span>
+                {springStyles.height.to((height) => Math.round(height))}
+              </animated.span>
+              ", ...{`}`}
+            </summary>
+            <pre>
+              {`{`}
+              <br />
+              &nbsp;&nbsp;height:{' '}
+              <animated.span>{springStyles.height}</animated.span>
+              <br />
+              &nbsp;&nbsp;maxHeight:{' '}
+              <animated.span>{springStyles.maxHeight}</animated.span>
+              <br />
+              &nbsp;&nbsp;maxSnap:{' '}
+              <animated.span>{springStyles.maxSnap}</animated.span>
+              <br />
+              &nbsp;&nbsp;minSnap:{' '}
+              <animated.span>{springStyles.minSnap}</animated.span>
+              <br />
+              &nbsp;&nbsp;bufferSnap:{' '}
+              <animated.span>{springStyles.bufferSnap}</animated.span>
+              <br />
+              &nbsp;&nbsp;debug__predictedHeight:{' '}
+              <animated.span>
+                {springStyles.debug__predictedHeight}
+              </animated.span>
+              <br />
+              &nbsp;&nbsp;debug__predictedSnapPoint:{' '}
+              <animated.span>
+                {springStyles.debug__predictedSnapPoint}
+              </animated.span>
+              <br />
+              {`}`}
+            </pre>
+          </details>
+          <hr style={{ opacity: 0.6 }} />
+          <details>
+            <summary>CSS Variables</summary>
+            <pre>
+              {`{`}
+              <br />
+              {Object.keys(interpolations).map((key) => (
+                <Fragment key={key}>
+                  &nbsp;&nbsp;{key}:{' '}
+                  <animated.span>{interpolations[key]}</animated.span>
+                  <br />
+                </Fragment>
+              ))}
+              {`}`}
+            </pre>
+          </details>
         </div>
       )}
       {sibling}

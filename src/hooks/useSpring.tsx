@@ -9,7 +9,7 @@ export function useSpring({
 }: Pick<BottomSheetMachineHook, 'getTransientSnapshot'>) {
   // @TODO how often is the hook calling the getter?
   return useReactSpring(() => ({
-    y: 0,
+    height: 0,
     maxHeight: 0,
     minSnap: 0,
     maxSnap: 0,
@@ -17,6 +17,9 @@ export function useSpring({
     // to reduce animating the `height` property to a bare minimum.
     // Effectively building on the technique used to ensure values outside minSnap and maxSnap are done on `transform: translateY()`
     bufferSnap: 0,
+    // These are only used for debugging the drag handler
+    debug__predictedHeight: 0,
+    debug__predictedSnapPoint: 0,
   }))
 }
 

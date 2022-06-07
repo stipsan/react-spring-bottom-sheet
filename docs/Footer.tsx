@@ -14,10 +14,10 @@ function Badge({
       className="flex text-sm"
       href={`https://www.npmjs.com/package/${name}/v/${version}`}
     >
-      <span className="block pl-3 pr-2 py-1 text-white bg-gray-800 rounded-l-md">
+      <span className="block py-1 pl-3 pr-2 text-white bg-gray-800 rounded-l-md">
         {name}
       </span>
-      <span className="block pr-3 pl-2 py-1 bg-hero-lighter text-black rounded-r-md">
+      <span className="block py-1 pl-2 pr-3 text-black bg-hero-lighter rounded-r-md">
         v{version}
       </span>
     </a>
@@ -34,7 +34,7 @@ export default function Footer({
   reactUseGestureVersion: string
 }) {
   return (
-    <footer className="px-10 py-32 grid md:grid-flow-col md:place-items-center place-content-center gap-8 relative">
+    <footer className="relative grid gap-8 px-10 py-32 md:grid-flow-col md:place-items-center place-content-center">
       <div
         className={cx(
           styles.skewed,
@@ -42,8 +42,8 @@ export default function Footer({
         )}
       />
       <Badge name="react-spring-bottom-sheet" version={version} />
-      <Badge name="react-spring" version={reactSpringVersion} />
-      <Badge name="react-use-gesture" version={reactUseGestureVersion} />
+      <Badge name="@react-spring/web" version={reactSpringVersion} />
+      <Badge name="@use-gesture/react" version={reactUseGestureVersion} />
     </footer>
   )
 }

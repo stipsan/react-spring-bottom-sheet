@@ -31,8 +31,3 @@ export function roundAndCheckForNaN(unrounded) {
 
   return rounded
 }
-
-export const debugging =
-  process.env.NODE_ENV === 'development' && typeof window !== 'undefined'
-    ? window.location.search === '?debug'
-    : false
