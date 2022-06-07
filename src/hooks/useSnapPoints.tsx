@@ -1,18 +1,11 @@
 import type { BottomSheetMachineHook } from '@bottom-sheet/react-hooks'
-import { ResizeObserver, ResizeObserverEntry } from '@juggle/resize-observer'
-import { ResizeObserverOptions } from '@juggle/resize-observer/lib/ResizeObserverOptions'
-import React, {
-  useCallback,
-  useDebugValue,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from 'react'
+import type { ResizeObserverEntry } from '@juggle/resize-observer'
+import { ResizeObserver } from '@juggle/resize-observer'
+import type { ResizeObserverOptions } from '@juggle/resize-observer/lib/ResizeObserverOptions'
+import React, { useCallback, useEffect, useMemo, useRef } from 'react'
 
 import type { ResizeSource } from '../types'
 import { roundAndCheckForNaN } from '../utils'
-import { useLayoutEffect } from './useLayoutEffect'
 import { useReady } from './useReady'
 
 export function useDimensions({
@@ -50,48 +43,45 @@ export function useDimensions({
     resizeSourceRef
   )
 
-  // @TODO probably better to forward props instead of checking refs to decide if it's enabled
-  const headerHeight = useElementSizeObserver(headerRef, {
-    label: 'headerHeight',
+  useElementSizeObserver(headerRef, {
     enabled: headerEnabled,
-    resizeSourceRef,
+    onChange: useCallback(
+      (headerHeight) => {
+        resizeSourceRef.current = 'element'
+        dispatch({
+          type: 'SET_HEADER_HEIGHT',
+          payload: { headerHeight },
+        })
+      },
+      [dispatch, resizeSourceRef]
+    ),
   })
-  const contentHeight = useElementSizeObserver(contentRef, {
-    label: 'contentHeight',
+  useElementSizeObserver(contentRef, {
     enabled: true,
-    resizeSourceRef,
+    onChange: useCallback(
+      (contentHeight) => {
+        resizeSourceRef.current = 'element'
+        dispatch({
+          type: 'SET_CONTENT_HEIGHT',
+          payload: { contentHeight },
+        })
+      },
+      [dispatch, resizeSourceRef]
+    ),
   })
-  const footerHeight = useElementSizeObserver(footerRef, {
-    label: 'footerHeight',
+  useElementSizeObserver(footerRef, {
     enabled: footerEnabled,
-    resizeSourceRef,
+    onChange: useCallback(
+      (footerHeight) => {
+        resizeSourceRef.current = 'element'
+        dispatch({
+          type: 'SET_FOOTER_HEIGHT',
+          payload: { footerHeight },
+        })
+      },
+      [dispatch, resizeSourceRef]
+    ),
   })
-
-  // @TODO: temporary hooks to send the height states into the state machine
-  useEffect(() => {
-    if (headerHeight) {
-      dispatch({
-        type: 'SET_HEADER_HEIGHT',
-        payload: { headerHeight },
-      })
-    }
-  }, [headerHeight, dispatch])
-  useEffect(() => {
-    if (contentHeight) {
-      dispatch({
-        type: 'SET_CONTENT_HEIGHT',
-        payload: { contentHeight },
-      })
-    }
-  }, [contentHeight, dispatch])
-  useEffect(() => {
-    if (footerHeight) {
-      dispatch({
-        type: 'SET_FOOTER_HEIGHT',
-        payload: { footerHeight },
-      })
-    }
-  }, [footerHeight, dispatch])
 
   const ready = state.context.contentHeight > 0
   useEffect(() => {
@@ -114,42 +104,27 @@ const observerOptions: ResizeObserverOptions = {
 function useElementSizeObserver(
   ref: React.RefObject<Element>,
   {
-    label,
     enabled,
-    resizeSourceRef,
+    onChange,
   }: {
-    label: string
     enabled: boolean
-    resizeSourceRef: React.MutableRefObject<ResizeSource>
+    onChange: (value: number) => void
   }
-): number {
-  let [size, setSize] = useState(0)
-
-  useDebugValue(`${label}: ${size}`)
-
-  const handleResize = useCallback(
-    (entries: ResizeObserverEntry[]) => {
-      // we only observe one element, so accessing the first entry here is fine
-      setSize(entries[0].borderBoxSize[0].blockSize)
-      resizeSourceRef.current = 'element'
-    },
-    [resizeSourceRef]
-  )
-
-  useLayoutEffect(() => {
+): void {
+  useEffect(() => {
     if (!ref.current || !enabled) {
       return
     }
 
+    const handleResize = (entries: ResizeObserverEntry[]) => {
+      // we only observe one element, so accessing the first entry here is fine
+      onChange(entries[0].borderBoxSize[0].blockSize)
+    }
     const resizeObserver = new ResizeObserver(handleResize)
     resizeObserver.observe(ref.current, observerOptions)
 
-    return () => {
-      resizeObserver.disconnect()
-    }
-  }, [ref, handleResize, enabled])
-
-  return enabled ? size : 0
+    return () => resizeObserver.disconnect()
+  }, [enabled, onChange, ref])
 }
 
 // Blazingly keep track of the current viewport height without blocking the thread, keeping that sweet 60fps on smartphones
@@ -164,15 +139,13 @@ function useMaxHeight(
   const ready = state.context.maxHeight > 0
   const raf = useRef(0)
 
-  useDebugValue(controlledMaxHeight ? 'controlled' : 'auto')
-
   useEffect(() => {
     if (ready) {
       setReady()
     }
   }, [ready, setReady])
 
-  useLayoutEffect(() => {
+  useEffect(() => {
     // Bail if the max height is a controlled prop
     if (controlledMaxHeight) {
       dispatch({

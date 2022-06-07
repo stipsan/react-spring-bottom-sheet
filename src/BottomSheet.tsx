@@ -74,10 +74,11 @@ export const BottomSheet = React.forwardRef<
   const { dispatch, state, getTransientSnapshot } = useBottomSheetMachine({
     initialHeight,
     snapPoints,
+    unstable__requestAnimationFrame: true,
   })
   useEffect(() => {
-    console.debug('useBottomSheetMachine.dispatch', dispatch)
-  }, [dispatch])
+    console.debug('useBottomSheetMachine.state.matches', state.matches)
+  }, [state.matches])
   useEffect(() => {
     console.debug('useBottomSheetMachine.state', state)
   }, [state])
