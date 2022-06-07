@@ -1,6 +1,6 @@
+import { animated, config, useSpring } from '@react-spring/web'
 import cx from 'classnames'
 import { forwardRef, useEffect, useRef, useState } from 'react'
-import { animated, config, useSpring } from 'react-spring'
 
 import styles from './Hero.module.css'
 
@@ -56,7 +56,7 @@ const SvgText: React.FC<{ x?: string; y?: string; className?: string }> = ({
     <text
       x={x}
       y={y}
-      className="text-hero fill-current font-display font-black select-none pointer-events-none"
+      className="font-black pointer-events-none select-none fill-current text-hero font-display"
     >
       {children}
     </text>
@@ -137,7 +137,7 @@ export default function Hero({ className }: { className?: string }) {
             />
             <animated.g
               ref={classNameRef}
-              className="transform-gpu origin-center"
+              className="origin-center transform-gpu"
               style={{
                 ['--tw-translate-y' as any]: y,
                 /*
@@ -168,7 +168,7 @@ export default function Hero({ className }: { className?: string }) {
               <SvgText y="266">Sheet</SvgText>
             </animated.g>
           </svg>
-          <div className="font-display ml-10 mb-10 text-hero hidden md:block">
+          <div className="hidden mb-10 ml-10 font-display text-hero md:block">
             <h1 className={cx(styles.subtitle, 'pb-4 max-w-sm')}>{subtitle}</h1>
             <div className="mt-4">
               <Links className="text-hero-lighter hover:bg-hero-lighter focus:bg-hero-lighter" />
@@ -176,7 +176,7 @@ export default function Hero({ className }: { className?: string }) {
           </div>
         </div>
       </div>
-      <div className="md:hidden font-display text-hero px-8 py-4">
+      <div className="px-8 py-4 md:hidden font-display text-hero">
         <h1 className={cx(styles.subtitle, 'pb-4')}>{subtitle}</h1>
         <div className="mt-4">
           <Links className="text-white hover:bg-white focus:bg-white" />

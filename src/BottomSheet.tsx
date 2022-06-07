@@ -7,6 +7,7 @@
 
 import { useBottomSheetMachine } from '@bottom-sheet/react-hooks'
 import { computeSnapPointBounds } from '@bottom-sheet/state-machine'
+import { animated, config } from '@react-spring/web'
 import { useMachine } from '@xstate/react'
 import React, {
   useCallback,
@@ -14,7 +15,6 @@ import React, {
   useImperativeHandle,
   useRef,
 } from 'react'
-import { animated, config } from 'react-spring'
 import { rubberbandIfOutOfBounds, useDrag } from 'react-use-gesture'
 
 import {
@@ -692,7 +692,7 @@ export const BottomSheet = React.forwardRef<
         ...style,
         // Not overridable as the "focus lock with opacity 0" trick rely on it
         // @TODO the line below only fails on TS <4
-        // @ts-ignore
+        // @ts-expect-error
         opacity: spring.ready,
       }}
     >

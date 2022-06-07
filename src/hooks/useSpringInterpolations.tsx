@@ -1,4 +1,4 @@
-import { interpolate } from 'react-spring'
+import { to } from '@react-spring/web'
 
 import { clamp } from '../utils'
 import type { Spring } from './useSpring'
@@ -18,8 +18,7 @@ export function useSpringInterpolations({
   // This effect is for removing rounded corners on phones when the sheet touches the top of the browser chrome
   // as it's really ugly with the gaps border radius creates. This ensures it looks sleek.
   // @TODO the ts-ignore comments are because the `extrapolate` param isn't in the TS defs for some reason
-  const interpolateBorderRadius = interpolate(
-    // @ts-expect-error
+  const interpolateBorderRadius = to(
     [spring.y, spring.maxHeight],
     (y, maxHeight) => {
       return `${Math.round(clamp(maxHeight - y, 0, 16))}px`
@@ -35,14 +34,14 @@ export function useSpringInterpolations({
    *       A FLIP resize flow for content height would likely require the sticky elements to overlap the content area.
    *       Could be done as a separat mode though, or a separate example CSS for max performance.
    */
-  const interpolateHeight = interpolate(
-    // @ts-ignore
+  const interpolateHeight = to(
+    // @ts-expect-error
     [spring.y, spring.minSnap, spring.maxSnap],
     (y, minSnap, maxSnap) => `${clamp(y, minSnap, maxSnap)}px`
   )
 
-  const interpolateY = interpolate(
-    // @ts-ignore
+  const interpolateY = to(
+    // @ts-expect-error
     [spring.y, spring.minSnap, spring.maxSnap],
     (y, minSnap, maxSnap) => {
       if (y < minSnap) {
@@ -55,8 +54,8 @@ export function useSpringInterpolations({
     }
   )
 
-  const interpolateFiller = interpolate(
-    // @ts-ignore
+  const interpolateFiller = to(
+    // @ts-expect-error
     [spring.y, spring.maxSnap],
     (y, maxSnap) => {
       if (y >= maxSnap) {
@@ -66,8 +65,8 @@ export function useSpringInterpolations({
     }
   )
 
-  const interpolateContentOpacity = interpolate(
-    // @ts-ignore
+  const interpolateContentOpacity = to(
+    // @ts-expect-error
     [spring.y, spring.minSnap],
     (y, minSnap) => {
       if (!minSnap) {
@@ -84,8 +83,8 @@ export function useSpringInterpolations({
     }
   )
 
-  const interpolateBackdrop = interpolate(
-    // @ts-ignore
+  const interpolateBackdrop = to(
+    // @ts-expect-error
     [spring.y, spring.minSnap],
     (y, minSnap) => (minSnap ? clamp(y / minSnap, 0, 1) : 0)
   )

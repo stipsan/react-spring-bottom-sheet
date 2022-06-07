@@ -27,7 +27,7 @@ export async function getStaticProps() {
     { version: reactUseGestureVersion },
   ] = await Promise.all([
     import('../package.json'),
-    import('react-spring/package.json'),
+    import('@react-spring/web/package.json'),
     import('react-use-gesture/package.json'),
   ])
   if (!meta['og:site_name']) {
