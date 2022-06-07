@@ -132,8 +132,14 @@
   }
 }
 
+[data-rsbs-waiting],
+[data-rsbs-autofocusing],
 [data-rsbs-closed],
 [data-rsbs-closing] {
   /* Allows interactions on the rest of the page before the close transition is finished */
   pointer-events: none;
+}
+
+[data-rsbs-waiting], [data-rsbs-autofocusing] {
+  opacity: 0;
 }

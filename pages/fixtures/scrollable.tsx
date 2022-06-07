@@ -86,6 +86,7 @@ const ScrollableFixturePage: NextPage<GetStaticProps> = ({
         />
         <SnapMarker style={{ top: '75vh', ['--size' as any]: '0.5vh' }} />
         <BottomSheet
+          unstable__debug={process.env.NODE_ENV !== 'production'}
           open
           skipInitialTransition
           sibling={<CloseExample className="z-10" />}

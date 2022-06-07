@@ -6,7 +6,10 @@
 // cause race conditions.
 
 import { useBottomSheetMachine } from '@bottom-sheet/react-hooks'
-import { computeSnapPointBounds } from '@bottom-sheet/state-machine'
+import {
+  type BottomSheetEvent,
+  computeSnapPointBounds,
+} from '@bottom-sheet/state-machine'
 import { animated, config } from '@react-spring/web'
 import { useMachine } from '@xstate/react'
 import React, {
@@ -35,6 +38,17 @@ import { debugging } from './utils'
 const { tension, friction } = config.default
 
 // @TODO implement AbortController to deal with race conditions
+
+// List over events that if present in StateMachine.state.nextEvents means we can handle drag gestures
+type EventType = Pick<BottomSheetEvent, 'type'>['type']
+const CAN_DRAG_EVENTS: Readonly<EventType[]> = [
+  'DRAG',
+  'TRANSITION_DRAG',
+  'DRAGGED',
+] as const
+function canDrag(event: any): boolean {
+  return CAN_DRAG_EVENTS.includes(event)
+}
 
 // @TODO rename to SpringBottomSheet and allow userland to import it directly, for those who want maximum control and minimal bundlesize
 export const BottomSheet = React.forwardRef<
@@ -66,6 +80,7 @@ export const BottomSheet = React.forwardRef<
     onSpringEnd,
     reserveScrollBarGap = blocking,
     expandOnContentDrag = false,
+    unstable__debug = false,
     ...props
   },
   forwardRef
@@ -79,9 +94,12 @@ export const BottomSheet = React.forwardRef<
   useEffect(() => {
     console.debug(
       'useBottomSheetMachine.getTransientSnapshot',
-      getTransientSnapshot
+      getTransientSnapshot()
     )
   }, [getTransientSnapshot])
+  useEffect(() => {
+    console.log('nextEvents', state.nextEvents)
+  }, [state.nextEvents])
 
   // Before any animations can start we need to measure a few things, like the viewport and the dimensions of content, and header + footer if they exist
   // @TODO make ready its own state perhaps, before open or closed
@@ -89,6 +107,12 @@ export const BottomSheet = React.forwardRef<
 
   // Controls the drag handler, used by spring operations that happen outside the render loop in React
   const canDragRef = useRef(false)
+  useEffect(() => {
+    const closed = state.matches('closed')
+    const preOpening = state.matches('open.opening.transition')
+    const closing = state.matches('open.closing')
+    canDragRef.current = !closed && !preOpening && !closing
+  }, [state])
 
   // This way apps don't have to remember to wrap their callbacks in useCallback to avoid breaking the sheet
   const onSpringStartRef = useRef(onSpringStart)
@@ -101,7 +125,7 @@ export const BottomSheet = React.forwardRef<
   }, [onSpringCancel, onSpringStart, onSpringEnd])
 
   // @TODO const [styles, api] = useSpring()
-  const [springStyles, springApi] = useSpring()
+  const [springStyles, springApi] = useSpring({ getTransientSnapshot })
 
   const containerRef = useRef<HTMLDivElement>(null)
   const scrollRef = useRef<HTMLDivElement>(null)
@@ -120,18 +144,19 @@ export const BottomSheet = React.forwardRef<
   // "Plugins" huhuhu
   const scrollLockRef = useScrollLock({
     targetRef: scrollRef,
-    enabled: ready && scrollLocking,
+    enabled: state.matches('open') && ready && scrollLocking,
     reserveScrollBarGap,
   })
   const ariaHiderRef = useAriaHider({
     targetRef: containerRef,
-    enabled: ready && blocking,
+    enabled: state.matches('open') && ready && blocking,
   })
   const focusTrapRef = useFocusTrap({
     targetRef: containerRef,
     fallbackRef: overlayRef,
     initialFocusRef: initialFocusRef || undefined,
-    enabled: ready && blocking && initialFocusRef !== false,
+    enabled:
+      state.matches('open') && ready && blocking && initialFocusRef !== false,
   })
 
   useDimensions({
@@ -160,6 +185,7 @@ export const BottomSheet = React.forwardRef<
 
   // New utility for using events safely
   // @TODO stop using asyncSet
+  /*
   const asyncSet = useCallback<typeof springApi>(
     // @ts-expect-error
     ({ onRest, config: { velocity = 1, ...config } = {}, ...opts }) =>
@@ -187,6 +213,7 @@ export const BottomSheet = React.forwardRef<
       ),
     [springApi]
   )
+  //*/
   // @TODO deprecate this state machine in favor of the new one
   useMachine(overlayMachine, {
     devTools: debugging,
@@ -290,7 +317,6 @@ export const BottomSheet = React.forwardRef<
         async (context, event) => {
           await asyncSet({
             y: state.context.height,
-            ready: 0,
             maxHeight: maxHeightRef.current,
             maxSnap: maxSnapRef.current,
             // Using height instead of minSnapRef to avoid animating `height` on open
@@ -298,11 +324,10 @@ export const BottomSheet = React.forwardRef<
             immediate: true,
           })
         },
-        [asyncSet, state.context.height]
+        [state.context.height]
       ),
       activate: useCallback(
         async (context, event) => {
-          canDragRef.current = true
           await Promise.all([
             scrollLockRef.current.activate(),
             focusTrapRef.current.activate(),
@@ -315,24 +340,21 @@ export const BottomSheet = React.forwardRef<
         scrollLockRef.current.deactivate()
         focusTrapRef.current.deactivate()
         ariaHiderRef.current.deactivate()
-        canDragRef.current = false
       }, [ariaHiderRef, focusTrapRef, scrollLockRef]),
       openImmediately: useCallback(async () => {
         heightRef.current = state.context.height
         await asyncSet({
           y: state.context.height,
-          ready: 1,
           maxHeight: maxHeightRef.current,
           maxSnap: maxSnapRef.current,
           // Using height instead of minSnapRef to avoid animating `height` on open
           minSnap: state.context.height,
           immediate: true,
         })
-      }, [asyncSet, state.context.height]),
+      }, [state.context.height]),
       openSmoothly: useCallback(async () => {
         await asyncSet({
           y: 0,
-          ready: 1,
           maxHeight: maxHeightRef.current,
           maxSnap: maxSnapRef.current,
           // Using height instead of minSnapRef to avoid animating `height` on open
@@ -344,14 +366,13 @@ export const BottomSheet = React.forwardRef<
 
         await asyncSet({
           y: state.context.height,
-          ready: 1,
           maxHeight: maxHeightRef.current,
           maxSnap: maxSnapRef.current,
           // Using height instead of minSnapRef to avoid animating `height` on open
           minSnap: state.context.height,
           immediate: prefersReducedMotion.current,
         })
-      }, [asyncSet, prefersReducedMotion, state.context.height]),
+      }, [prefersReducedMotion, state.context.height]),
       snapSmoothly: useCallback(
         async (context, event) => {
           const [snap] = computeSnapPointBounds(
@@ -362,7 +383,6 @@ export const BottomSheet = React.forwardRef<
           lastSnapRef.current = snap
           await asyncSet({
             y: snap,
-            ready: 1,
             maxHeight: maxHeightRef.current,
             maxSnap: maxSnapRef.current,
             minSnap: minSnapRef.current,
@@ -370,7 +390,7 @@ export const BottomSheet = React.forwardRef<
             config: { velocity: context.velocity },
           })
         },
-        [asyncSet, lastSnapRef, prefersReducedMotion, state.context.snapPoints]
+        [lastSnapRef, prefersReducedMotion, state.context.snapPoints]
       ),
       resizeSmoothly: useCallback(async () => {
         const [snap] = computeSnapPointBounds(
@@ -381,7 +401,6 @@ export const BottomSheet = React.forwardRef<
         lastSnapRef.current = snap
         await asyncSet({
           y: snap,
-          ready: 1,
           maxHeight: maxHeightRef.current,
           maxSnap: maxSnapRef.current,
           minSnap: minSnapRef.current,
@@ -390,12 +409,7 @@ export const BottomSheet = React.forwardRef<
               ? prefersReducedMotion.current
               : true,
         })
-      }, [
-        asyncSet,
-        lastSnapRef,
-        prefersReducedMotion,
-        state.context.snapPoints,
-      ]),
+      }, [lastSnapRef, prefersReducedMotion, state.context.snapPoints]),
       closeSmoothly: useCallback(
         async (context, event) => {
           // Avoid animating the height property on close and stay within FLIP bounds by upping the minSnap
@@ -413,19 +427,40 @@ export const BottomSheet = React.forwardRef<
             immediate: prefersReducedMotion.current,
           })
 
-          await asyncSet({ ready: 0, immediate: true })
+          await asyncSet({ immediate: true })
         },
-        [asyncSet, prefersReducedMotion]
+        [prefersReducedMotion]
       ),
     },
   })
 
   useEffect(() => {
+    // onSpringStart OPEN
     if (state.matches('open.opening.waiting') && ready) {
       // @TODO: fire AUTOFOCUS event here when we need to animate a soft keyboard focus
-      dispatch({ type: 'READY' })
+      dispatch({ type: 'TRANSITION_OPEN' })
     }
-  }, [dispatch, ready, state])
+
+    if (state.matches('open.opening.transition')) {
+      springApi.start({
+        maxHeight: state.context.maxHeight,
+        maxSnap: state.context.snapPoints.at(-1),
+        minSnap: state.context.snapPoints[0],
+        y: state.context.height,
+        onRest: () => dispatch({ type: 'OPENED' }),
+      })
+    }
+
+    if (state.matches('open.dragging.transition')) {
+      springApi.start({
+        maxHeight: state.context.maxHeight,
+        maxSnap: state.context.snapPoints.at(-1),
+        minSnap: state.context.snapPoints[0],
+        y: state.context.height,
+        onRest: () => dispatch({ type: 'DRAGGED' }),
+      })
+    }
+  }, [dispatch, ready, springApi, state])
 
   useEffect(() => {
     if (_open) {
@@ -492,6 +527,7 @@ export const BottomSheet = React.forwardRef<
       },
     }),
     [
+      dispatch,
       state.context.contentHeight,
       state.context.footerHeight,
       state.context.headerHeight,
@@ -543,16 +579,14 @@ export const BottomSheet = React.forwardRef<
     down,
     first,
     last,
-    memo = getTransientSnapshot().context.height,
+    memo = springStyles.y.get(),
     movement: [, _my],
     tap,
     velocity,
   }) => {
-    const my = _my * -1
-
     // Cancel the drag operation if the canDrag state changed
-    if (!canDragRef.current) {
-      console.log('handleDrag cancelled dragging because canDragRef is false')
+    if (!getTransientSnapshot().nextEvents.some(canDrag)) {
+      console.debug('Cancelling drag', getTransientSnapshot().nextEvents)
       cancel()
       return memo
     }
@@ -569,6 +603,7 @@ export const BottomSheet = React.forwardRef<
       return memo
     }
 
+    const my = _my * -1
     const rawY = memo + my
     const predictedDistance = my * velocity
     const predictedY = Math.max(
@@ -630,9 +665,11 @@ export const BottomSheet = React.forwardRef<
     }
 
     if (last) {
-      send('SNAP', {
+      dispatch({
+        type: 'TRANSITION_DRAG',
         payload: {
-          y: newY,
+          height: newY,
+          //@ts-expect-error due to extra props
           velocity: velocity > 0.05 ? velocity : 1,
           source: 'dragging',
         },
@@ -644,14 +681,22 @@ export const BottomSheet = React.forwardRef<
     // @TODO too many rerenders
     //send('DRAG', { y: newY, velocity })
     //*
-    springApi({
+    // @TODO maybe a getTransientSnapshot().matches('open.dragging.gesture') is enough?
+    console.log(
+      'handleDrag',
+      { last, first },
+      {
+        y: newY,
+        maxHeight: maxHeightRef.current,
+        maxSnap: maxSnapRef.current,
+        minSnap: minSnapRef.current,
+      }
+    )
+    springApi.set({
       y: newY,
-      ready: 1,
       maxHeight: maxHeightRef.current,
       maxSnap: maxSnapRef.current,
       minSnap: minSnapRef.current,
-      immediate: true,
-      config: { velocity },
     })
     // */
 
@@ -700,6 +745,27 @@ export const BottomSheet = React.forwardRef<
         ...style,
       }}
     >
+      {unstable__debug && (
+        <div
+          key="debug"
+          data-rsbs-debug
+          style={{
+            position: 'fixed',
+            top: 10,
+            right: 10,
+            zIndex: 9999,
+            background: 'hsla(0,0%,0%,0.25)',
+            color: 'hsla(0,0%,100%,0.75)',
+            padding: '0.2rem 0.4rem',
+            borderRadius: '0.2rem',
+            fontSize: '0.8rem',
+          }}
+          // @ts-expect-error
+          inert
+        >
+          {JSON.stringify(state.value)}
+        </div>
+      )}
       {sibling}
       {blocking && (
         <div
@@ -728,7 +794,6 @@ export const BottomSheet = React.forwardRef<
         {header !== false && (
           <div key="header" data-rsbs-header ref={headerRef} {...bind()}>
             {header}
-            {JSON.stringify(state.value)}
           </div>
         )}
         <div

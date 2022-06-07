@@ -34,7 +34,7 @@
   ],
   "types": "dist/index.d.ts",
   "dependencies": {
-    "@bottom-sheet/react-hooks": "^1.0.13",
+    "@bottom-sheet/react-hooks": "^1.0.14",
     "@juggle/resize-observer": "^3.3.1",
     "@reach/portal": "^0.17.0",
     "@react-spring/web": "^9.4.5",

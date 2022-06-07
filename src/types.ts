@@ -126,6 +126,12 @@ export type Props = {
    * @default expandOnContentDrag === false
    */
   expandOnContentDrag?: boolean
+
+  /**
+   * Renders a debugging GUI that shows internal state in real-time.
+   * @default false
+   */
+  unstable__debug?: boolean
 } & Omit<React.PropsWithoutRef<JSX.IntrinsicElements['div']>, 'children'>
 
 export interface RefHandles {

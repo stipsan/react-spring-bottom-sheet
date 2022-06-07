@@ -40,6 +40,7 @@ const StickyFixturePage: NextPage<GetStaticProps> = ({
       <Container>
         <Button onClick={() => setOpen(true)}>Open</Button>
         <BottomSheet
+          unstable__debug={process.env.NODE_ENV !== 'production'}
           open={open}
           onDismiss={onDismiss}
           initialHeight={(props) => {

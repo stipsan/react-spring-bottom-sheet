@@ -1,15 +1,22 @@
+import type { BottomSheetMachineHook } from '@bottom-sheet/react-hooks'
 import { useSpring as useReactSpring } from '@react-spring/web'
 
 // Behold, the engine of it all!
 // Put in this file befause it makes it easier to type and I'm lazy! :D
 
-export function useSpring() {
+export function useSpring({
+  getTransientSnapshot,
+}: Pick<BottomSheetMachineHook, 'getTransientSnapshot'>) {
+  // @TODO how often is the hook calling the getter?
   return useReactSpring(() => ({
     y: 0,
-    ready: 0,
     maxHeight: 0,
     minSnap: 0,
     maxSnap: 0,
+    // An experimental new technique that aims to buffer the next height while dragging
+    // to reduce animating the `height` property to a bare minimum.
+    // Effectively building on the technique used to ensure values outside minSnap and maxSnap are done on `transform: translateY()`
+    bufferSnap: 0,
   }))
 }
 
