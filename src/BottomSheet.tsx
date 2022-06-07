@@ -159,6 +159,7 @@ export const BottomSheet = React.forwardRef<
   }, [state.context.maxHeight, state.context.snapPoints])
 
   // New utility for using events safely
+  // @TODO stop using asyncSet
   const asyncSet = useCallback<typeof springApi>(
     // @ts-expect-error
     ({ onRest, config: { velocity = 1, ...config } = {}, ...opts }) =>
@@ -186,7 +187,8 @@ export const BottomSheet = React.forwardRef<
       ),
     [springApi]
   )
-  const [current, send] = useMachine(overlayMachine, {
+  // @TODO deprecate this state machine in favor of the new one
+  useMachine(overlayMachine, {
     devTools: debugging,
     actions: {
       onOpenCancel: useCallback(
@@ -431,27 +433,16 @@ export const BottomSheet = React.forwardRef<
     } else {
       dispatch({ type: 'CLOSE' })
     }
-    if (!ready) return
-
-    if (_open) {
-      send('OPEN')
-      dispatch({ type: 'OPEN' })
-    } else {
-      dispatch({ type: 'CLOSE' })
-      send('CLOSE')
-    }
-  }, [_open, send, ready, dispatch])
+  }, [_open, dispatch])
   useLayoutEffect(() => {
     const maxSnap = Math.max(...state.context.snapPoints)
     const minSnap = Math.min(...state.context.snapPoints)
     // Adjust the height whenever the snap points are changed due to resize events
     if (state.context.maxHeight || maxSnap || minSnap) {
-      send('RESIZE')
       dispatch({ type: 'RESIZE', payload: { height: state.context.height } })
     }
   }, [
     state.context.maxHeight,
-    send,
     state.context.snapPoints,
     state.context.height,
     dispatch,
@@ -470,9 +461,12 @@ export const BottomSheet = React.forwardRef<
     forwardRef,
     () => ({
       snapTo: (numberOrCallback, { velocity = 1, source = 'custom' } = {}) => {
-        send('SNAP', {
+        // @TODO consider using refs for this
+        console.log('TODO, send velocity and source', { velocity, source })
+        dispatch({
+          type: 'SNAP',
           payload: {
-            y: computeSnapPointBounds(
+            height: computeSnapPointBounds(
               typeof numberOrCallback === 'function'
                 ? numberOrCallback({
                     maxHeight: state.context.maxHeight,
@@ -488,8 +482,8 @@ export const BottomSheet = React.forwardRef<
                 : numberOrCallback,
               state.context.snapPoints as [number, ...number[]]
             )[0],
-            velocity,
-            source,
+            // source,
+            // velocity,
           },
         })
       },
@@ -498,7 +492,6 @@ export const BottomSheet = React.forwardRef<
       },
     }),
     [
-      send,
       state.context.contentHeight,
       state.context.footerHeight,
       state.context.headerHeight,
@@ -633,7 +626,7 @@ export const BottomSheet = React.forwardRef<
     }
 
     if (first) {
-      send('DRAG')
+      dispatch({ type: 'DRAG' })
     }
 
     if (last) {
@@ -682,20 +675,29 @@ export const BottomSheet = React.forwardRef<
     <animated.div
       {...props}
       data-rsbs-root
-      data-rsbs-state={publicStates.find(state.matches)}
-      data-rsbs-is-blocking={blocking}
-      data-rsbs-is-dismissable={!!onDismiss}
-      data-rsbs-has-header={!!header}
-      data-rsbs-has-footer={!!footer}
+      data-rsbs-is-blocking={blocking || undefined}
+      data-rsbs-is-dismissable={!!onDismiss || undefined}
+      data-rsbs-has-header={!!header || undefined}
+      data-rsbs-has-footer={!!footer || undefined}
+      data-rsbs-open={state.matches('open') || undefined}
+      data-rsbs-opening={state.matches('open.opening') || undefined}
+      data-rsbs-waiting={state.matches('open.opening.waiting') || undefined}
+      data-rsbs-autofocusing={
+        state.matches('open.opening.autofocusing') || undefined
+      }
+      data-rsbs-dragging={state.matches('open.dragging') || undefined}
+      data-rsbs-snapping={state.matches('open.snapping') || undefined}
+      data-rsbs-resizing={state.matches('open.resizing') || undefined}
+      data-rsbs-closing={state.matches('open.closing') || undefined}
+      data-rsbs-closed={state.matches('closed') || undefined}
       className={className}
       ref={containerRef}
       style={{
         // spread in the interpolations yeees
         ...interpolations,
         // but allow overriding them/disabling them
+        // @TODO: flip order, allow overriding interpolations by using a callback
         ...style,
-        // Not overridable as the "focus lock with opacity 0" trick rely on it
-        opacity: springStyles.ready,
       }}
     >
       {sibling}
@@ -748,16 +750,3 @@ export const BottomSheet = React.forwardRef<
     </animated.div>
   )
 })
-
-// Used for the data attribute, list over states available to CSS selectors
-const publicStates = [
-  'closed',
-  'opening',
-  'waiting',
-  'autofocusing',
-  'open',
-  'closing',
-  'dragging',
-  'snapping',
-  'resizing',
-]
