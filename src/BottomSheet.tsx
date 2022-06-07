@@ -77,12 +77,6 @@ export const BottomSheet = React.forwardRef<
     unstable__requestAnimationFrame: true,
   })
   useEffect(() => {
-    console.debug('useBottomSheetMachine.state.matches', state.matches)
-  }, [state.matches])
-  useEffect(() => {
-    console.debug('useBottomSheetMachine.state', state)
-  }, [state])
-  useEffect(() => {
     console.debug(
       'useBottomSheetMachine.getTransientSnapshot',
       getTransientSnapshot
@@ -106,8 +100,8 @@ export const BottomSheet = React.forwardRef<
     onSpringEndRef.current = onSpringEnd
   }, [onSpringCancel, onSpringStart, onSpringEnd])
 
-  // Behold, the engine of it all!
-  const [spring, set] = useSpring()
+  // @TODO const [styles, api] = useSpring()
+  const [springStyles, springApi] = useSpring()
 
   const containerRef = useRef<HTMLDivElement>(null)
   const scrollRef = useRef<HTMLDivElement>(null)
@@ -165,11 +159,11 @@ export const BottomSheet = React.forwardRef<
   }, [state.context.maxHeight, state.context.snapPoints])
 
   // New utility for using events safely
-  const asyncSet = useCallback<typeof set>(
+  const asyncSet = useCallback<typeof springApi>(
     // @ts-expect-error
     ({ onRest, config: { velocity = 1, ...config } = {}, ...opts }) =>
       new Promise((resolve) =>
-        set({
+        springApi({
           ...opts,
           config: {
             velocity,
@@ -190,7 +184,7 @@ export const BottomSheet = React.forwardRef<
           },
         })
       ),
-    [set]
+    [springApi]
   )
   const [current, send] = useMachine(overlayMachine, {
     devTools: debugging,
@@ -425,13 +419,23 @@ export const BottomSheet = React.forwardRef<
   })
 
   useEffect(() => {
+    if (state.matches('open.opening.waiting') && ready) {
+      // @TODO: fire AUTOFOCUS event here when we need to animate a soft keyboard focus
+      dispatch({ type: 'READY' })
+    }
+  }, [dispatch, ready, state])
+
+  useEffect(() => {
+    if (_open) {
+      dispatch({ type: 'OPEN' })
+    } else {
+      dispatch({ type: 'CLOSE' })
+    }
     if (!ready) return
 
     if (_open) {
       send('OPEN')
       dispatch({ type: 'OPEN' })
-      // @TODO: firing ready right away until the overall hooks logic is rewritten to use the new machine
-      dispatch({ type: 'READY' })
     } else {
       dispatch({ type: 'CLOSE' })
       send('CLOSE')
@@ -546,7 +550,7 @@ export const BottomSheet = React.forwardRef<
     down,
     first,
     last,
-    memo = spring.y.getValue() as number,
+    memo = getTransientSnapshot().context.height,
     movement: [, _my],
     tap,
     velocity,
@@ -647,7 +651,7 @@ export const BottomSheet = React.forwardRef<
     // @TODO too many rerenders
     //send('DRAG', { y: newY, velocity })
     //*
-    set({
+    springApi({
       y: newY,
       ready: 1,
       maxHeight: maxHeightRef.current,
@@ -672,7 +676,7 @@ export const BottomSheet = React.forwardRef<
     throw new TypeError('minSnapRef is NaN!!')
   }
 
-  const interpolations = useSpringInterpolations({ spring })
+  const interpolations = useSpringInterpolations({ spring: springStyles })
 
   return (
     <animated.div
@@ -691,9 +695,7 @@ export const BottomSheet = React.forwardRef<
         // but allow overriding them/disabling them
         ...style,
         // Not overridable as the "focus lock with opacity 0" trick rely on it
-        // @TODO the line below only fails on TS <4
-        // @ts-expect-error
-        opacity: spring.ready,
+        opacity: springStyles.ready,
       }}
     >
       {sibling}
@@ -724,6 +726,7 @@ export const BottomSheet = React.forwardRef<
         {header !== false && (
           <div key="header" data-rsbs-header ref={headerRef} {...bind()}>
             {header}
+            {JSON.stringify(state.value)}
           </div>
         )}
         <div
@@ -750,6 +753,8 @@ export const BottomSheet = React.forwardRef<
 const publicStates = [
   'closed',
   'opening',
+  'waiting',
+  'autofocusing',
   'open',
   'closing',
   'dragging',

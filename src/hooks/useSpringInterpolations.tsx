@@ -35,13 +35,11 @@ export function useSpringInterpolations({
    *       Could be done as a separat mode though, or a separate example CSS for max performance.
    */
   const interpolateHeight = to(
-    // @ts-expect-error
     [spring.y, spring.minSnap, spring.maxSnap],
     (y, minSnap, maxSnap) => `${clamp(y, minSnap, maxSnap)}px`
   )
 
   const interpolateY = to(
-    // @ts-expect-error
     [spring.y, spring.minSnap, spring.maxSnap],
     (y, minSnap, maxSnap) => {
       if (y < minSnap) {
@@ -54,19 +52,14 @@ export function useSpringInterpolations({
     }
   )
 
-  const interpolateFiller = to(
-    // @ts-expect-error
-    [spring.y, spring.maxSnap],
-    (y, maxSnap) => {
-      if (y >= maxSnap) {
-        return Math.ceil(y - maxSnap)
-      }
-      return 0
+  const interpolateFiller = to([spring.y, spring.maxSnap], (y, maxSnap) => {
+    if (y >= maxSnap) {
+      return Math.ceil(y - maxSnap)
     }
-  )
+    return 0
+  })
 
   const interpolateContentOpacity = to(
-    // @ts-expect-error
     [spring.y, spring.minSnap],
     (y, minSnap) => {
       if (!minSnap) {
@@ -83,10 +76,8 @@ export function useSpringInterpolations({
     }
   )
 
-  const interpolateBackdrop = to(
-    // @ts-expect-error
-    [spring.y, spring.minSnap],
-    (y, minSnap) => (minSnap ? clamp(y / minSnap, 0, 1) : 0)
+  const interpolateBackdrop = to([spring.y, spring.minSnap], (y, minSnap) =>
+    minSnap ? clamp(y / minSnap, 0, 1) : 0
   )
 
   return {
