@@ -69,6 +69,7 @@ export const BottomSheet = React.forwardRef<
     onSpringEnd,
     reserveScrollBarGap = blocking,
     expandOnContentDrag = false,
+    onScroll,
     ...props
   },
   forwardRef
@@ -666,7 +667,7 @@ export const BottomSheet = React.forwardRef<
             {header}
           </div>
         )}
-        <div key="scroll" data-rsbs-scroll ref={scrollRef} {...(expandOnContentDrag ? bind({ isContentDragging: true }) : {})}>
+        <div key="scroll" data-rsbs-scroll onScroll={onScroll} ref={scrollRef} {...(expandOnContentDrag ? bind({ isContentDragging: true }) : {})}>
           <div data-rsbs-content ref={contentRef}>
             {children}
           </div>
