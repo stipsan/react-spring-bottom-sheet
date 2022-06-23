@@ -16,7 +16,7 @@ export type SnapPointProps = {
    */
   minHeight: number
   /**
-   * Max height the sheet can be, your snap points are capped to this value. It's window.innerHeight by default but can be overriden using the maxHeight prop.
+   * Max height the sheet can be, your snap points are capped to this value. It's window.innerHeight by default but can be overridden using the maxHeight prop.
    */
   maxHeight: number
 }
@@ -141,7 +141,7 @@ export type Props = {
   reserveScrollBarGap?: boolean
 
   /**
-   * Open immediatly instead of initially animating from a closed => open state, useful if the bottom sheet is visible by default and the animation would be distracting
+   * Open immediately instead of initially animating from a closed => open state, useful if the bottom sheet is visible by default and the animation would be distracting
    */
   skipInitialTransition?: boolean,
 

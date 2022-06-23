@@ -1,7 +1,7 @@
 import { useSpring as useReactSpring } from 'react-spring'
 
 // Behold, the engine of it all!
-// Put in this file befause it makes it easier to type and I'm lazy! :D
+// Put in this file because it makes it easier to type and I'm lazy! :D
 
 export function useSpring() {
   return useReactSpring(() => ({

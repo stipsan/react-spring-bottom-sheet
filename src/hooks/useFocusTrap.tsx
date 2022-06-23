@@ -36,7 +36,7 @@ export function useFocusTrap({
               console.log('focus activate')
             }
           : undefined,
-      // If initialFocusRef is manually specified we don't want the first tabbable element to receive focus if initialFocusRef can't be found
+      // If initialFocusRef is manually specified we don't want the first tab-focusable element to receive focus if initialFocusRef can't be found
       initialFocus: initialFocusRef
         ? () => initialFocusRef?.current || fallback
         : undefined,

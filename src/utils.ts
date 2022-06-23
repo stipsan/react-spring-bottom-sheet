@@ -14,7 +14,7 @@ export function clamp(number: number, lower: number, upper: number) {
   return number
 }
 
-// Mwahaha easiest way to filter out NaN I ever saw! >:3
+// *eval laugh* easiest way to filter out NaN I ever saw! >:3
 export function deleteNaN(arr) {
   const set = new Set(arr)
   set.delete(NaN)

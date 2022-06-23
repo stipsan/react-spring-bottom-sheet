@@ -10,7 +10,7 @@ export type {
   Props as BottomSheetProps,
 } from './types'
 
-// Because SSR is annoying to deal with, and all the million complaints about window, navigator and dom elenents!
+// Because SSR is annoying to deal with, and all the million complaints about window, navigator and dom elements!
 export const BottomSheet = forwardRef<RefHandles, Props>(function BottomSheet(
   { onSpringStart, onSpringEnd, skipInitialTransition, ...props },
   ref
@@ -23,7 +23,7 @@ export const BottomSheet = forwardRef<RefHandles, Props>(function BottomSheet(
   // @TODO refactor to an initialState: OPEN | CLOSED property as it's much easier to understand
   // And informs what we should animate from. If the sheet is mounted with open = true, then initialState = OPEN.
   // When initialState = CLOSED, then internal sheet must first render with open={false} before setting open={props.open}
-  // It's only when initialState and props.open is mismatching that a intial transition should happen
+  // It's only when initialState and props.open is mismatching that a initial transition should happen
   // If they match then transitions will only happen when a user interaction or resize event happen.
   const initialStateRef = useRef<'OPEN' | 'CLOSED'>(
     skipInitialTransition && props.open ? 'OPEN' : 'CLOSED'
@@ -61,7 +61,7 @@ export const BottomSheet = forwardRef<RefHandles, Props>(function BottomSheet(
       await onSpringEnd?.(event)
 
       if (event.type === 'CLOSE') {
-        // Unmount from the dom to avoid contents being tabbable or visible to screen readers while closed
+        // Unmount from the dom to avoid contents being tab-focusable or visible to screen readers while closed
         timerRef.current = requestAnimationFrame(() => setMounted(false))
       }
     },
