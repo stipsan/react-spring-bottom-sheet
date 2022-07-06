@@ -34,7 +34,7 @@
   ],
   "types": "dist/index.d.ts",
   "dependencies": {
-    "@bottom-sheet/react-hooks": "^1.0.14",
+    "@bottom-sheet/react-hooks": "^1.0.15",
     "@juggle/resize-observer": "^3.3.1",
     "@reach/portal": "^0.17.0",
     "@react-spring/web": "^9.4.5",
@@ -55,7 +55,7 @@
     "@tailwindcss/forms": "^0.4.0",
     "@types/classnames": "^2.2.11",
     "@types/node": "^14.14.10",
-    "@types/react": "^17.0.0",
+    "@types/react": "^18.0.12",
     "@typescript-eslint/eslint-plugin": "^4.9.0",
     "@typescript-eslint/parser": "^4.9.0",
     "@use-it/interval": "^1.0.0",

@@ -20,6 +20,7 @@ import React, {
   useImperativeHandle,
   useRef,
 } from 'react'
+import usePrevious from 'use-previous'
 
 import {
   useAriaHider,
@@ -87,6 +88,7 @@ export const BottomSheet = React.forwardRef<
   const { dispatch, state, getTransientSnapshot } = useBottomSheetMachine({
     initialHeight,
     snapPoints,
+    // @TODO profile wether batching with requestAnimationFrame is helpful
     // unstable__requestAnimationFrame: true,
   })
   useEffect(() => {
@@ -205,19 +207,6 @@ export const BottomSheet = React.forwardRef<
   useMachine(overlayMachine, {
     context: { initialState },
     services: {
-      renderVisuallyHidden: useCallback(
-        async (context, event) => {
-          await asyncSet({
-            y: state.context.height,
-            maxHeight: maxHeightRef.current,
-            maxSnap: maxSnapRef.current,
-            // Using height instead of minSnapRef to avoid animating `height` on open
-            minSnap: state.context.height,
-            immediate: true,
-          })
-        },
-        [state.context.height]
-      ),
       activate: useCallback(
         async (context, event) => {
           await Promise.all([
@@ -233,18 +222,9 @@ export const BottomSheet = React.forwardRef<
         focusTrapRef.current.deactivate()
         ariaHiderRef.current.deactivate()
       }, [ariaHiderRef, focusTrapRef, scrollLockRef]),
-      openImmediately: useCallback(async () => {
-        heightRef.current = state.context.height
-        await asyncSet({
-          y: state.context.height,
-          maxHeight: maxHeightRef.current,
-          maxSnap: maxSnapRef.current,
-          // Using height instead of minSnapRef to avoid animating `height` on open
-          minSnap: state.context.height,
-          immediate: true,
-        })
-      }, [state.context.height]),
+
       openSmoothly: useCallback(async () => {
+        /*
         await asyncSet({
           y: 0,
           maxHeight: maxHeightRef.current,
@@ -253,9 +233,11 @@ export const BottomSheet = React.forwardRef<
           minSnap: state.context.height,
           immediate: true,
         })
+        // */
 
         heightRef.current = state.context.height
 
+        /*
         await asyncSet({
           y: state.context.height,
           maxHeight: maxHeightRef.current,
@@ -264,7 +246,8 @@ export const BottomSheet = React.forwardRef<
           minSnap: state.context.height,
           immediate: prefersReducedMotion.current,
         })
-      }, [prefersReducedMotion, state.context.height]),
+        // */
+      }, [state.context.height]),
       snapSmoothly: useCallback(
         async (context, event) => {
           const [snap] = computeSnapPointBounds(
@@ -273,6 +256,7 @@ export const BottomSheet = React.forwardRef<
           )
           heightRef.current = snap
           lastSnapRef.current = snap
+          /*
           await asyncSet({
             y: snap,
             maxHeight: maxHeightRef.current,
@@ -281,8 +265,9 @@ export const BottomSheet = React.forwardRef<
             immediate: prefersReducedMotion.current,
             config: { velocity: context.velocity },
           })
+          // */
         },
-        [lastSnapRef, prefersReducedMotion, state.context.snapPoints]
+        [lastSnapRef, state.context.snapPoints]
       ),
       resizeSmoothly: useCallback(async () => {
         const [snap] = computeSnapPointBounds(
@@ -291,6 +276,7 @@ export const BottomSheet = React.forwardRef<
         )
         heightRef.current = snap
         lastSnapRef.current = snap
+        /*
         await asyncSet({
           y: snap,
           maxHeight: maxHeightRef.current,
@@ -301,17 +287,20 @@ export const BottomSheet = React.forwardRef<
               ? prefersReducedMotion.current
               : true,
         })
-      }, [lastSnapRef, prefersReducedMotion, state.context.snapPoints]),
-      closeSmoothly: useCallback(
-        async (context, event) => {
-          // Avoid animating the height property on close and stay within FLIP bounds by upping the minSnap
+        // */
+      }, [lastSnapRef, state.context.snapPoints]),
+      closeSmoothly: useCallback(async (context, event) => {
+        // Avoid animating the height property on close and stay within FLIP bounds by upping the minSnap
+        /*
           asyncSet({
             minSnap: heightRef.current,
             immediate: true,
           })
+          // */
 
-          heightRef.current = 0
+        heightRef.current = 0
 
+        /*
           await asyncSet({
             y: 0,
             maxHeight: maxHeightRef.current,
@@ -320,9 +309,8 @@ export const BottomSheet = React.forwardRef<
           })
 
           await asyncSet({ immediate: true })
-        },
-        [prefersReducedMotion]
-      ),
+          // */
+      }, []),
     },
   })
 
@@ -339,6 +327,7 @@ export const BottomSheet = React.forwardRef<
         maxSnap: state.context.snapPoints.at(-1),
         minSnap: state.context.snapPoints[0],
         height: state.context.height,
+        immediate: prefersReducedMotion.current,
         onRest: () => dispatch({ type: 'OPENED' }),
       })
     }
@@ -349,10 +338,33 @@ export const BottomSheet = React.forwardRef<
         maxSnap: state.context.snapPoints.at(-1),
         minSnap: state.context.snapPoints[0],
         height: state.context.height,
+        immediate: prefersReducedMotion.current,
         onRest: () => dispatch({ type: 'DRAGGED' }),
       })
     }
-  }, [dispatch, ready, springApi, state])
+
+    if (state.matches('open.resizing')) {
+      springApi.start({
+        maxHeight: state.context.maxHeight,
+        maxSnap: state.context.snapPoints.at(-1),
+        minSnap: state.context.snapPoints[0],
+        height: state.context.height,
+        immediate: prefersReducedMotion.current,
+        onRest: () => dispatch({ type: 'RESIZED' }),
+      })
+    }
+
+    if (state.matches('open.closing')) {
+      springApi.start({
+        maxHeight: state.context.maxHeight,
+        maxSnap: state.context.snapPoints.at(-1),
+        minSnap: state.context.snapPoints[0],
+        height: 0,
+        immediate: prefersReducedMotion.current,
+        onRest: () => dispatch({ type: 'CLOSED' }),
+      })
+    }
+  }, [dispatch, ready, springApi, state, prefersReducedMotion])
 
   useEffect(() => {
     if (_open) {
@@ -361,18 +373,57 @@ export const BottomSheet = React.forwardRef<
       dispatch({ type: 'CLOSE' })
     }
   }, [_open, dispatch])
+
+  // RESIZE handler
+  const previousMaxHeight = usePrevious(state.context.maxHeight)
+  const previousHeight = usePrevious(state.context.height)
   useLayoutEffect(() => {
-    const maxSnap = Math.max(...state.context.snapPoints)
-    const minSnap = Math.min(...state.context.snapPoints)
+    console.log(
+      'RESIZE',
+      state.can({
+        type: 'RESIZE',
+        payload: { height: state.context.height },
+      }),
+      state.context.snapPoints.indexOf(state.context.height) === -1,
+      state.context.snapPoints.indexOf(state.context.height),
+      state.context.snapPoints,
+      state.context.height,
+      previousHeight
+    )
     // Adjust the height whenever the snap points are changed due to resize events
-    if (state.context.maxHeight || maxSnap || minSnap) {
-      dispatch({ type: 'RESIZE', payload: { height: state.context.height } })
+    if (
+      ///*
+      state.can({
+        type: 'RESIZE',
+        payload: { height: state.context.height },
+      }) &&
+      (state.context.height !== previousHeight ||
+        state.context.maxHeight !== previousMaxHeight)
+      // */
+      //state.context.snapPoints.indexOf(state.context.height) === -1
+    ) {
+      // const [nextHeight] = computeSnapPointBounds(state.context.height, state.context.snapPoints)
+      springApi.start({
+        maxHeight: state.context.maxHeight,
+        maxSnap: state.context.snapPoints.at(-1),
+        minSnap: state.context.snapPoints[0],
+        height: state.context.height,
+        immediate: prefersReducedMotion.current,
+        onStart: () =>
+          dispatch({
+            type: 'RESIZE',
+            payload: { height: state.context.height },
+          }),
+        onRest: () => dispatch({ type: 'RESIZED' }),
+      })
     }
   }, [
-    state.context.maxHeight,
-    state.context.snapPoints,
-    state.context.height,
     dispatch,
+    prefersReducedMotion,
+    previousHeight,
+    previousMaxHeight,
+    springApi,
+    state,
   ])
   useEffect(
     () => () => {
@@ -390,28 +441,48 @@ export const BottomSheet = React.forwardRef<
       snapTo: (numberOrCallback, { velocity = 1, source = 'custom' } = {}) => {
         // @TODO consider using refs for this
         console.log('TODO, send velocity and source', { velocity, source })
+        const nextHeight = computeSnapPointBounds(
+          typeof numberOrCallback === 'function'
+            ? numberOrCallback({
+                maxHeight: state.context.maxHeight,
+                headerHeight: state.context.headerHeight,
+                contentHeight: state.context.contentHeight,
+                footerHeight: state.context.footerHeight,
+                maxContent: state.context.maxContent,
+                minContent: state.context.minContent,
+                snapPoints: state.context.snapPoints,
+                lastHeight: state.context.lastHeight,
+                height: state.context.height,
+              })
+            : numberOrCallback,
+          state.context.snapPoints as [number, ...number[]]
+        )[0]
+        /*
         dispatch({
           type: 'SNAP',
           payload: {
-            height: computeSnapPointBounds(
-              typeof numberOrCallback === 'function'
-                ? numberOrCallback({
-                    maxHeight: state.context.maxHeight,
-                    headerHeight: state.context.headerHeight,
-                    contentHeight: state.context.contentHeight,
-                    footerHeight: state.context.footerHeight,
-                    maxContent: state.context.maxContent,
-                    minContent: state.context.minContent,
-                    snapPoints: state.context.snapPoints,
-                    lastHeight: state.context.lastHeight,
-                    height: state.context.height,
-                  })
-                : numberOrCallback,
-              state.context.snapPoints as [number, ...number[]]
-            )[0],
+            height: nextHeight,
             // source,
             // velocity,
           },
+        })
+        // */
+        springApi.start({
+          maxHeight: state.context.maxHeight,
+          maxSnap: state.context.snapPoints.at(-1),
+          minSnap: state.context.snapPoints[0],
+          height: nextHeight,
+          immediate: prefersReducedMotion.current,
+          onStart: () =>
+            dispatch({
+              type: 'SNAP',
+              payload: {
+                height: nextHeight,
+                // source,
+                // velocity,
+              },
+            }),
+          onRest: () => dispatch({ type: 'SNAPPED' }),
         })
       },
       get height() {
@@ -420,6 +491,8 @@ export const BottomSheet = React.forwardRef<
     }),
     [
       dispatch,
+      prefersReducedMotion,
+      springApi,
       state.context.contentHeight,
       state.context.footerHeight,
       state.context.headerHeight,
@@ -508,6 +581,12 @@ export const BottomSheet = React.forwardRef<
           minSnapRef.current,
           Math.min(maxSnapRef.current, rawY + predictedDistance * 2)
         )
+        if (unstable__debug) {
+          springApi.set({
+            debug__predictedHeight: predictedY,
+            debug__predictedSnapPoint: predictedDistance,
+          })
+        }
 
         if (
           !down &&
@@ -544,6 +623,37 @@ export const BottomSheet = React.forwardRef<
                 0.55
               )
           : predictedY
+        console.group('rubberbandIfOutOfBounds')
+        console.log({
+          rawY,
+          minSnap: minSnapRef.current,
+          maxSnap: maxSnapRef.current,
+        })
+        console.log(
+          rubberbandIfOutOfBounds(
+            rawY,
+            minSnapRef.current,
+            maxSnapRef.current * 2,
+            0.55
+          )
+        )
+        console.log(
+          rubberbandIfOutOfBounds(
+            rawY,
+            minSnapRef.current / 2,
+            maxSnapRef.current,
+            0.55
+          )
+        )
+        console.log(
+          rubberbandIfOutOfBounds(
+            rawY,
+            onDismiss ? 0 : minSnapRef.current,
+            maxSnapRef.current,
+            0.55
+          )
+        )
+        console.groupEnd()
 
         if (expandOnContentDrag && isContentDragging) {
           if (newY >= maxSnapRef.current) {
@@ -642,100 +752,6 @@ export const BottomSheet = React.forwardRef<
         ...style,
       }}
     >
-      {unstable__debug && (
-        <div
-          key="debug"
-          data-rsbs-debug
-          style={{
-            position: 'fixed',
-            top: 10,
-            right: 10,
-            overflow: 'auto',
-            width: '33vw',
-            maxHeight: 'calc(100vh - 20px)',
-            zIndex: 99999999,
-            background: 'hsla(0,0%,10%,0.95)',
-            color: 'hsla(0,0%,100%,0.75)',
-            padding: '0.2rem 0.4rem',
-            borderRadius: '0.2rem',
-            fontSize: '0.8rem',
-            resize: 'vertical',
-          }}
-        >
-          <div>Bottom Sheet Debugger</div>
-          <hr style={{ opacity: 0.6 }} />
-          <details open>
-            <summary>State Machine ({state.toStrings().at(-1)})</summary>
-            <details>
-              <summary>
-                context:{' '}
-                {`{"height": ${JSON.stringify(state.context.height)}, ...}`}
-              </summary>
-              <pre>{JSON.stringify(state.context, null, 2)}</pre>
-            </details>
-            <details>
-              <summary>nextEvents</summary>
-              <pre>{JSON.stringify(state.nextEvents, null, 2)}</pre>
-            </details>
-          </details>
-          <hr style={{ opacity: 0.6 }} />
-          <details>
-            <summary>
-              Spring: {`{`}"height": "
-              <animated.span>
-                {springStyles.height.to((height) => Math.round(height))}
-              </animated.span>
-              ", ...{`}`}
-            </summary>
-            <pre>
-              {`{`}
-              <br />
-              &nbsp;&nbsp;height:{' '}
-              <animated.span>{springStyles.height}</animated.span>
-              <br />
-              &nbsp;&nbsp;maxHeight:{' '}
-              <animated.span>{springStyles.maxHeight}</animated.span>
-              <br />
-              &nbsp;&nbsp;maxSnap:{' '}
-              <animated.span>{springStyles.maxSnap}</animated.span>
-              <br />
-              &nbsp;&nbsp;minSnap:{' '}
-              <animated.span>{springStyles.minSnap}</animated.span>
-              <br />
-              &nbsp;&nbsp;bufferSnap:{' '}
-              <animated.span>{springStyles.bufferSnap}</animated.span>
-              <br />
-              &nbsp;&nbsp;debug__predictedHeight:{' '}
-              <animated.span>
-                {springStyles.debug__predictedHeight}
-              </animated.span>
-              <br />
-              &nbsp;&nbsp;debug__predictedSnapPoint:{' '}
-              <animated.span>
-                {springStyles.debug__predictedSnapPoint}
-              </animated.span>
-              <br />
-              {`}`}
-            </pre>
-          </details>
-          <hr style={{ opacity: 0.6 }} />
-          <details>
-            <summary>CSS Variables</summary>
-            <pre>
-              {`{`}
-              <br />
-              {Object.keys(interpolations).map((key) => (
-                <Fragment key={key}>
-                  &nbsp;&nbsp;{key}:{' '}
-                  <animated.span>{interpolations[key]}</animated.span>
-                  <br />
-                </Fragment>
-              ))}
-              {`}`}
-            </pre>
-          </details>
-        </div>
-      )}
       {sibling}
       {blocking && (
         <div
@@ -745,6 +761,126 @@ export const BottomSheet = React.forwardRef<
           data-rsbs-backdrop
           {...bind({ closeOnTap: true })}
         />
+      )}
+      {unstable__debug && (
+        <div key="debug" data-rsbs-debug>
+          <div style={{ pointerEvents: 'none' }}>
+            {state.context.snapPoints.map((snapPoint) => (
+              <div
+                key={snapPoint}
+                style={{
+                  position: 'fixed',
+                  left: '0.4rem',
+                  right: '0.4rem',
+                  bottom: `${snapPoint}px`,
+                  borderBottom: '1px solid hsla(0,0%,100%,0.5)',
+                  transform: 'translateY(1px)',
+                  zIndex: 3,
+                  color: 'white',
+                }}
+              >
+                <span
+                  style={{
+                    display: 'block',
+                    transform: 'translateY(100%)',
+                  }}
+                >
+                  {snapPoint}
+                </span>
+              </div>
+            ))}
+          </div>
+          <div
+            style={{
+              position: 'fixed',
+              top: 10,
+              right: 10,
+              overflow: 'auto',
+              width: '33vw',
+              maxHeight: 'calc(100vh - 20px)',
+              zIndex: 99999999,
+              background: 'hsla(0,0%,10%,0.95)',
+              color: 'hsla(0,0%,100%,0.75)',
+              padding: '0.2rem 0.4rem',
+              borderRadius: '0.2rem',
+              fontSize: '0.8rem',
+              resize: 'vertical',
+            }}
+          >
+            <div>Bottom Sheet Debugger</div>
+            <hr style={{ opacity: 0.6 }} />
+            <details open>
+              <summary>State Machine ({state.toStrings().at(-1)})</summary>
+              <details>
+                <summary>
+                  context:{' '}
+                  {`{"height": ${JSON.stringify(state.context.height)}, ...}`}
+                </summary>
+                <pre>{JSON.stringify(state.context, null, 2)}</pre>
+              </details>
+              <details>
+                <summary>nextEvents</summary>
+                <pre>{JSON.stringify(state.nextEvents, null, 2)}</pre>
+              </details>
+            </details>
+            <hr style={{ opacity: 0.6 }} />
+            <details>
+              <summary>
+                Spring: {`{`}"height": "
+                <animated.span>
+                  {springStyles.height.to((height) => Math.round(height))}
+                </animated.span>
+                ", ...{`}`}
+              </summary>
+              <pre>
+                {`{`}
+                <br />
+                &nbsp;&nbsp;height:{' '}
+                <animated.span>{springStyles.height}</animated.span>
+                <br />
+                &nbsp;&nbsp;maxHeight:{' '}
+                <animated.span>{springStyles.maxHeight}</animated.span>
+                <br />
+                &nbsp;&nbsp;maxSnap:{' '}
+                <animated.span>{springStyles.maxSnap}</animated.span>
+                <br />
+                &nbsp;&nbsp;minSnap:{' '}
+                <animated.span>{springStyles.minSnap}</animated.span>
+                <br />
+                &nbsp;&nbsp;bufferSnap:{' '}
+                <animated.span>{springStyles.bufferSnap}</animated.span>
+                <br />
+                &nbsp;&nbsp;debug__predictedHeight:{' '}
+                <animated.span>
+                  {springStyles.debug__predictedHeight}
+                </animated.span>
+                <br />
+                &nbsp;&nbsp;debug__predictedSnapPoint:{' '}
+                <animated.span>
+                  {springStyles.debug__predictedSnapPoint}
+                </animated.span>
+                <br />
+                {`}`}
+              </pre>
+            </details>
+            <hr style={{ opacity: 0.6 }} />
+            <details>
+              <summary>CSS Variables</summary>
+              <pre>
+                {`{`}
+                <br />
+                {Object.keys(interpolations).map((key) => (
+                  <Fragment key={key}>
+                    &nbsp;&nbsp;{key}:{' '}
+                    <animated.span>{interpolations[key]}</animated.span>
+                    <br />
+                  </Fragment>
+                ))}
+                {`}`}
+              </pre>
+            </details>
+          </div>
+        </div>
       )}
       <div
         key="overlay"

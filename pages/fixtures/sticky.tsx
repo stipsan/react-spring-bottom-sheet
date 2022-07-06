@@ -43,23 +43,13 @@ const StickyFixturePage: NextPage<GetStaticProps> = ({
           unstable__debug={process.env.NODE_ENV !== 'production'}
           open={open}
           onDismiss={onDismiss}
-          initialHeight={(props) => {
-            const { snapPoints, lastHeight, maxContent } = props
-            console.count('initialHeight')
-            console.log('initialHeight: ', props)
-            return lastHeight ?? maxContent
-          }}
-          snapPoints={(props) => {
-            const { maxHeight, maxContent, minContent } = props
-            console.count('snapPoints')
-            console.log('snapPoints: ', props)
-            return [
-              minContent,
-              maxContent,
-              maxHeight - maxHeight / 5,
-              maxHeight * 0.6,
-            ]
-          }}
+          initialHeight={({ lastHeight, snapPoints }) =>
+            lastHeight ?? snapPoints[0]
+          }
+          snapPoints={({ maxHeight, maxContent }) => [
+            maxHeight - maxHeight / 5,
+            maxContent,
+          ]}
           header={
             <h1 className="flex items-center justify-center text-xl font-bold text-gray-800">
               Sticky!
