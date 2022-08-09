@@ -502,8 +502,6 @@ export const BottomSheet = React.forwardRef<
 
     if (onDismiss && closeOnTap && tap) {
       cancel()
-      // Runs onDismiss in a timeout to avoid tap events on the backdrop from triggering click events on elements underneath
-      setTimeout(() => onDismiss(), 0)
       return memo
     }
 
@@ -644,6 +642,7 @@ export const BottomSheet = React.forwardRef<
           key="backdrop"
           data-rsbs-backdrop
           {...bind({ closeOnTap: true })}
+          onClick={() => onDismiss()}
         />
       )}
       <div
