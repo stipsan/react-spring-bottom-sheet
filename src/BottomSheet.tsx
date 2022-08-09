@@ -648,7 +648,7 @@ export const BottomSheet = React.forwardRef<
       )}
       <div
         key="overlay"
-        aria-modal="true"
+        aria-modal={blocking}
         role="dialog"
         data-rsbs-overlay
         tabIndex={-1}
