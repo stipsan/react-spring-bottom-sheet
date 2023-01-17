@@ -35,13 +35,25 @@
   -webkit-tap-highlight-color: transparent;
   -webkit-touch-callout: none;
 }
+@keyframes showUp {
+  from {
+    opacity: 0;
+    visibility: hidden;
+  }
+  to {
+    opacity: 1;
+    visibility: visible;
+  }
+}
 [data-rsbs-backdrop] {
   top: -60px;
   bottom: -60px;
   background-color: var(--rsbs-backdrop-bg);
   will-change: opacity;
   cursor: pointer;
-  opacity: 1;
+  opacity: 0;
+  visibility: hidden;
+  animation: showUp 0.4s forwards ease;
 }
 [data-rsbs-is-dismissable='false'] [data-rsbs-backdrop] {
   cursor: ns-resize;
@@ -123,12 +135,12 @@
 }
 
 [data-rsbs-is-dismissable='true'],
-[data-rsbs-is-dismissable='false']:matches([data-rsbs-state='opening'], [data-rsbs-state='closing']) {
+[data-rsbs-is-dismissable='false']:matches(
+    [data-rsbs-state='opening'],
+    [data-rsbs-state='closing']
+  ) {
   & :matches([data-rsbs-header], [data-rsbs-scroll], [data-rsbs-footer]) > * {
     opacity: var(--rsbs-content-opacity);
-  }
-  & [data-rsbs-backdrop] {
-    opacity: var(--rsbs-backdrop-opacity);
   }
 }
 
@@ -136,4 +148,9 @@
 [data-rsbs-state='closing'] {
   /* Allows interactions on the rest of the page before the close transition is finished */
   pointer-events: none;
+}
+
+[data-rsbs-state='closed'] [data-rsbs-backdrop],
+[data-rsbs-state='closing'] [data-rsbs-backdrop] {
+  animation: showUp 1s forwards ease reverse !important;
 }
