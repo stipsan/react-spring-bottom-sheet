@@ -227,6 +227,19 @@ Type: `boolean`
 
 Disabled by default. By default, a user can expand the bottom sheet only by dragging a header or the overlay. This option enables expanding the bottom sheet on the content dragging.
 
+### springConfig
+
+Type: `{ mass: number; tension: number; friction: number }`
+
+Helps you to customize the movement and speed of the animations.
+
+```jsx
+<BottomSheet
+  // Animation faster than the default
+  springConfig={{mass: 0.1, tension: 370, friction: 26}}
+/>
+```
+
 ## Events
 
 All events receive `SpringEvent` as their argument. The payload varies, but `type` is always present, which can be `'OPEN' | 'RESIZE' | 'SNAP' | 'CLOSE'` depending on the scenario.
