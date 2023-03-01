@@ -64,6 +64,7 @@ export const BottomSheet = React.forwardRef<
     blocking = true,
     scrollLocking = true,
     style,
+    springConfig,
     onSpringStart,
     onSpringCancel,
     onSpringEnd,
@@ -173,6 +174,7 @@ export const BottomSheet = React.forwardRef<
               friction,
               friction + (friction - friction * velocity)
             ),
+            ...springConfig,
           },
           onRest: (...args) => {
             resolve(...args)
