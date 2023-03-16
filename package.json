@@ -71,7 +71,7 @@
     "husky": "^6.0.0",
     "lint-staged": "^10.5.3",
     "microbundle": "^0.14.0",
-    "next": "^10.0.3",
+    "next": "^12.0.0",
     "postcss": "^8.1.14",
     "postcss-cli": "^8.3.0",
     "postcss-custom-properties-fallback": "^1.0.1",
