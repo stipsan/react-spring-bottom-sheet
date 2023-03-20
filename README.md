@@ -128,7 +128,7 @@ In most cases you use a bottom sheet the same way you do with a dialog: you want
 ## props
 
 All props you provide, like `className`, `style` props or whatever else are spread onto the underlying `<animated.div>` instance, that you can style in your custom CSS using this selector: `[data-rsbs-root]`.
-Just note that the component is mounted in a `@reach/portal` at the bottom of `<body>`, and not in the DOM hierarchy you render it in.
+Just note that the component is mounted in a `@radix-ui/react-portal` at the bottom of `<body>`, and not in the DOM hierarchy you render it in.
 
 ### open
 
