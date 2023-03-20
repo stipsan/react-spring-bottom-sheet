@@ -95,6 +95,7 @@ type OverlayEvent =
 // The context (extended state) of the machine
 interface OverlayContext {
   initialState: 'OPEN' | 'CLOSED'
+  snapSource?: 'string'
 }
 function sleep(ms = 1000) {
   return new Promise((resolve) => setTimeout(resolve, ms))
@@ -197,7 +198,9 @@ export const overlayMachine = Machine<
               assign({
                 // @ts-expect-error
                 y: (_, { payload: { y } }) => y,
+                // @ts-expect-error
                 velocity: (_, { payload: { velocity } }) => velocity,
+                // @ts-expect-error
                 snapSource: (_, { payload: { source = 'custom' } }) => source,
               }),
             ],
@@ -309,8 +312,8 @@ export const overlayMachine = Machine<
       onSnapEnd: (context, event) => {
         console.log('onSnapEnd', { context, event })
       },
-      onRezizeEnd: (context, event) => {
-        console.log('onRezizeEnd', { context, event })
+      onResizeEnd: (context, event) => {
+        console.log('onResizeEnd', { context, event })
       },
     },
     services: {

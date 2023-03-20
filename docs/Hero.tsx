@@ -127,7 +127,7 @@ export default function Hero({ className }: { className?: string }) {
             />
             <animated.path
               style={{
-                fill: state.interpolate({ output: ['#fed7e6', '#FC9EC2'] }),
+                fill: state.to({ output: ['#fed7e6', '#FC9EC2'] }),
               }}
               fillRule="evenodd"
               clipRule="evenodd"
@@ -140,10 +140,10 @@ export default function Hero({ className }: { className?: string }) {
               style={{
                 ['--tw-translate-y' as any]: y,
                 /*
-                ['--tw-scale-x' as any]: state.interpolate({
+                ['--tw-scale-x' as any]: state.to({
                   output: [0.9, 1],
                 }),
-                ['--tw-scale-y' as any]: state.interpolate({
+                ['--tw-scale-y' as any]: state.to({
                   output: [0.9, 1],
                 }),
                 // */

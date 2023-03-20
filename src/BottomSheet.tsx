@@ -156,8 +156,9 @@ export const BottomSheet = React.forwardRef<
 
   // New utility for using events safely
   const asyncSet = useCallback<typeof set>(
-    // @ts-expect-error
+    // @ts-ignore
     ({ onRest, config: { velocity = 1, ...config } = {}, ...opts }) =>
+      // @ts-expect-error
       new Promise((resolve) =>
         set({
           ...opts,
@@ -175,6 +176,7 @@ export const BottomSheet = React.forwardRef<
             ),
           },
           onRest: (...args) => {
+            // @ts-expect-error
             resolve(...args)
             onRest?.(...args)
           },
@@ -486,7 +488,7 @@ export const BottomSheet = React.forwardRef<
     down,
     first,
     last,
-    memo = spring.y.getValue() as number,
+    memo = spring.y.get(),
     movement: [, _my],
     tap,
     velocity,
