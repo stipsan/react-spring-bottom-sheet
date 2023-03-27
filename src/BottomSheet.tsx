@@ -70,7 +70,6 @@ export const BottomSheet = React.forwardRef<
     reserveScrollBarGap = blocking,
     expandOnContentDrag = false,
     disableExpandList = [],
-    showClassForDisableDrag = false,
     ...props
   },
   forwardRef
@@ -500,10 +499,6 @@ export const BottomSheet = React.forwardRef<
     event,
   }) => {
     const my = _my * -1
-  
-    if (showClassForDisableDrag) {
-      console.log('CLASS OF EVENT TARGET ------', event.target.className || 'NO CLASS ON THIS ELEMENT');
-    }
     
     const classNamesArray = event.target.className.split(' ')
     if (disableExpandList && classNamesArray.some(className => disableExpandList.includes(className))) {
