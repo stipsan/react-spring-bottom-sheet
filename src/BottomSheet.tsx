@@ -454,8 +454,8 @@ export const BottomSheet = React.forwardRef<
     const elem = scrollRef.current
 
     const preventScrolling = e => {
-      const classNamesArray = e.target.className.split(' ')
-      if (disableExpandList && classNamesArray.some(className => disableExpandList.includes(className))) {
+      const disableExpandListNodes = disableExpandList.map(selector => containerRef.current.querySelector(selector)).filter(Boolean);
+      if (disableExpandListNodes.length && disableExpandListNodes.some(disableNode => disableNode.contains(e.target))) {
         return true
       } else if (preventScrollingRef.current) {
         e.preventDefault()
@@ -500,10 +500,12 @@ export const BottomSheet = React.forwardRef<
   }) => {
     const my = _my * -1
     
-    const classNamesArray = event.target.className.split(' ')
-    if (disableExpandList && classNamesArray.some(className => disableExpandList.includes(className))) {
-      cancel()
-      return memo
+    if (containerRef.current && disableExpandList.length) {
+      const disableExpandListNodes = disableExpandList.map(selector => containerRef.current.querySelector(selector)).filter(Boolean);
+      if (disableExpandListNodes.length && disableExpandListNodes.some(disableNode => disableNode.contains(event.target))) {
+        cancel()
+        return memo
+      }
     }
     
     // Cancel the drag operation if the canDrag state changed
