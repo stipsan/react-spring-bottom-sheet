@@ -157,11 +157,6 @@ export type Props = {
    */
   disableExpandList?: string[],
 
-  /**
-   * Prints in the console classes the element that was clicked. Сan help to adding classes to the disableExpandList.
-   * @default showClassForDisableDrag === false
-   */
-  showClassForDisableDrag?: boolean,
 } & Omit<React.PropsWithoutRef<JSX.IntrinsicElements['div']>, 'children'>
 
 export interface RefHandles {
