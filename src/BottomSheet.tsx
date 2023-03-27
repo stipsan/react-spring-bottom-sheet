@@ -69,6 +69,8 @@ export const BottomSheet = React.forwardRef<
     onSpringEnd,
     reserveScrollBarGap = blocking,
     expandOnContentDrag = false,
+    disableExpandList = [],
+    showClassForDisableDrag = false,
     ...props
   },
   forwardRef
@@ -453,7 +455,10 @@ export const BottomSheet = React.forwardRef<
     const elem = scrollRef.current
 
     const preventScrolling = e => {
-      if (preventScrollingRef.current) {
+      const classNamesArray = e.target.className.split(' ')
+      if (disableExpandList && classNamesArray.some(className => disableExpandList.includes(className))) {
+        return true
+      } else if (preventScrollingRef.current) {
         e.preventDefault()
       }
     }
@@ -479,7 +484,7 @@ export const BottomSheet = React.forwardRef<
       elem.removeEventListener('touchmove', preventScrolling)
       elem.removeEventListener('touchstart', preventSafariOverscroll)
     }
-  }, [expandOnContentDrag, scrollRef])
+  }, [expandOnContentDrag, scrollRef, disableExpandList])
 
   const handleDrag = ({
     args: [{ closeOnTap = false, isContentDragging = false } = {}] = [],
@@ -492,9 +497,20 @@ export const BottomSheet = React.forwardRef<
     movement: [, _my],
     tap,
     velocity,
+    event,
   }) => {
     const my = _my * -1
-
+  
+    if (showClassForDisableDrag) {
+      console.log('CLASS OF EVENT TARGET ------', event.target.className || 'NO CLASS ON THIS ELEMENT');
+    }
+    
+    const classNamesArray = event.target.className.split(' ')
+    if (disableExpandList && classNamesArray.some(className => disableExpandList.includes(className))) {
+      cancel()
+      return memo
+    }
+    
     // Cancel the drag operation if the canDrag state changed
     if (!canDragRef.current) {
       console.log('handleDrag cancelled dragging because canDragRef is false')

@@ -150,6 +150,18 @@ export type Props = {
    * @default expandOnContentDrag === false
    */
   expandOnContentDrag?: boolean,
+
+  /**
+   * Prevent expanding the bottom sheet on the content dragging if event.target.classNames contains in disableExpandList array.
+   * @default disableExpandList === []
+   */
+  disableExpandList?: string[],
+
+  /**
+   * Prints in the console classes the element that was clicked. Сan help to adding classes to the disableExpandList.
+   * @default showClassForDisableDrag === false
+   */
+  showClassForDisableDrag?: boolean,
 } & Omit<React.PropsWithoutRef<JSX.IntrinsicElements['div']>, 'children'>
 
 export interface RefHandles {
