@@ -10,8 +10,15 @@
 
 # Installation
 
+### Install using npm
 ```bash
-npm i react-spring-bottom-sheet
+npm i react-spring-bottom-sheet-updated
+```
+
+### Install using yarn 
+
+```bash
+yarn add react-spring-bottom-sheet-updated
 ```
 
 # Getting started
