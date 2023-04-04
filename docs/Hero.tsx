@@ -1,16 +1,16 @@
 import cx from 'classnames'
-import { forwardRef, useEffect, useRef, useState } from 'react'
+import { AnchorHTMLAttributes, forwardRef, ReactNode, useEffect, useRef, useState } from 'react'
 import { animated, config, useSpring } from 'react-spring'
 import styles from './Hero.module.css'
 
 const subtitle = 'Accessible, Delightful, and Performant'
 
-const Link: React.FC<{
-  href?: string
-  target?: string
-  className?: string
-}> = forwardRef(
-  ({ children, className, ...props }, ref: React.Ref<HTMLAnchorElement>) => (
+interface LinkProps extends AnchorHTMLAttributes<HTMLAnchorElement> {
+  href: string;
+  children: ReactNode;
+}
+
+const Link = forwardRef<HTMLAnchorElement, LinkProps>(({ children, className, ...props }, ref) => (
     <a
       {...props}
       className={cx(
@@ -41,7 +41,7 @@ const Links = ({ className }: { className?: string }) => (
   </>
 )
 // The wrapping in <g> is because of Safari 🙄 https://bug-149617-attachments.webkit.org/attachment.cgi?id=262048
-const SvgText: React.FC<{ x?: string; y?: string; className?: string }> = ({
+const SvgText: React.FC<{ x?: string; y?: string; className?: string; children?: ReactNode }> = ({
   children,
   className,
   x = '23',
