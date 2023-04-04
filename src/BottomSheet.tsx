@@ -70,6 +70,7 @@ export const BottomSheet = React.forwardRef<
     reserveScrollBarGap = blocking,
     expandOnContentDrag = false,
     disableExpandList = [],
+    preventPullUp = true,
     ...props
   },
   forwardRef
@@ -575,6 +576,18 @@ export const BottomSheet = React.forwardRef<
             0.55
           )
       : predictedY
+    
+    if (preventPullUp) {
+      if (direction === 0) {
+        return memo
+      }
+      if ((direction < 0 && newY > maxSnap && _my <= 0) || (direction > 0 && newY > maxSnap && _my <= 0)) {
+        // realize feature: all pop-ups shouldn't be pulled up by certain if it is fully open
+        // if direction up, and newY coordinate >= maxSnap, and distance Y from start point to current point (_my) <= 0 don't change height modal
+        // or if direction down, and newY coordinate >= maxSnap, and distance Y from start point to current point (_my) <= 0 don't change height modal
+        return memo;
+      }
+    }
 
     if (expandOnContentDrag && isContentDragging) {
       if (newY >= maxSnapRef.current) {
