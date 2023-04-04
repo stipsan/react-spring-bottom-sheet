@@ -457,31 +457,37 @@ export const BottomSheet = React.forwardRef<
       const disableExpandListNodes = disableExpandList.map(selector => containerRef.current.querySelector(selector)).filter(Boolean);
       if (disableExpandListNodes.length && disableExpandListNodes.some(disableNode => disableNode.contains(e.target))) {
         return true
-      } else if (preventScrollingRef.current) {
+      } else if (preventScrollingRef.current && elem.scrollTop <= 0) {
         e.preventDefault()
       }
     }
 
-    const preventSafariOverscroll = e => {
+    let prevValue = 0;
+    const preventSafariOverscrollOnStart = e => {
       if (elem.scrollTop < 0) {
-        requestAnimationFrame(() => {
-          elem.style.overflow = 'hidden'
-          elem.scrollTop = 0
-          elem.style.removeProperty('overflow')
-        })
-        e.preventDefault()
+        prevValue = elem.scrollTop;
       }
     }
+  
+    const preventSafariOverscrollOnMove = (e) => {
+      if (elem.scrollTop < 0 && elem.scrollTop < prevValue) {
+        e.preventDefault();
+      }
+    };
 
     if (expandOnContentDrag) {
       elem.addEventListener('scroll', preventScrolling)
       elem.addEventListener('touchmove', preventScrolling)
-      elem.addEventListener('touchstart', preventSafariOverscroll)
+      elem.addEventListener('touchmove', preventSafariOverscrollOnMove);
+      elem.addEventListener('touchstart', preventSafariOverscrollOnStart, {
+        passive: true
+      });
     }
     return () => {
       elem.removeEventListener('scroll', preventScrolling)
       elem.removeEventListener('touchmove', preventScrolling)
-      elem.removeEventListener('touchstart', preventSafariOverscroll)
+      elem.removeEventListener('touchmove', preventSafariOverscrollOnMove);
+      elem.removeEventListener('touchstart', preventSafariOverscrollOnStart);
     }
   }, [expandOnContentDrag, scrollRef, disableExpandList])
 
@@ -499,7 +505,7 @@ export const BottomSheet = React.forwardRef<
     event,
   }) => {
     const my = _my * -1
-    
+    const hasScroll = scrollRef.current.scrollHeight > scrollRef.current.clientHeight;
     if (containerRef.current && disableExpandList.length) {
       const disableExpandListNodes = disableExpandList.map(selector => containerRef.current.querySelector(selector)).filter(Boolean);
       if (disableExpandListNodes.length && disableExpandListNodes.some(disableNode => disableNode.contains(event.target))) {
@@ -539,6 +545,7 @@ export const BottomSheet = React.forwardRef<
       onDismiss &&
       direction > 0 &&
       rawY + predictedDistance < minSnapRef.current / 2
+      && (!hasScroll || scrollRef.current.scrollTop <= 0)
     ) {
       cancel()
       onDismiss()
