@@ -157,6 +157,12 @@ export type Props = {
    */
   disableExpandList?: string[],
 
+  /**
+   * Prevent pull up if modal is fully open.
+   * @default preventPullUp === false
+   */
+  preventPullUp?: boolean,
+
 } & Omit<React.PropsWithoutRef<JSX.IntrinsicElements['div']>, 'children'>
 
 export interface RefHandles {
