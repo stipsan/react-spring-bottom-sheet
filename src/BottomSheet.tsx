@@ -70,7 +70,7 @@ export const BottomSheet = React.forwardRef<
     reserveScrollBarGap = blocking,
     expandOnContentDrag = false,
     disableExpandList = [],
-    preventPullUp = true,
+    preventPullUp = false,
     ...props
   },
   forwardRef
