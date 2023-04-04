@@ -24,7 +24,7 @@
 [data-rsbs-overlay],
 [data-rsbs-backdrop],
 [data-rsbs-root]:after {
-  z-index: 3;
+  z-index: var(--rsbs-z-index, 3);;
   overscroll-behavior: none;
   touch-action: none;
   position: fixed;

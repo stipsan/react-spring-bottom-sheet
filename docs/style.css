@@ -13,6 +13,7 @@
 @layer base {
   :root {
     --rsbs-backdrop-bg: rgba(15, 23, 42, 0.7);
+    --rsbs-z-index: 3;
   }
 }
 

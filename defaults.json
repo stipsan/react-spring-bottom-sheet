@@ -11,6 +11,7 @@
     "--rsbs-mr": "env(safe-area-inset-right)",
     "--rsbs-overlay-h": "0px",
     "--rsbs-overlay-rounded": "16px",
-    "--rsbs-overlay-translate-y": "0px"
+    "--rsbs-overlay-translate-y": "0px",
+    "--rsbs-z-index": "3"
   }
 }
