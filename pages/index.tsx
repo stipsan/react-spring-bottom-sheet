@@ -79,7 +79,7 @@ const IndexPage: NextPage<GetStaticProps> = ({
           text="text-900"
           heading={aside}
           lead={[
-            "Examples so far have all been with blocking=true, which is the default state. It's comparable to a blocking modal dialog, you can't interract with the rest of the page until the dialog closes.",
+            "Examples so far have all been with blocking=true, which is the default state. It's comparable to a blocking modal dialog, you can't interact with the rest of the page until the dialog closes.",
             "This mode can be turned off and changes the look and feel of the sheet to fit scenarios where it's used as you would a draggable sidebar.",
             'Or as an search overlay over a map perhaps. ',
           ]}
