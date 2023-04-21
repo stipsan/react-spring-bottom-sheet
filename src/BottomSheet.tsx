@@ -158,7 +158,7 @@ export const BottomSheet = React.forwardRef<
   // New utility for using events safely
   const asyncSet = useCallback<typeof set>(
     // @ts-expect-error
-    ({ onRest, config: { velocity = 1,...config } = {}, ...opts }) =>
+    ({ onRest, config: { velocity = 1, ...config } = {}, ...opts }) =>
       new Promise((resolve) =>
         set({
           ...opts,
