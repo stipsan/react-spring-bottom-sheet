@@ -69,6 +69,7 @@ export const BottomSheet = React.forwardRef<
     onSpringEnd,
     reserveScrollBarGap = blocking,
     expandOnContentDrag = false,
+    springConfig,
     ...props
   },
   forwardRef
@@ -173,6 +174,7 @@ export const BottomSheet = React.forwardRef<
               friction,
               friction + (friction - friction * velocity)
             ),
+            ...springConfig,
           },
           onRest: (...args) => {
             resolve(...args)
@@ -180,7 +182,7 @@ export const BottomSheet = React.forwardRef<
           },
         })
       ),
-    [set]
+    [set, springConfig]
   )
   const [current, send] = useMachine(overlayMachine, {
     devTools: debugging,
