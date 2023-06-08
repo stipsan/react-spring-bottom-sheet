@@ -2,7 +2,7 @@
   "extends": ["github>stipsan/renovate-presets:auto"],
   "packageRules": [
     {
-      "depTypeList": ["dependencies", "peerDependencies"],
+      "matchDepTypes": ["dependencies", "peerDependencies"],
       "automerge": false
     }
   ]
