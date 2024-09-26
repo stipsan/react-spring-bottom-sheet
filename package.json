@@ -43,7 +43,7 @@
     "xstate": "^4.15.1"
   },
   "peerDependencies": {
-    "react": "^16.14.0 || 17 || 18"
+    "react": "^16.14.0 || 17 || 18 || 19 || 20"
   },
   "devDependencies": {
     "@rooks/use-raf": "^4.5.0",
