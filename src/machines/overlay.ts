@@ -1,4 +1,4 @@
-import { Machine, assign } from 'xstate'
+import { assign, createMachine, fromPromise } from 'xstate'
 
 // This is the root machine, composing all the other machines and is the brain of the bottom sheet
 
@@ -95,6 +95,9 @@ type OverlayEvent =
 // The context (extended state) of the machine
 interface OverlayContext {
   initialState: 'OPEN' | 'CLOSED'
+  snapSource?: 'dragging' | 'custom' | string
+  y?: number
+  velocity?: number
 }
 function sleep(ms = 1000) {
   return new Promise((resolve) => setTimeout(resolve, ms))
@@ -110,20 +113,39 @@ const openToResize = {
   RESIZE: { target: '#overlay.resizing', actions: 'onOpenEnd' },
 }
 
-const initiallyOpen = ({ initialState }) => initialState === 'OPEN'
-const initiallyClosed = ({ initialState }) => initialState === 'CLOSED'
+const initiallyOpen = ({ context }) => context.initialState === 'OPEN'
+const initiallyClosed = ({ context }) => context.initialState === 'CLOSED'
 
 // Copy paste the machine into https://xstate.js.org/viz/ to make sense of what's going on in here ;)
 
-export const overlayMachine = Machine<
-  OverlayContext,
-  OverlayStateSchema,
-  OverlayEvent
->(
+export const overlayMachine = createMachine(
   {
+    types: {} as {
+      context: OverlayContext
+      services: {
+        onSnapStart: () => Promise<void>
+        onOpenStart: () => Promise<void>
+        onCloseStart: () => Promise<void>
+        onResizeStart: () => Promise<void>
+        onSnapEnd: () => Promise<void>
+        onOpenEnd: () => Promise<void>
+        onCloseEnd: () => Promise<void>
+        onResizeEnd: () => Promise<void>
+        renderVisuallyHidden: () => Promise<void>
+        activate: () => Promise<void>
+        deactivate: () => Promise<void>
+        openSmoothly: () => Promise<void>
+        openImmediately: () => Promise<void>
+        snapSmoothly: () => Promise<void>
+        resizeSmoothly: () => Promise<void>
+        closeSmoothly: () => Promise<void>
+      }
+    },
     id: 'overlay',
     initial: 'closed',
-    context: { initialState: 'CLOSED' },
+    context: {
+      initialState: 'CLOSED',
+    },
     states: {
       closed: { on: { OPEN: 'opening', CLOSE: undefined } },
       opening: {
@@ -137,8 +159,8 @@ export const overlayMachine = Machine<
           },
           transition: {
             always: [
-              { target: 'immediately', cond: 'initiallyOpen' },
-              { target: 'smoothly', cond: 'initiallyClosed' },
+              { target: 'immediately', guard: 'initiallyOpen' },
+              { target: 'smoothly', guard: 'initiallyClosed' },
             ],
           },
           immediately: {
@@ -192,18 +214,32 @@ export const overlayMachine = Machine<
             invoke: {
               src: 'onSnapStart',
               onDone: 'snappingSmoothly',
+              input: ({ event: { payload } }) => ({
+                y: payload.y,
+                velocity: payload.velocity,
+                snapSource: payload.source || 'custom',
+              }),
             },
             entry: [
-              assign({
-                // @ts-expect-error
-                y: (_, { payload: { y } }) => y,
-                velocity: (_, { payload: { velocity } }) => velocity,
-                snapSource: (_, { payload: { source = 'custom' } }) => source,
+              assign(({ event: { payload } }) => {
+                return {
+                  y: payload.y,
+                  velocity: payload.velocity,
+                  snapSource: payload.source || 'custom',
+                }
               }),
             ],
           },
           snappingSmoothly: {
-            invoke: { src: 'snapSmoothly', onDone: 'end' },
+            invoke: {
+              src: 'snapSmoothly',
+              onDone: 'end',
+              input: ({ context }) => ({
+                y: context.y,
+                velocity: context.velocity,
+                snapSource: context.snapSource,
+              }),
+            },
           },
           end: {
             invoke: { src: 'onSnapEnd', onDone: 'done' },
@@ -286,7 +322,7 @@ export const overlayMachine = Machine<
       },
     },
     on: {
-      CLOSE: 'closing',
+      CLOSE: '.closing',
     },
   },
   {
@@ -313,79 +349,79 @@ export const overlayMachine = Machine<
         console.log('onRezizeEnd', { context, event })
       },
     },
-    services: {
-      onSnapStart: async () => {
+    actors: {
+      onSnapStart: fromPromise(async () => {
         await sleep()
-      },
-      onOpenStart: async () => {
+      }),
+      onOpenStart: fromPromise(async () => {
         await sleep()
-      },
-      onCloseStart: async () => {
+      }),
+      onCloseStart: fromPromise(async () => {
         await sleep()
-      },
-      onResizeStart: async () => {
+      }),
+      onResizeStart: fromPromise(async () => {
         await sleep()
-      },
-      onSnapEnd: async () => {
+      }),
+      onSnapEnd: fromPromise(async () => {
         await sleep()
-      },
-      onOpenEnd: async () => {
+      }),
+      onOpenEnd: fromPromise(async () => {
         await sleep()
-      },
-      onCloseEnd: async () => {
+      }),
+      onCloseEnd: fromPromise(async () => {
         await sleep()
-      },
-      onResizeEnd: async () => {
+      }),
+      onResizeEnd: fromPromise(async () => {
         await sleep()
-      },
-      renderVisuallyHidden: async (context, event) => {
+      }),
+      renderVisuallyHidden: fromPromise(async ({ input, system }) => {
         console.group('renderVisuallyHidden')
-        console.log({ context, event })
+        console.log({ input, system })
         await sleep()
         console.groupEnd()
-      },
-      activate: async (context, event) => {
+      }),
+      activate: fromPromise(async ({ input, system }) => {
         console.group('activate')
-        console.log({ context, event })
+        console.log({ input, system })
         await sleep()
         console.groupEnd()
-      },
-      deactivate: async (context, event) => {
+      }),
+      deactivate: fromPromise(async ({ input, system }) => {
         console.group('deactivate')
-        console.log({ context, event })
+        console.log({ input, system })
         await sleep()
         console.groupEnd()
-      },
-      openSmoothly: async (context, event) => {
+      }),
+      openSmoothly: fromPromise(async ({ input, system }) => {
         console.group('openSmoothly')
-        console.log({ context, event })
+        console.log({ input, system })
         await sleep()
         console.groupEnd()
-      },
-      openImmediately: async (context, event) => {
+      }),
+      openImmediately: fromPromise(async ({ input, system }) => {
         console.group('openImmediately')
-        console.log({ context, event })
+        console.log({ input, system })
         await sleep()
         console.groupEnd()
-      },
-      snapSmoothly: async (context, event) => {
+      }),
+      snapSmoothly: fromPromise(async ({ input, system }) => {
         console.group('snapSmoothly')
-        console.log({ context, event })
+        console.log({ input, system })
         await sleep()
         console.groupEnd()
-      },
-      resizeSmoothly: async (context, event) => {
+      }),
+      resizeSmoothly: fromPromise(async ({ input, system }) => {
         console.group('resizeSmoothly')
-        console.log({ context, event })
+        console.log({ input, system })
         await sleep()
         console.groupEnd()
-      },
-      closeSmoothly: async (context, event) => {
+      }),
+      closeSmoothly: fromPromise(async ({ input, system }) => {
         console.group('closeSmoothly')
-        console.log({ context, event })
+        console.log({ input, system })
         await sleep()
         console.groupEnd()
-      },
+      }),
     },
     guards: { initiallyClosed, initiallyOpen },
   }

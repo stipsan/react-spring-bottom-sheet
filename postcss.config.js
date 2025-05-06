@@ -1,4 +1,5 @@
 const path = require('path')
+const svgo = require('postcss-svgo')
 const importFrom = path.resolve(__dirname, './defaults.json')
 
 module.exports = {
@@ -9,7 +10,7 @@ module.exports = {
     'postcss-preset-env': { importFrom, stage: 0 },
     'postcss-import-svg': {
       paths: [path.resolve(__dirname, 'docs')],
-      svgo: {
+      svgo: svgo({
         plugins: [
           {
             removeUnknownsAndDefaults: {
@@ -18,7 +19,7 @@ module.exports = {
             },
           },
         ],
-      },
+      }),
     },
     autoprefixer: {},
   },

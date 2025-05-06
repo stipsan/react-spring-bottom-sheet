@@ -1,3 +1,59 @@
+# [3.8.0](https://github.com/guiw5/react-spring-bottom-sheet/compare/v3.7.1...v3.8.0) (2025-05-06)
+
+
+### Features
+
+* exposing more props for springConfig + keepMounted ([4418438](https://github.com/guiw5/react-spring-bottom-sheet/commit/44184387e30c1b0c2951c23ed580f8940a575007))
+
+## [3.7.1](https://github.com/guiw5/react-spring-bottom-sheet/compare/v3.7.0...v3.7.1) (2025-05-06)
+
+
+### Bug Fixes
+
+* add 18 to react peer dep ([d89c0bb](https://github.com/guiw5/react-spring-bottom-sheet/commit/d89c0bbbd28e89bfc9aaf5136c83b6f254d2430b))
+
+# [3.7.0](https://github.com/guiw5/react-spring-bottom-sheet/compare/v3.6.0...v3.7.0) (2022-04-07)
+
+
+### Features
+
+* keep bottomSheet mounted ([de05fb0](https://github.com/guiw5/react-spring-bottom-sheet/commit/de05fb0a4148753e235d3ee80aa06613f86181ac))
+
+# [3.6.0](https://github.com/guiw5/react-spring-bottom-sheet/compare/v3.5.2...v3.6.0) (2022-04-06)
+
+
+### Features
+
+* expose scrollElement into sheetRef ([829148f](https://github.com/guiw5/react-spring-bottom-sheet/commit/829148f0a5ffd33fe75f6ebd693a3c370c4f9756))
+
+## [3.5.2](https://github.com/guiw5/react-spring-bottom-sheet/compare/v3.5.1...v3.5.2) (2022-04-05)
+
+
+### Bug Fixes
+
+* allow null ref ([2652ca8](https://github.com/guiw5/react-spring-bottom-sheet/commit/2652ca89ebf8e5046fa97f123e5358616d5bb708))
+
+## [3.5.1](https://github.com/guiw5/react-spring-bottom-sheet/compare/v3.5.0...v3.5.1) (2022-04-05)
+
+
+### Bug Fixes
+
+* useRef ([8da8e6e](https://github.com/guiw5/react-spring-bottom-sheet/commit/8da8e6e331bb3a4513dd0eeb7712d5542a7895d9))
+
+# [3.5.0](https://github.com/guiw5/react-spring-bottom-sheet/compare/v3.4.1...v3.5.0) (2022-04-05)
+
+
+### Features
+
+* expose scrollRef ([41075d6](https://github.com/guiw5/react-spring-bottom-sheet/commit/41075d6e81ea4c4002ba9401d291239678fdb4b2))
+
+## [3.4.1](https://github.com/guiw5/react-spring-bottom-sheet/compare/v3.4.0...v3.4.1) (2022-04-02)
+
+
+### Bug Fixes
+
+* change default duration ([1976bdf](https://github.com/guiw5/react-spring-bottom-sheet/commit/1976bdf76241c7366835ca93ee45c9f9392e3128))
+
 ## [3.4.1](https://github.com/stipsan/react-spring-bottom-sheet/compare/v3.4.0...v3.4.1) (2022-06-01)
 
 

@@ -42,6 +42,18 @@ export type SpringEvent =
   | { type: 'RESIZE'; source: ResizeSource }
   | { type: 'SNAP'; source: 'dragging' | 'custom' | string }
 
+/**
+ * Properties that can be used to customize the animation.
+ * see https://react-spring.dev/docs/advanced/config#config-visualizer
+ */
+export type SpringConfig = {
+  mass: number
+  tension: number
+  friction: number
+  velocity: number
+  duration: number
+}
+
 export type Props = {
   /**
    * Ensure that whatever you put in here have at least 1px height, or else the bottom sheet won't open
@@ -54,6 +66,16 @@ export type Props = {
    * in blocking mode.
    */
   sibling?: React.ReactNode
+
+  /**
+   * Pass the spring configurations (to change animation) in this format: { mass, tension, friction }.
+   */
+  springConfig?: SpringConfig
+
+  /**
+   * Scroller target
+   */
+  scrollerRef?: React.MutableRefObject<HTMLDivElement | null>
 
   /**
    * Start a transition from closed to open, open to closed, or snap to snap.
@@ -143,13 +165,19 @@ export type Props = {
   /**
    * Open immediatly instead of initially animating from a closed => open state, useful if the bottom sheet is visible by default and the animation would be distracting
    */
-  skipInitialTransition?: boolean,
+  skipInitialTransition?: boolean
 
   /**
    * Expand the bottom sheet on the content dragging. By default user can expand the bottom sheet only by dragging the header or overlay. This option enables expanding on dragging the content.
    * @default expandOnContentDrag === false
    */
-  expandOnContentDrag?: boolean,
+  expandOnContentDrag?: boolean
+
+  /**
+   * Whether the bottom sheet should be mounted when it's closed.
+   * @default false
+   */
+  keepMounted?: boolean
 } & Omit<React.PropsWithoutRef<JSX.IntrinsicElements['div']>, 'children'>
 
 export interface RefHandles {
@@ -171,4 +199,6 @@ export interface RefHandles {
    * It's update lifecycle with events are onSpringStart and onSpringCancel will give you the old value, while onSpringEnd will give you the current one.
    */
   height: number
+
+  scrollElement: HTMLDivElement
 }
