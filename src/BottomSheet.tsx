@@ -13,7 +13,7 @@ import React, {
   useRef,
 } from 'react'
 import { animated, config } from 'react-spring'
-import { rubberbandIfOutOfBounds, useDrag } from 'react-use-gesture'
+import { rubberbandIfOutOfBounds, useDrag } from '@use-gesture/react'
 import {
   useAriaHider,
   useFocusTrap,
