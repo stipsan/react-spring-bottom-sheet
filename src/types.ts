@@ -42,6 +42,39 @@ export type SpringEvent =
   | { type: 'RESIZE'; source: ResizeSource }
   | { type: 'SNAP'; source: 'dragging' | 'custom' | string }
 
+export type SpringConfig = {
+  /** Spring tension (stiffness) - higher values make animations faster and more bouncy */
+  tension?: number
+  /** Spring friction (damping) - higher values make animations less bouncy and more controlled */
+  friction?: number
+  /** Mass of the spring - affects how the spring responds to forces */
+  mass?: number
+  /** Rest position of the spring */
+  rest?: number
+  /** Rest speed of the spring */
+  restSpeed?: number
+  /** Rest delta of the spring */
+  restDelta?: number
+  /** Precision of the spring calculation */
+  precision?: number
+  /** Whether to clamp the spring values */
+  clamp?: boolean
+  /** Velocity of the spring */
+  velocity?: number
+  /** Decay rate of the spring */
+  decay?: number
+  /** Power of the spring */
+  power?: number
+  /** Time constant of the spring */
+  timeConstant?: number
+  /** Bounce factor of the spring */
+  bounce?: number
+  /** Duration of the spring animation */
+  duration?: number
+  /** Easing function for the spring */
+  easing?: (t: number) => number
+}
+
 export type Props = {
   /**
    * Ensure that whatever you put in here have at least 1px height, or else the bottom sheet won't open
@@ -150,6 +183,12 @@ export type Props = {
    * @default expandOnContentDrag === false
    */
   expandOnContentDrag?: boolean,
+
+  /**
+   * Customize the spring physics configuration for animations. This allows you to control tension, friction, mass, and other spring properties.
+   * @default Uses react-spring's default spring configuration
+   */
+  springConfig?: SpringConfig
 } & Omit<React.PropsWithoutRef<JSX.IntrinsicElements['div']>, 'children'>
 
 export interface RefHandles {

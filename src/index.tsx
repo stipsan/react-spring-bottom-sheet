@@ -8,6 +8,7 @@ import { useLayoutEffect } from './hooks'
 export type {
   RefHandles as BottomSheetRef,
   Props as BottomSheetProps,
+  SpringConfig,
 } from './types'
 
 // Because SSR is annoying to deal with, and all the million complaints about window, navigator and dom elenents!

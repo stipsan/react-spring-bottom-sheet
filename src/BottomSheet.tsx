@@ -35,7 +35,10 @@ import type {
 } from './types'
 import { debugging } from './utils'
 
+// defaults if not 
 const { tension, friction } = config.default
+const mass = 1
+
 
 // @TODO implement AbortController to deal with race conditions
 
@@ -69,6 +72,7 @@ export const BottomSheet = React.forwardRef<
     onSpringEnd,
     reserveScrollBarGap = blocking,
     expandOnContentDrag = false,
+    springConfig,
     ...props
   },
   forwardRef
@@ -165,14 +169,28 @@ export const BottomSheet = React.forwardRef<
             velocity,
             ...config,
             // @see https://springs.pomb.us
-            mass: 1,
+            mass: springConfig?.mass ?? mass,
             // "stiffness"
-            tension,
+            tension: springConfig?.tension ?? tension,
             // "damping"
             friction: Math.max(
-              friction,
-              friction + (friction - friction * velocity)
+              springConfig?.friction ?? friction,
+              (springConfig?.friction ?? friction) + ((springConfig?.friction ?? friction) - (springConfig?.friction ?? friction) * velocity)
             ),
+            // Allow all other spring config options to be customized
+            ...(springConfig && {
+              rest: springConfig.rest,
+              restSpeed: springConfig.restSpeed,
+              restDelta: springConfig.restDelta,
+              precision: springConfig.precision,
+              clamp: springConfig.clamp,
+              decay: springConfig.decay,
+              power: springConfig.power,
+              timeConstant: springConfig.timeConstant,
+              bounce: springConfig.bounce,
+              duration: springConfig.duration,
+              easing: springConfig.easing,
+            }),
           },
           onRest: (...args) => {
             resolve(...args)
@@ -180,7 +198,7 @@ export const BottomSheet = React.forwardRef<
           },
         })
       ),
-    [set]
+    [set, springConfig]
   )
   const [current, send] = useMachine(overlayMachine, {
     devTools: debugging,
@@ -450,13 +468,13 @@ export const BottomSheet = React.forwardRef<
   useEffect(() => {
     const elem = scrollRef.current
 
-    const preventScrolling = e => {
+    const preventScrolling = (e) => {
       if (preventScrollingRef.current) {
         e.preventDefault()
       }
     }
 
-    const preventSafariOverscroll = e => {
+    const preventSafariOverscroll = (e) => {
       if (elem.scrollTop < 0) {
         requestAnimationFrame(() => {
           elem.style.overflow = 'hidden'
@@ -563,7 +581,7 @@ export const BottomSheet = React.forwardRef<
         newY = maxSnapRef.current
       }
 
-      preventScrollingRef.current = newY < maxSnapRef.current;
+      preventScrollingRef.current = newY < maxSnapRef.current
     } else {
       preventScrollingRef.current = false
     }
@@ -666,7 +684,12 @@ export const BottomSheet = React.forwardRef<
             {header}
           </div>
         )}
-        <div key="scroll" data-rsbs-scroll ref={scrollRef} {...(expandOnContentDrag ? bind({ isContentDragging: true }) : {})}>
+        <div
+          key="scroll"
+          data-rsbs-scroll
+          ref={scrollRef}
+          {...(expandOnContentDrag ? bind({ isContentDragging: true }) : {})}
+        >
           <div data-rsbs-content ref={contentRef}>
             {children}
           </div>
