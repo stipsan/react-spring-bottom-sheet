@@ -1,3 +1,8 @@
+import type React from 'react'
+
+/** A ref whose current value can be written to, works with both the React 18 and React 19 typings */
+export type MutableRef<T> = { current: T }
+
 export type SnapPointProps = {
   /**
    * The height of the sticky header, if there's one
@@ -44,6 +49,7 @@ export type SpringEvent =
 
 /**
  * Properties that can be used to customize the animation.
+ * By default transitions use a 115ms tween, remove `duration` (set it to `undefined`) to get spring physics driven by `tension` and `friction`.
  * see https://react-spring.dev/docs/advanced/config#config-visualizer
  */
 export type SpringConfig = {
@@ -51,7 +57,7 @@ export type SpringConfig = {
   tension: number
   friction: number
   velocity: number
-  duration: number
+  duration: number | undefined
 }
 
 export type Props = {
@@ -68,20 +74,20 @@ export type Props = {
   sibling?: React.ReactNode
 
   /**
-   * Pass the spring configurations (to change animation) in this format: { mass, tension, friction }.
+   * Pass the spring configurations (to change animation) in this format: { mass, tension, friction, duration }.
    */
-  springConfig?: SpringConfig
+  springConfig?: Partial<SpringConfig>
 
   /**
    * Scroller target
    */
-  scrollerRef?: React.MutableRefObject<HTMLDivElement | null>
+  scrollerRef?: React.RefObject<HTMLDivElement | null>
 
   /**
    * Start a transition from closed to open, open to closed, or snap to snap.
    * Return a promise or async to delay the start of the transition, just remember it can be cancelled.
    */
-  onSpringStart?: (event: SpringEvent) => void
+  onSpringStart?: (event: SpringEvent) => void | Promise<void>
   /**
    * A running transition didn't finish or got stopped, this event isn't awaited on and might happen
    * after the sheet is unmounted (if it were in the middle of something).
@@ -92,7 +98,7 @@ export type Props = {
    * the sheet without interrupting the closing animation.
    * Return a promise or async to delay the start of the transition, just remember it can be cancelled.
    */
-  onSpringEnd?: (event: SpringEvent) => void
+  onSpringEnd?: (event: SpringEvent) => void | Promise<void>
 
   /** Whether the bottom sheet is open or not. */
   open: boolean
@@ -117,7 +123,7 @@ export type Props = {
    * A reference to the element that should be focused. By default it'll be the first interactive element.
    * Set to false to disable keyboard focus when opening.
    */
-  initialFocusRef?: React.RefObject<HTMLElement> | false
+  initialFocusRef?: React.RefObject<HTMLElement | null> | false
 
   /**
    * Handler that is called when the user presses *esc*, clicks outside the dialog or drags the sheet to the bottom of the display.
@@ -178,7 +184,7 @@ export type Props = {
    * @default false
    */
   keepMounted?: boolean
-} & Omit<React.PropsWithoutRef<JSX.IntrinsicElements['div']>, 'children'>
+} & Omit<React.ComponentPropsWithoutRef<'div'>, 'children'>
 
 export interface RefHandles {
   /**
@@ -200,5 +206,5 @@ export interface RefHandles {
    */
   height: number
 
-  scrollElement: HTMLDivElement
+  scrollElement: HTMLDivElement | null
 }

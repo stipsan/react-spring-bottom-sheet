@@ -5,7 +5,7 @@ export function useAriaHider({
   targetRef,
   enabled,
 }: {
-  targetRef: React.RefObject<Element>
+  targetRef: React.RefObject<Element | null>
   enabled: boolean
 }) {
   const ref = useRef<{ activate: () => void; deactivate: () => void }>({

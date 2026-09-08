@@ -1,6 +1,6 @@
 {
   "name": "guiw5-bottom-sheet",
-  "description": "React 18, XState v5 - ✨ Accessible, 🪄 Delightful, and 🤯 Performant. Built on react-spring for the web, and react-use-gesture.",
+  "description": "✨ Accessible, 🪄 Delightful, and 🤯 Performant. Built on @react-spring/web and @use-gesture/react. React 18 & 19, XState v5.",
   "license": "MIT",
   "author": "Cody Olsen",
   "authors": [
@@ -28,7 +28,7 @@
     "build:declarations": "tsc --project tsconfig.declarations.json",
     "prebuild:dist": "rimraf dist/**",
     "build:dist": "npm run build:postcss && npm run build:microbundle && npm run build:declarations",
-    "build:microbundle": "NODE_ENV=production microbundle --define process.env.NODE_ENV=production --tsconfig tsconfig.microbundle.json -f cjs,es,modern --css-modules false --jsx React.createElement --jsxFragment React.Fragment",
+    "build:microbundle": "cross-env NODE_ENV=production microbundle --define process.env.NODE_ENV=production --tsconfig tsconfig.microbundle.json -f cjs,es,modern --css-modules false --jsx React.createElement --jsxFragment React.Fragment",
     "build:postcss": "postcss -d dist src/style.css",
     "dev": "next",
     "lint": "eslint . --ext ts,tsx,js,jsx --max-warnings 0 && tsc",
@@ -41,17 +41,16 @@
   ],
   "types": "dist/index.d.ts",
   "dependencies": {
-    "@juggle/resize-observer": "^3.2.0",
-    "@xstate/react": "^4.1.1",
+    "@react-spring/web": "^10.1.2",
+    "@use-gesture/react": "^10.3.1",
+    "@xstate/react": "^6.1.0",
     "body-scroll-lock": "^3.1.5",
-    "focus-trap": "^6.2.2",
-    "postcss-svgo": "^6.0.3",
-    "react-spring": "^8.0.27",
-    "react-use-gesture": "^8.0.1",
-    "xstate": "^5.11.0"
+    "focus-trap": "^6.9.4",
+    "xstate": "^5.32.6"
   },
   "peerDependencies": {
-    "react": "^16.14.0 || 17 || 18"
+    "react": "^16.14.0 || ^17.0.0 || ^18.0.0 || ^19.0.0",
+    "react-dom": "^16.14.0 || ^17.0.0 || ^18.0.0 || ^19.0.0"
   },
   "devDependencies": {
     "@rooks/use-raf": "^4.5.0",
@@ -61,6 +60,7 @@
     "@types/classnames": "^2.2.11",
     "@types/node": "^14.14.10",
     "@types/react": "^18.2.0",
+    "@types/react-dom": "^18.3.7",
     "@typescript-eslint/eslint-plugin": "^7.7.0",
     "@typescript-eslint/parser": "^7.7.0",
     "@use-it/interval": "^1.0.0",
@@ -68,6 +68,7 @@
     "babel-eslint": "^10.1.0",
     "babel-plugin-transform-remove-console": "^6.9.4",
     "classnames": "^2.2.6",
+    "cross-env": "^7.0.3",
     "eslint": "^8.56.0",
     "eslint-config-react-app": "^7.0.1",
     "eslint-plugin-flowtype": "^8.0.3",
@@ -84,6 +85,7 @@
     "postcss-custom-properties-fallback": "^1.0.1",
     "postcss-import-svg": "^1.0.1",
     "postcss-preset-env": "^9.5.6",
+    "postcss-svgo": "^6.0.3",
     "prettier": "^2.2.1",
     "prettier-package-json": "^2.1.3",
     "react": "^18.2.0",
@@ -110,18 +112,17 @@
     "overlay",
     "popup",
     "react",
-    "react-spring",
-    "react-use-gesture",
     "sheet",
-    "typescript"
+    "typescript",
+    "use-gesture"
   ],
   "browserslist": [
-    "Chrome >= 49",
-    "Android >= 58",
-    "Safari >= 9.1",
-    "iOS >= 9.3",
-    "Firefox >= 31",
-    "Edge >= 16"
+    "Chrome >= 64",
+    "Android >= 64",
+    "Safari >= 13.1",
+    "iOS >= 13.4",
+    "Firefox >= 69",
+    "Edge >= 79"
   ],
   "husky": {
     "hooks": {
