@@ -16,7 +16,7 @@
   "bugs": {
     "url": "https://github.com/Guiw5/react-spring-bottom-sheet/issues"
   },
-  "version": "3.7.1",
+  "version": "3.8.0",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
   "files": [

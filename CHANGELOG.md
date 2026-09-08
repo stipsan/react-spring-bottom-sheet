@@ -1,3 +1,10 @@
+# [3.8.0](https://github.com/guiw5/react-spring-bottom-sheet/compare/v3.7.1...v3.8.0) (2025-05-06)
+
+
+### Features
+
+* exposing more props for springConfig + keepMounted ([4418438](https://github.com/guiw5/react-spring-bottom-sheet/commit/44184387e30c1b0c2951c23ed580f8940a575007))
+
 ## [3.7.1](https://github.com/guiw5/react-spring-bottom-sheet/compare/v3.7.0...v3.7.1) (2025-05-06)
 
 
