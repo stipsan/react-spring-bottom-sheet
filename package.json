@@ -1,13 +1,9 @@
 {
   "name": "guiw5-bottom-sheet",
+  "version": "3.9.0",
   "description": "✨ Accessible, 🪄 Delightful, and 🤯 Performant. Built on @react-spring/web and @use-gesture/react. React 18 & 19, XState v5.",
   "license": "MIT",
   "author": "Cody Olsen",
-  "authors": [
-    "Cody Olsen",
-    "Jasmine GH",
-    "Nicholas Petrasek"
-  ],
   "homepage": "https://react-spring-bottom-sheet.nipesolutions.com",
   "repository": {
     "type": "git",
@@ -16,25 +12,37 @@
   "bugs": {
     "url": "https://github.com/Guiw5/react-spring-bottom-sheet/issues"
   },
-  "version": "3.8.0",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js"
+    },
+    "./style.css": "./dist/style.css",
+    "./dist/style.css": "./dist/style.css",
+    "./package.json": "./package.json"
+  },
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
   "files": [
     "defaults.json",
     "dist"
   ],
+  "directories": {
+    "doc": "docs"
+  },
   "scripts": {
     "build": "next build",
     "build:dist": "tsup && npm run build:postcss",
     "build:postcss": "cross-env POSTCSS_TARGET=library postcss -d dist src/style.css",
     "dev": "next",
     "lint": "eslint . && tsc --noEmit",
+    "prepare": "husky",
     "prepublishOnly": "npm run build:dist",
     "start": "next start",
     "test": "npm run lint && npm run test:unit && npm run build:dist && npm run build",
     "test:unit": "vitest run",
-    "test:watch": "vitest",
-    "prepare": "husky"
+    "test:watch": "vitest"
   },
   "sideEffects": [
     "*.css"
@@ -114,6 +122,11 @@
     "typescript",
     "use-gesture"
   ],
+  "authors": [
+    "Cody Olsen",
+    "Jasmine GH",
+    "Nicholas Petrasek"
+  ],
   "browserslist": [
     "Chrome >= 64",
     "Android >= 64",
@@ -140,18 +153,5 @@
     "trailingComma": "es5"
   },
   "source": "src/index.tsx",
-  "style": "dist/style.css",
-  "directories": {
-    "doc": "docs"
-  },
-  "exports": {
-    ".": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.mjs",
-      "require": "./dist/index.js"
-    },
-    "./style.css": "./dist/style.css",
-    "./dist/style.css": "./dist/style.css",
-    "./package.json": "./package.json"
-  }
+  "style": "dist/style.css"
 }
