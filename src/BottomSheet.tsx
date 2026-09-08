@@ -20,7 +20,6 @@ import {
   useAriaHider,
   useFocusTrap,
   useLayoutEffect,
-  useReady,
   useReducedMotion,
   useScrollLock,
   useSnapPoints,
@@ -87,9 +86,6 @@ export const BottomSheet = React.forwardRef<
   },
   forwardRef
 ) {
-  // Before any animations can start we need to measure a few things, like the viewport and the dimensions of content, and header + footer if they exist
-  const { ready, registerReady } = useReady()
-
   // Controls the drag handler, used by spring operations that happen outside the render loop in React
   const canDragRef = useRef(false)
 
@@ -123,6 +119,20 @@ export const BottomSheet = React.forwardRef<
 
   const prefersReducedMotion = useReducedMotion()
 
+  // Nothing can start until the viewport and the content have been measured
+  const { minSnap, maxSnap, maxHeight, findSnap, ready } = useSnapPoints({
+    contentRef,
+    controlledMaxHeight,
+    footerEnabled: !!footer,
+    footerRef,
+    getSnapPoints,
+    headerEnabled: header !== false,
+    headerRef,
+    heightRef,
+    lastSnapRef,
+    resizeSourceRef,
+  })
+
   // "Plugins" huhuhu
   const scrollLockRef = useScrollLock({
     targetRef: scrollRef,
@@ -138,21 +148,6 @@ export const BottomSheet = React.forwardRef<
     fallbackRef: overlayRef,
     initialFocusRef: initialFocusRef || undefined,
     enabled: ready && blocking && initialFocusRef !== false,
-  })
-
-  const { minSnap, maxSnap, maxHeight, findSnap } = useSnapPoints({
-    contentRef,
-    controlledMaxHeight,
-    footerEnabled: !!footer,
-    footerRef,
-    getSnapPoints,
-    headerEnabled: header !== false,
-    headerRef,
-    heightRef,
-    lastSnapRef,
-    ready,
-    registerReady,
-    resizeSourceRef,
   })
 
   // Setup refs that are used in cases where full control is needed over when a side effect is executed
