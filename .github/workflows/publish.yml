@@ -24,8 +24,6 @@ jobs:
     needs: [test]
     permissions:
       contents: write
-      issues: write
-      pull-requests: write
       # Lets npm attach build provenance to the published package
       id-token: write
     steps:
