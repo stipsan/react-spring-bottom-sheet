@@ -136,4 +136,5 @@ yarn-error.log*
 .env.production.local
 
 # vercel
-.vercel.claude/
+.vercel
+.claude/
