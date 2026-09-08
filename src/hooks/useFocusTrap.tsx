@@ -7,9 +7,9 @@ export function useFocusTrap({
   initialFocusRef,
   enabled,
 }: {
-  targetRef: React.RefObject<HTMLElement>
-  fallbackRef: React.RefObject<HTMLElement>
-  initialFocusRef?: React.RefObject<HTMLElement>
+  targetRef: React.RefObject<HTMLElement | null>
+  fallbackRef: React.RefObject<HTMLElement | null>
+  initialFocusRef?: React.RefObject<HTMLElement | null>
   enabled: boolean
 }) {
   const ref = useRef<{ activate: () => void; deactivate: () => void }>({
@@ -30,12 +30,6 @@ export function useFocusTrap({
 
     const fallback = fallbackRef.current
     const trap = createFocusTrap(targetRef.current, {
-      onActivate:
-        process.env.NODE_ENV !== 'production'
-          ? () => {
-              console.log('focus activate')
-            }
-          : undefined,
       // If initialFocusRef is manually specified we don't want the first tabbable element to receive focus if initialFocusRef can't be found
       initialFocus: initialFocusRef
         ? () => initialFocusRef?.current || fallback

@@ -60,6 +60,7 @@
 [data-rsbs-header] {
   flex-shrink: 0;
   cursor: ns-resize;
+  touch-action: none;
   padding: 16px;
 }
 [data-rsbs-header] {
@@ -123,8 +124,8 @@
 }
 
 [data-rsbs-is-dismissable='true'],
-[data-rsbs-is-dismissable='false']:matches([data-rsbs-state='opening'], [data-rsbs-state='closing']) {
-  & :matches([data-rsbs-header], [data-rsbs-scroll], [data-rsbs-footer]) > * {
+[data-rsbs-is-dismissable='false']:is([data-rsbs-state='opening'], [data-rsbs-state='closing']) {
+  & :is([data-rsbs-header], [data-rsbs-scroll], [data-rsbs-footer]) > * {
     opacity: var(--rsbs-content-opacity);
   }
   & [data-rsbs-backdrop] {
@@ -136,4 +137,8 @@
 [data-rsbs-state='closing'] {
   /* Allows interactions on the rest of the page before the close transition is finished */
   pointer-events: none;
+}
+[data-rsbs-state='closed'] {
+  /* Keeps a closed but still mounted sheet out of the tab order and the accessibility tree */
+  visibility: hidden;
 }

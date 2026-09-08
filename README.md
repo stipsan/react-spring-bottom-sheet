@@ -1,4 +1,4 @@
-# React Spring Bottom Sheet (React 18)
+# React Spring Bottom Sheet (React 18 & 19)
 
 [![npm stat](https://img.shields.io/npm/dm/@nipe-solutions/react-spring-bottom-sheet.svg?style=flat-square)](https://npm-stat.com/charts.html?package=@nipe-solutions/react-spring-bottom-sheet)
 [![npm version](https://img.shields.io/npm/v/@nipe-solutions/react-spring-bottom-sheet.svg?style=flat-square)](https://www.npmjs.com/package/@nipe-solutions/react-spring-bottom-sheet)
@@ -12,7 +12,7 @@
 
 ### ✨ Updated Version
 
-This project is an updated version of the original, which was authored by Cody Olsen. I have forked this repository from Jasmine GH to include significant updates and enhancements. Notably, this version has been updated to fully support React 18 and incorporates the latest features and improvements from XState v5.
+This project is an updated version of the original, which was authored by Cody Olsen. I have forked this repository from Jasmine GH to include significant updates and enhancements. Notably, this version has been updated to fully support React 18 and 19 (including StrictMode), runs on [@react-spring/web] and [@use-gesture/react], and incorporates the latest features and improvements from XState v5.
 
 ### 📝 Attribution
 
@@ -23,7 +23,7 @@ I am not the original author of this software. The original creation was by Cody
 - Original Author's Repository: [Cody Olsen's GitHub](https://github.com/stipsan/react-spring-bottom-sheet)
 - Forked Version I Based My Work On: [Jasmine GH's GitHub](https://github.com/JasGH/react-spring-bottom-sheet)
 
-**react-spring-bottom-sheet** is built on top of **[react-spring]** and **[react-use-gesture]**. It busts the myth that accessibility and supporting keyboard navigation and screen readers are allegedly at odds with delightful, beautiful, and highly animated UIs. Every animation and transition use CSS custom properties instead of manipulating them directly, allowing complete control over the experience from CSS alone.
+**react-spring-bottom-sheet** is built on top of **[react-spring]** and **[@use-gesture/react]**. It busts the myth that accessibility and supporting keyboard navigation and screen readers are allegedly at odds with delightful, beautiful, and highly animated UIs. Every animation and transition use CSS custom properties instead of manipulating them directly, allowing complete control over the experience from CSS alone.
 
 ## Installation
 
@@ -450,4 +450,5 @@ export default function Example() {
 [unpkg-dist]: https://unpkg.com/@nipe-solutions/react-spring-bottom-sheet/dist/
 [module-formats-badge]: https://img.shields.io/badge/module%20formats-cjs%2C%20es%2C%20modern-green.svg?style=flat-square
 [react-spring]: https://github.com/pmndrs/react-spring
-[react-use-gesture]: https://github.com/pmndrs/react-use-gesture
+[@react-spring/web]: https://github.com/pmndrs/react-spring
+[@use-gesture/react]: https://github.com/pmndrs/use-gesture
