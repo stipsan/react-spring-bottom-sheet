@@ -116,9 +116,10 @@ function useDimensions({
   registerReady: ReturnType<typeof useReady>['registerReady']
   resizeSourceRef: MutableRef<ResizeSource | undefined>
 }) {
-  const setReady = useMemo(() => registerReady('contentHeight'), [
-    registerReady,
-  ])
+  const setReady = useMemo(
+    () => registerReady('contentHeight'),
+    [registerReady]
+  )
   const maxHeight = useMaxHeight(
     controlledMaxHeight,
     registerReady,
@@ -168,9 +169,7 @@ const observerOptions: ResizeObserverOptions = { box: 'border-box' }
 
 function borderBoxHeight(entry: ResizeObserverEntry): number {
   const boxSize = entry.borderBoxSize as unknown as
-    | ResizeObserverSize
-    | ResizeObserverSize[]
-    | undefined
+    ResizeObserverSize | ResizeObserverSize[] | undefined
   const size = Array.isArray(boxSize) ? boxSize[0] : boxSize
   if (size && typeof size.blockSize === 'number') {
     return size.blockSize

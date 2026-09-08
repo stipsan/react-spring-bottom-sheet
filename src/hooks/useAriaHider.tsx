@@ -40,8 +40,8 @@ export function useAriaHider({
           if (node === parentNode) {
             return
           }
-          let attr = node.getAttribute('aria-hidden')
-          let alreadyHidden = attr !== null && attr !== 'false'
+          const attr = node.getAttribute('aria-hidden')
+          const alreadyHidden = attr !== null && attr !== 'false'
           if (alreadyHidden) {
             return
           }
@@ -55,7 +55,7 @@ export function useAriaHider({
         active = false
 
         rootNodes.forEach((node, index) => {
-          let originalValue = originalValues[index]
+          const originalValue = originalValues[index]
           if (originalValue === null) {
             node.removeAttribute('aria-hidden')
           } else {

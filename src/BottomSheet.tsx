@@ -644,6 +644,8 @@ export const BottomSheet = React.forwardRef<
           {...bind({ closeOnTap: true })}
         />
       )}
+      {/* A dialog handling Escape is the expected pattern; the rule assumes a static element */}
+      {/* eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions */}
       <div
         key="overlay"
         aria-modal={blocking}
