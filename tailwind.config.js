@@ -1,7 +1,7 @@
 const colors = require('tailwindcss/colors')
 
 module.exports = {
-  purge: ['./docs/**/*.{js,ts,jsx,tsx}', './pages/**/*.{js,ts,jsx,tsx}'],
+  content: ['./docs/**/*.{js,ts,jsx,tsx}', './pages/**/*.{js,ts,jsx,tsx}'],
   darkMode: 'media', // 'media' or 'class'
   theme: {
     // https://fonts.google.com/specimen/Source+Sans+Pro?query=Source&sidebar.open=true&selection.family=Montserrat:wght@700;900|Source+Sans+Pro
@@ -11,7 +11,7 @@ module.exports = {
     },
     extend: {
       colors: {
-        gray: colors.blueGray,
+        gray: colors.slate,
         hero: {
           DEFAULT: '#592340',
           lighter: '#FC9CC3',

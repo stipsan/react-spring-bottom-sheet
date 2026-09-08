@@ -5,7 +5,7 @@ import Link from 'next/link'
 type Props = {
   className?: Parameters<typeof cx>[0]
 } & Omit<
-  React.PropsWithoutRef<JSX.IntrinsicElements['a']>,
+  React.PropsWithoutRef<React.JSX.IntrinsicElements['a']>,
   'children' | 'className'
 >
 

@@ -1,43 +1,46 @@
 name: Release and Publish
 
 on:
-  pull_request:
   push:
     branches: [main]
+
+permissions:
+  contents: read
 
 jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
         with:
-          node-version: 20.x
-      - name: npm install
-        run: |
-          npm install
-      - name: npm test
-        run: |
-          npm test
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm test
+
   release:
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     needs: [test]
+    permissions:
+      contents: write
+      issues: write
+      pull-requests: write
+      # Lets npm attach build provenance to the published package
+      id-token: write
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/checkout@v5
         with:
-          node-version: 20.x
-      - name: npm install
-        run: |
-          npm install
-      - name: npx semantic-release
-        run: |
-          npx semantic-release
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+          registry-url: https://registry.npmjs.org
+      - run: npm ci
+      - run: npx semantic-release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NPM_CONFIG_PROVENANCE: true
