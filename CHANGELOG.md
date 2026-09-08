@@ -1,3 +1,9 @@
+## [3.9.1](https://github.com/Guiw5/react-spring-bottom-sheet/compare/v3.9.0...v3.9.1) (2026-09-08)
+
+### Bug Fixes
+
+- stop the release from masking its own error ([f2b4280](https://github.com/Guiw5/react-spring-bottom-sheet/commit/f2b42809bd9ce47837209f3c25f4c66bcf1e5413))
+
 # [3.9.0](https://github.com/Guiw5/react-spring-bottom-sheet/compare/v3.8.0...v3.9.0) (2026-09-08)
 
 ### Features

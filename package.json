@@ -1,6 +1,6 @@
 {
   "name": "guiw5-bottom-sheet",
-  "version": "3.9.0",
+  "version": "3.9.1",
   "description": "✨ Accessible, 🪄 Delightful, and 🤯 Performant. Built on @react-spring/web and @use-gesture/react. React 18 & 19, XState v5.",
   "license": "MIT",
   "author": "Cody Olsen",
