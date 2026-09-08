@@ -1,0 +1,26 @@
+/* Tailwind theme for the docs site. Ported from the old tailwind.config.js so the tokens
+   are real CSS custom properties, which lets the CSS modules read them with var(). */
+
+@theme {
+  /* https://fonts.google.com/specimen/Source+Sans+Pro */
+  --font-display: Montserrat, sans-serif;
+  --font-body: 'Source Sans Pro', sans-serif;
+
+  --color-hero: #592340;
+  --color-hero-lighter: #fc9cc3;
+
+  --ring-offset-color-rsbs-bg: var(--rsbs-bg);
+
+  /* gray is an alias for slate */
+  --color-gray-50: var(--color-slate-50);
+  --color-gray-100: var(--color-slate-100);
+  --color-gray-200: var(--color-slate-200);
+  --color-gray-300: var(--color-slate-300);
+  --color-gray-400: var(--color-slate-400);
+  --color-gray-500: var(--color-slate-500);
+  --color-gray-600: var(--color-slate-600);
+  --color-gray-700: var(--color-slate-700);
+  --color-gray-800: var(--color-slate-800);
+  --color-gray-900: var(--color-slate-900);
+  --color-gray-950: var(--color-slate-950);
+}
