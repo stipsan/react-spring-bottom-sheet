@@ -5,8 +5,6 @@
 [![Netlify Status](https://api.netlify.com/api/v1/badges/6348db32-4930-4fca-a11d-c3098c9fda4f/deploy-status)](https://app.netlify.com/sites/react-spring-bottom-sheet-updated/deploys)
 [![module formats: cjs, es, and modern][module-formats-badge]][unpkg-dist]
 
-![Logo with the text Accessible, Delightful and Performant](https://react-spring-bottom-sheet.nipesolutions.com/readme.svg)
-
 ## 🌟 About This Version
 
 ### ✨ Updated Version
@@ -115,33 +113,37 @@ module.exports = {
 }
 ```
 
-## [Demos](https://react-spring-bottom-sheet.nipesolutions.com/)
+## Demos
 
-### [Basic](https://react-spring-bottom-sheet.nipesolutions.com/fixtures/simple)
+These are not hosted anywhere yet. Run them with `npm run dev` and open
+http://localhost:3000 — Next also prints a network URL, so you can open the same
+page on a phone that is on the same wifi.
+
+### Basic
 
 > [View demo code](/pages/fixtures/simple.tsx#L44-L48)
 
 MVP example, showing what you get by implementing `open`, `onDismiss` and a single **snap point** always set to `minHeight`.
 
-### [Snap points & overflow](https://react-spring-bottom-sheet.nipesolutions.com/fixtures/scrollable)
+### Snap points & overflow
 
 > [View demo code](/pages/fixtures/scrollable.tsx#L86-L97)
 
 A more elaborate example that showcases how snap points work. It also shows how it behaves if you want it to be open by default, and not closable. Notice how it responds if you resize the window, or scroll to the bottom and starts adjusting the height of the sheet without scrolling back up first.
 
-### [Sticky header & footer](https://react-spring-bottom-sheet.nipesolutions.com/fixtures/sticky)
+### Sticky header & footer
 
 > [View demo code](/pages/fixtures/sticky.tsx#L41-L61)
 
 If you provide either a `header` or `footer` prop you'll enable the special behavior seen in this example. And they're not just sticky positioned, both areas support touch gestures.
 
-### [Non-blocking overlay mode](https://react-spring-bottom-sheet.nipesolutions.com/fixtures/aside)
+### Non-blocking overlay mode
 
 > [View demo code](/pages/fixtures/aside.tsx#L41-L53)
 
 In most cases you use a bottom sheet the same way you do with a dialog: you want it to overlay the page and block out distractions. But there are times when you want a bottom sheet but without it taking all the attention and overlaying the entire page. Providing `blocking={false}` helps this use case. By doing so you disable a couple of behaviors that are there for accessibility (focus-locking and more) that prevents a screen reader or a keyboard user from accidentally leaving the bottom sheet.
 
-### [Motion recipes](https://react-spring-bottom-sheet.nipesolutions.com/fixtures/motion)
+### Motion recipes
 
 > [View demo code](/pages/fixtures/motion.tsx)
 
@@ -268,7 +270,7 @@ friction alone changes nothing.
 ##### Recipes
 
 Four ready made configs are exported, so you rarely need to tune this by hand. Compare
-them side by side in the [motion demo](https://react-spring-bottom-sheet.nipesolutions.com/fixtures/motion).
+them side by side in the [motion demo](/pages/fixtures/motion.tsx).
 
 ```jsx
 import { BottomSheet, presets } from 'guiw5-bottom-sheet'
