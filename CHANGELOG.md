@@ -1,3 +1,9 @@
+## [3.9.2](https://github.com/Guiw5/react-spring-bottom-sheet/compare/v3.9.1...v3.9.2) (2026-09-09)
+
+### Performance Improvements
+
+- derive the ready flag and composite the divider lines ([617ab12](https://github.com/Guiw5/react-spring-bottom-sheet/commit/617ab124a0741fb2023653c3054ff98ecf7dcac8))
+
 ## [3.9.1](https://github.com/Guiw5/react-spring-bottom-sheet/compare/v3.9.0...v3.9.1) (2026-09-08)
 
 ### Bug Fixes
