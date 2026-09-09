@@ -49,8 +49,11 @@ export type SpringEvent =
 
 /**
  * Properties that can be used to customize the animation.
- * By default transitions use a 115ms tween, remove `duration` (set it to `undefined`) to get spring physics driven by `tension` and `friction`.
- * see https://react-spring.dev/docs/advanced/config#config-visualizer
+ *
+ * Setting `duration` runs a tween and makes react-spring ignore `mass`, `tension`,
+ * `friction` and `velocity`; only `easing` still applies. Set `duration` to `undefined`
+ * to get spring physics instead. See the `presets` export for ready made values.
+ * @see https://react-spring.dev/docs/advanced/config
  */
 export type SpringConfig = {
   mass: number
@@ -58,6 +61,10 @@ export type SpringConfig = {
   friction: number
   velocity: number
   duration: number | undefined
+  /** Shapes a tween's progress curve. Ignored unless `duration` is set. Defaults to linear. */
+  easing: (t: number) => number
+  /** Stops a spring from overshooting its target. Ignored when `duration` is set. */
+  clamp: boolean
 }
 
 export type Props = {
