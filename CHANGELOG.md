@@ -1,3 +1,9 @@
+# [3.10.0](https://github.com/Guiw5/react-spring-bottom-sheet/compare/v3.9.3...v3.10.0) (2026-09-09)
+
+### Features
+
+- motion recipes and a working springConfig ([7e6d9cc](https://github.com/Guiw5/react-spring-bottom-sheet/commit/7e6d9cc3e4d2f6c13787910c1510646fbb6f4794))
+
 ## [3.9.3](https://github.com/Guiw5/react-spring-bottom-sheet/compare/v3.9.2...v3.9.3) (2026-09-09)
 
 ### Performance Improvements
