@@ -1,3 +1,9 @@
+## [3.9.3](https://github.com/Guiw5/react-spring-bottom-sheet/compare/v3.9.2...v3.9.3) (2026-09-09)
+
+### Performance Improvements
+
+- write immediate spring updates synchronously ([9a7cf3c](https://github.com/Guiw5/react-spring-bottom-sheet/commit/9a7cf3c71643b07b354bfae21642e1b4ff16515b))
+
 ## [3.9.2](https://github.com/Guiw5/react-spring-bottom-sheet/compare/v3.9.1...v3.9.2) (2026-09-09)
 
 ### Performance Improvements
