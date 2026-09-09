@@ -50,10 +50,11 @@ export default function StickyNugget({
             </p>
           ))}
 
-          <Link href={example}>
-            <a className="underline-none hover:underline focus:underline text-2xl  font-bold text-gray-700 hover:text-gray-800 active:text-gray-900 focus:outline-none">
-              Open example 👀
-            </a>
+          <Link
+            href={example}
+            className="underline-none hover:underline focus:underline text-2xl  font-bold text-gray-700 hover:text-gray-800 active:text-gray-900 focus:outline-none"
+          >
+            Open example 👀
           </Link>
           {process.env.NODE_ENV !== 'production' && active && (
             <button

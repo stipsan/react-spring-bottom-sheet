@@ -1,5 +1,5 @@
 {
-  "extends": ["github>stipsan/renovate-presets:auto"],
+  "extends": ["github>JasGH/renovate-presets:auto"],
   "packageRules": [
     {
       "depTypeList": ["dependencies", "peerDependencies"],

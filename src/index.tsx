@@ -1,25 +1,26 @@
-/* eslint-disable react/jsx-pascal-case */
-import Portal from '@reach/portal'
 import React, { forwardRef, useRef, useState, useCallback } from 'react'
 import { BottomSheet as _BottomSheet } from './BottomSheet'
 import type { Props, RefHandles, SpringEvent } from './types'
 import { useLayoutEffect } from './hooks'
+import { Portal } from './Portal'
 
 export type {
   RefHandles as BottomSheetRef,
   Props as BottomSheetProps,
+  SpringConfig,
 } from './types'
+export * as presets from './presets'
 
 // Because SSR is annoying to deal with, and all the million complaints about window, navigator and dom elenents!
 export const BottomSheet = forwardRef<RefHandles, Props>(function BottomSheet(
-  { onSpringStart, onSpringEnd, skipInitialTransition, ...props },
+  { onSpringStart, onSpringEnd, keepMounted, skipInitialTransition, ...props },
   ref
 ) {
   // Mounted state, helps SSR but also ensures you can't tab into the sheet while it's closed, or nav there in a screen reader
   const [mounted, setMounted] = useState(false)
-  const timerRef = useRef<ReturnType<typeof requestAnimationFrame>>()
+  const timerRef = useRef<number | undefined>(undefined)
   // The last point that the user snapped to, useful for open/closed toggling and the user defined height is remembered
-  const lastSnapRef = useRef(null)
+  const lastSnapRef = useRef<number | null>(null)
   // @TODO refactor to an initialState: OPEN | CLOSED property as it's much easier to understand
   // And informs what we should animate from. If the sheet is mounted with open = true, then initialState = OPEN.
   // When initialState = CLOSED, then internal sheet must first render with open={false} before setting open={props.open}
@@ -33,14 +34,14 @@ export const BottomSheet = forwardRef<RefHandles, Props>(function BottomSheet(
   useLayoutEffect(() => {
     if (props.open) {
       cancelAnimationFrame(timerRef.current)
-      setMounted(true)
+      if (!keepMounted) setMounted(true)
 
       // Cleanup defaultOpen state on close
       return () => {
         initialStateRef.current = 'CLOSED'
       }
     }
-  }, [props.open])
+  }, [props.open, keepMounted])
 
   const handleSpringStart = useCallback(
     async function handleSpringStart(event: SpringEvent) {
@@ -60,16 +61,16 @@ export const BottomSheet = forwardRef<RefHandles, Props>(function BottomSheet(
       // Forward the event
       await onSpringEnd?.(event)
 
-      if (event.type === 'CLOSE') {
+      if (event.type === 'CLOSE' && !keepMounted) {
         // Unmount from the dom to avoid contents being tabbable or visible to screen readers while closed
         timerRef.current = requestAnimationFrame(() => setMounted(false))
       }
     },
-    [onSpringEnd]
+    [onSpringEnd, keepMounted]
   )
 
   // This isn't just a performance optimization, it's also to avoid issues when running a non-browser env like SSR
-  if (!mounted) {
+  if (!keepMounted && !mounted) {
     return null
   }
 

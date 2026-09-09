@@ -56,8 +56,8 @@ const ScrollableFixturePage: NextPage<GetStaticProps> = ({
   name,
 }) => {
   const [expandOnContentDrag, setExpandOnContentDrag] = useState(true)
-  const focusRef = useRef<HTMLButtonElement>()
-  const sheetRef = useRef<BottomSheetRef>()
+  const focusRef = useRef<HTMLButtonElement>(null)
+  const sheetRef = useRef<BottomSheetRef>(null)
 
   return (
     <>

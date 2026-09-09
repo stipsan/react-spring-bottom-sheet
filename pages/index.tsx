@@ -30,7 +30,7 @@ const IndexPage: NextPage<GetStaticProps> = ({
       <div className="max-w-5xl mx-auto py-20 px-8 grid grid-cols-1 md:grid-cols-3 gap-x-5 gap-y-10">
         <Nugget
           heading="Modern"
-          lead="Built on top of react-spring and react-use-gesture, following best practices for minimal rerenders and only animating CSS properties that can be done on the GPU when possible."
+          lead="Built on top of @react-spring/web and @use-gesture/react, following best practices for minimal rerenders and only animating CSS properties that can be done on the GPU when possible."
         />
         <Nugget
           heading="Flexible"

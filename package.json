@@ -1,92 +1,107 @@
 {
-  "name": "react-spring-bottom-sheet",
-  "description": "✨ Accessible, 🪄 Delightful, and 🤯 Performant. Built on react-spring for the web, and react-use-gesture.",
+  "name": "guiw5-bottom-sheet",
+  "version": "3.10.1",
+  "description": "✨ Accessible, 🪄 Delightful, and 🤯 Performant. Built on @react-spring/web and @use-gesture/react. React 18 & 19, XState v5.",
   "license": "MIT",
   "author": "Cody Olsen",
-  "homepage": "https://react-spring-bottom-sheet.cocody.dev",
-  "repository": "stipsan/react-spring-bottom-sheet",
-  "bugs": {
-    "url": "https://github.com/stipsan/react-spring-bottom-sheet/issues"
+  "homepage": "https://github.com/Guiw5/react-spring-bottom-sheet",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Guiw5/react-spring-bottom-sheet.git"
   },
-  "version": "3.4.1",
-  "main": "dist/index.js",
-  "module": "dist/index.es.js",
+  "bugs": {
+    "url": "https://github.com/Guiw5/react-spring-bottom-sheet/issues"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js"
+    },
+    "./style.css": "./dist/style.css",
+    "./dist/style.css": "./dist/style.css",
+    "./package.json": "./package.json"
+  },
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
   "files": [
     "defaults.json",
     "dist"
   ],
+  "directories": {
+    "doc": "docs"
+  },
   "scripts": {
     "build": "next build",
-    "build:declarations": "tsc --project tsconfig.declarations.json",
-    "prebuild:dist": "rimraf dist/**",
-    "build:dist": "npm run build:postcss && npm run build:microbundle && npm run build:declarations",
-    "build:microbundle": "NODE_ENV=production microbundle --define process.env.NODE_ENV=production --tsconfig tsconfig.microbundle.json -f cjs,es,modern --css-modules false --jsx React.createElement --jsxFragment React.Fragment",
-    "build:postcss": "postcss -d dist src/style.css",
+    "build:dist": "tsup && npm run build:postcss",
+    "build:postcss": "cross-env POSTCSS_TARGET=library postcss -d dist src/style.css",
     "dev": "next",
-    "lint": "eslint . --ext ts,tsx,js,jsx --max-warnings 0 && tsc",
+    "lint": "eslint . && tsc --noEmit",
+    "prepare": "husky",
     "prepublishOnly": "npm run build:dist",
     "start": "next start",
-    "test": "npm run prepublishOnly && npm run build"
+    "test": "npm run lint && npm run test:unit && npm run build:dist && npm run build",
+    "test:unit": "vitest run",
+    "test:watch": "vitest"
   },
   "sideEffects": [
     "*.css"
   ],
-  "types": "dist/index.d.ts",
+  "types": "./dist/index.d.ts",
   "dependencies": {
-    "@juggle/resize-observer": "^3.2.0",
-    "@reach/portal": "^0.13.0",
-    "@xstate/react": "^1.2.0",
+    "@react-spring/web": "^10.1.2",
+    "@use-gesture/react": "^10.3.1",
+    "@xstate/react": "^6.1.0",
     "body-scroll-lock": "^3.1.5",
-    "focus-trap": "^6.2.2",
-    "react-spring": "^8.0.27",
-    "react-use-gesture": "^8.0.1",
-    "xstate": "^4.15.1"
+    "focus-trap": "^6.9.4",
+    "xstate": "^5.32.6"
   },
   "peerDependencies": {
-    "react": "^16.14.0 || 17 || 18"
+    "react": "^16.14.0 || ^17.0.0 || ^18.0.0 || ^19.0.0",
+    "react-dom": "^16.14.0 || ^17.0.0 || ^18.0.0 || ^19.0.0"
   },
   "devDependencies": {
+    "@eslint/js": "^9.39.5",
+    "@next/eslint-plugin-next": "^16.3.4",
     "@rooks/use-raf": "^4.5.0",
-    "@semantic-release/changelog": "^5.0.1",
-    "@semantic-release/git": "^9.0.0",
-    "@tailwindcss/forms": "^0.4.0",
-    "@types/classnames": "^2.2.11",
-    "@types/node": "^14.14.10",
-    "@types/react": "^17.0.0",
-    "@typescript-eslint/eslint-plugin": "^4.9.0",
-    "@typescript-eslint/parser": "^4.9.0",
+    "@semantic-release/changelog": "^7.0.0",
+    "@semantic-release/git": "^11.0.1",
+    "@tailwindcss/forms": "^0.5.11",
+    "@tailwindcss/postcss": "^4.3.3",
+    "@testing-library/dom": "^10.4.1",
+    "@testing-library/react": "^16.3.3",
+    "@types/node": "^24.13.3",
+    "@types/react": "^19.2.18",
+    "@types/react-dom": "^19.2.7",
     "@use-it/interval": "^1.0.0",
-    "@xstate/inspect": "^0.6.0",
-    "autoprefixer": "^10.0.4",
-    "babel-eslint": "^10.1.0",
-    "babel-plugin-transform-remove-console": "^6.9.4",
-    "classnames": "^2.2.6",
-    "eslint": "^7.14.0",
-    "eslint-config-react-app": "^6.0.0",
-    "eslint-plugin-flowtype": "^5.2.0",
-    "eslint-plugin-import": "^2.22.1",
-    "eslint-plugin-jsx-a11y": "^6.4.1",
-    "eslint-plugin-react": "^7.21.5",
-    "eslint-plugin-react-hooks": "^4.2.0",
-    "husky": "^6.0.0",
-    "lint-staged": "^10.5.3",
-    "microbundle": "^0.14.0",
-    "next": "^10.0.3",
-    "postcss": "^8.1.14",
-    "postcss-cli": "^8.3.0",
+    "@vitejs/plugin-react": "^6.1.1",
+    "autoprefixer": "^10.5.5",
+    "classnames": "^2.5.1",
+    "cross-env": "^10.1.0",
+    "eslint": "^9.39.5",
+    "eslint-plugin-jsx-a11y": "^6.10.2",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "globals": "^17.12.0",
+    "happy-dom": "^20.14.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^17.5.0",
+    "next": "^16.3.4",
+    "postcss": "^8.5.28",
+    "postcss-cli": "^12.0.0",
     "postcss-custom-properties-fallback": "^1.0.1",
     "postcss-import-svg": "^1.0.1",
-    "postcss-preset-env": "^6.7.0",
-    "prettier": "^2.2.1",
-    "prettier-package-json": "^2.1.3",
-    "react": "^17.0.0",
-    "react-dom": "^17.0.0",
-    "rimraf": "^3.0.2",
-    "semantic-release": "^17.3.0",
-    "smooth-scroll-into-view-if-needed": "^1.1.29",
-    "svgo": "^1.3.2",
-    "tailwindcss": "^2.0.1",
-    "typescript": "^4.1.2"
+    "postcss-preset-env": "^11.5.2",
+    "prettier": "^3.9.6",
+    "prettier-package-json": "^2.8.0",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8",
+    "semantic-release": "^25.0.9",
+    "smooth-scroll-into-view-if-needed": "^2.0.2",
+    "tailwindcss": "^4.3.3",
+    "tsup": "^8.5.1",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.70.0",
+    "vitest": "^5.0.0"
   },
   "keywords": [
     "animation",
@@ -103,37 +118,39 @@
     "overlay",
     "popup",
     "react",
-    "react-spring",
-    "react-use-gesture",
     "sheet",
-    "typescript"
+    "typescript",
+    "use-gesture"
+  ],
+  "authors": [
+    "Cody Olsen",
+    "Jasmine GH",
+    "Nicholas Petrasek"
   ],
   "browserslist": [
-    "Chrome >= 49",
-    "Android >= 58",
-    "Safari >= 9.1",
-    "iOS >= 9.3",
-    "Firefox >= 31",
-    "Edge >= 16"
+    "Chrome >= 64",
+    "Android >= 64",
+    "Safari >= 13.1",
+    "iOS >= 13.4",
+    "Firefox >= 69",
+    "Edge >= 79"
   ],
-  "husky": {
-    "hooks": {
-      "pre-commit": "lint-staged"
-    }
-  },
-  "jsnext:main": "dist/index.es.js",
   "lint-staged": {
-    "*.{js,jsx,ts,tsx}": "eslint --fix",
-    "*.{js,jsx,ts,tsx,md,html,css,yml,json}": "prettier --write",
+    "*.{js,jsx,ts,tsx,mjs,mts}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{md,html,css,yml,yaml,json}": "prettier --write",
     "package.json": "prettier-package-json --write"
   },
   "meta": {
-    "twitter:site": "@stipsan",
+    "twitter:site": "@guidow5",
     "twitter:image:src": "https://react-spring-bottom-sheet.cocody.dev/somecard.png"
   },
   "prettier": {
     "semi": false,
-    "singleQuote": true
+    "singleQuote": true,
+    "trailingComma": "es5"
   },
   "source": "src/index.tsx",
   "style": "dist/style.css"
