@@ -1,3 +1,9 @@
+## [3.10.1](https://github.com/Guiw5/react-spring-bottom-sheet/compare/v3.10.0...v3.10.1) (2026-09-09)
+
+### Bug Fixes
+
+- stop pointing the docs at another fork's site ([f4098b6](https://github.com/Guiw5/react-spring-bottom-sheet/commit/f4098b6b3f8a69c9d03e65a550e6fc6d992f0aa7))
+
 # [3.10.0](https://github.com/Guiw5/react-spring-bottom-sheet/compare/v3.9.3...v3.10.0) (2026-09-09)
 
 ### Features
