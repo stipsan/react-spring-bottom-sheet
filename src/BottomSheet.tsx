@@ -263,14 +263,13 @@ export const BottomSheet = React.forwardRef<
             })
           }),
           renderVisuallyHidden: fromPromise(async () => {
-            await asyncSet({
+            api.set({
               y: defaultSnapRef.current,
               ready: 0,
               maxHeight: maxHeightRef.current,
               maxSnap: maxSnapRef.current,
               // Using defaultSnapRef instead of minSnapRef to avoid animating `height` on open
               minSnap: defaultSnapRef.current,
-              immediate: true,
             })
           }),
           activate: fromPromise(async () => {
@@ -289,25 +288,23 @@ export const BottomSheet = React.forwardRef<
           }),
           openImmediately: fromPromise(async () => {
             heightRef.current = defaultSnapRef.current
-            await asyncSet({
+            api.set({
               y: defaultSnapRef.current,
               ready: 1,
               maxHeight: maxHeightRef.current,
               maxSnap: maxSnapRef.current,
               // Using defaultSnapRef instead of minSnapRef to avoid animating `height` on open
               minSnap: defaultSnapRef.current,
-              immediate: true,
             })
           }),
           openSmoothly: fromPromise(async () => {
-            await asyncSet({
+            api.set({
               y: 0,
               ready: 1,
               maxHeight: maxHeightRef.current,
               maxSnap: maxSnapRef.current,
               // Using defaultSnapRef instead of minSnapRef to avoid animating `height` on open
               minSnap: defaultSnapRef.current,
-              immediate: true,
             })
 
             heightRef.current = defaultSnapRef.current
@@ -356,10 +353,7 @@ export const BottomSheet = React.forwardRef<
           }),
           closeSmoothly: fromPromise(async () => {
             // Avoid animating the height property on close and stay within FLIP bounds by upping the minSnap
-            asyncSet({
-              minSnap: heightRef.current,
-              immediate: true,
-            })
+            api.set({ minSnap: heightRef.current })
 
             heightRef.current = 0
 
@@ -370,11 +364,12 @@ export const BottomSheet = React.forwardRef<
               immediate: prefersReducedMotion.current,
             })
 
-            await asyncSet({ ready: 0, immediate: true })
+            api.set({ ready: 0 })
           }),
         },
       }),
     [
+      api,
       ariaHiderRef,
       asyncSet,
       focusTrapRef,
@@ -584,13 +579,12 @@ export const BottomSheet = React.forwardRef<
       return memo
     }
 
-    api.start({
+    api.set({
       y: newY,
       ready: 1,
       maxHeight: maxHeightRef.current,
       maxSnap: maxSnapRef.current,
       minSnap: minSnapRef.current,
-      immediate: true,
     })
 
     return memo
