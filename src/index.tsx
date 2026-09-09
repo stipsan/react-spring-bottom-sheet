@@ -7,7 +7,9 @@ import { Portal } from './Portal'
 export type {
   RefHandles as BottomSheetRef,
   Props as BottomSheetProps,
+  SpringConfig,
 } from './types'
+export * as presets from './presets'
 
 // Because SSR is annoying to deal with, and all the million complaints about window, navigator and dom elenents!
 export const BottomSheet = forwardRef<RefHandles, Props>(function BottomSheet(

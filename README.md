@@ -4,7 +4,6 @@
 [![npm version](https://img.shields.io/npm/v/@nipe-solutions/react-spring-bottom-sheet.svg?style=flat-square)](https://www.npmjs.com/package/@nipe-solutions/react-spring-bottom-sheet)
 [![Netlify Status](https://api.netlify.com/api/v1/badges/6348db32-4930-4fca-a11d-c3098c9fda4f/deploy-status)](https://app.netlify.com/sites/react-spring-bottom-sheet-updated/deploys)
 [![module formats: cjs, es, and modern][module-formats-badge]][unpkg-dist]
- 
 
 ![Logo with the text Accessible, Delightful and Performant](https://react-spring-bottom-sheet.nipesolutions.com/readme.svg)
 
@@ -60,7 +59,10 @@ TS support is baked in, and if you're using the `snapTo` API use `BottomSheetRef
 
 ```tsx
 import { useRef } from 'react'
-import { BottomSheet, BottomSheetRef } from '@nipe-solutions/react-spring-bottom-sheet'
+import {
+  BottomSheet,
+  BottomSheetRef,
+} from '@nipe-solutions/react-spring-bottom-sheet'
 
 export default function Example() {
   const sheetRef = useRef<BottomSheetRef>()
@@ -106,7 +108,8 @@ module.exports = {
   plugins: {
     // Ensures the default variables are available
     'postcss-custom-properties-fallback': {
-      importFrom: require.resolve('@nipe-solutions/react-spring-bottom-sheet/defaults.json'),
+      importFrom:
+        require.resolve('@nipe-solutions/react-spring-bottom-sheet/defaults.json'),
     },
   },
 }
@@ -138,6 +141,12 @@ If you provide either a `header` or `footer` prop you'll enable the special beha
 
 In most cases you use a bottom sheet the same way you do with a dialog: you want it to overlay the page and block out distractions. But there are times when you want a bottom sheet but without it taking all the attention and overlaying the entire page. Providing `blocking={false}` helps this use case. By doing so you disable a couple of behaviors that are there for accessibility (focus-locking and more) that prevents a screen reader or a keyboard user from accidentally leaving the bottom sheet.
 
+### [Motion recipes](https://react-spring-bottom-sheet.nipesolutions.com/fixtures/motion)
+
+> [View demo code](/pages/fixtures/motion.tsx)
+
+Switch between the four `springConfig` recipes with the sheet open and drag it between
+snap points to feel the difference. A long throw is where they separate.
 
 ## API
 
@@ -245,14 +254,62 @@ Disabled by default. By default, a user can expand the bottom sheet only by drag
 
 #### springConfig
 
-Type: `{ mass: number; tension: number; friction: number }`
+Type: `Partial<SpringConfig>`, where `SpringConfig` is
+`{ mass, tension, friction, velocity, duration, easing, clamp }`.
 
-Helps you to customize the movement and speed of the animations.
+Customizes the movement and speed of the animations. **The one rule that decides
+everything: if `duration` is set, react-spring runs a tween and ignores `mass`, `tension`,
+`friction` and `velocity` entirely.** Only `easing` still applies. To get spring physics
+you have to clear it with `duration: undefined`.
+
+This matters because the sheet ships a `duration` of its own, so passing tension and
+friction alone changes nothing.
+
+##### Recipes
+
+Four ready made configs are exported, so you rarely need to tune this by hand. Compare
+them side by side in the [motion demo](https://react-spring-bottom-sheet.nipesolutions.com/fixtures/motion).
+
+```jsx
+import { BottomSheet, presets } from 'guiw5-bottom-sheet'
+
+;<BottomSheet springConfig={presets.material} />
+```
+
+| Recipe             | Config                                              | Feel                                                             |
+| ------------------ | --------------------------------------------------- | ---------------------------------------------------------------- |
+| `presets.linear`   | `115ms`, linear                                     | The default. Constant speed, stops dead on arrival.              |
+| `presets.eased`    | `190ms`, `easeOutCubic`                             | Same pace, softer landing.                                       |
+| `presets.material` | `300ms`, emphasized decelerate                      | Matches Material 3, for apps built on Material components.       |
+| `presets.springy`  | `duration: undefined`, tension `210`, friction `26` | Real physics. Speed follows the distance and your drag velocity. |
+
+The longer durations are not slower animations. An eased curve front loads the distance,
+so all three tweens above cover 90% of the travel within about 10ms of each other. What
+changes is the tail.
+
+##### Choosing a duration
+
+- **Below ~17ms is instant.** react-spring advances the first frame with a fixed 16.667ms
+  delta, so anything at or under that finishes in one frame. `duration: 0` is the explicit
+  way to disable the animation.
+- **A frame's progress is capped at 64ms.** On a device that stutters the animation
+  stretches in real time instead of jumping, so it degrades gracefully rather than
+  teleporting.
+- **For reference**, Material 3 puts a surface of this size at `medium2`, 300ms, and
+  reserves the 100 to 150ms range the default sits in for small controls. Shorter is a
+  legitimate choice for a sheet that is opened constantly; it is a taste call, not a bug.
+
+Anything not covered by a recipe can still be passed through:
 
 ```jsx
 <BottomSheet
-  // Animation faster than the default
-  springConfig={{mass: 0.1, tension: 370, friction: 26}}
+  // A snappier spring, and no overshoot
+  springConfig={{
+    duration: undefined,
+    tension: 370,
+    friction: 26,
+    clamp: true,
+  }}
 />
 ```
 
@@ -395,11 +452,20 @@ Type: `(numberOrCallback: number | (state => number)) => void, options?: {source
 Same signature as the `defaultSnap` prop, calling it will animate the sheet to the new snap point you return. You can either call it with a number, which is the height in px (it'll select the closest snap point that matches your value): `ref.current.snapTo(200)`. Or:
 
 ```js
-ref.current.snapTo(({ // Showing all the available props
-  headerHeight, footerHeight, height, minHeight, maxHeight, snapPoints, lastSnap }) =>
-  // Selecting the largest snap point, if you give it a number that doesn't match a snap point then it'll
-  // select whichever snap point is nearest the value you gave
-  Math.max(...snapPoints)
+ref.current.snapTo(
+  ({
+    // Showing all the available props
+    headerHeight,
+    footerHeight,
+    height,
+    minHeight,
+    maxHeight,
+    snapPoints,
+    lastSnap,
+  }) =>
+    // Selecting the largest snap point, if you give it a number that doesn't match a snap point then it'll
+    // select whichever snap point is nearest the value you gave
+    Math.max(...snapPoints)
 )
 ```
 
