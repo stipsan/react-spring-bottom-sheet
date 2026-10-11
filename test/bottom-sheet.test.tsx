@@ -1,6 +1,6 @@
 import { StrictMode, useRef } from 'react'
 import { describe, expect, it, vi } from 'vitest'
-import { render, screen, waitFor, act } from '@testing-library/react'
+import { render, screen, waitFor, act, fireEvent } from '@testing-library/react'
 import { BottomSheet } from '../src'
 import type { BottomSheetRef } from '../src'
 
@@ -77,6 +77,44 @@ describe('BottomSheet', () => {
       )
     })
 
+    expect(onDismiss).toHaveBeenCalledOnce()
+  })
+
+  it('dismisses once per backdrop tap', async () => {
+    const onDismiss = vi.fn()
+    render(
+      <BottomSheet open onDismiss={onDismiss}>
+        {content}
+      </BottomSheet>
+    )
+    await waitFor(() => expect(sheetState()).toBe('open'), { timeout: 4000 })
+
+    const backdrop = document.querySelector('[data-rsbs-backdrop]')!
+    const pointer = { pointerId: 1, buttons: 1, clientX: 10, clientY: 10 }
+    fireEvent.pointerDown(backdrop, pointer)
+    fireEvent.pointerUp(backdrop, { ...pointer, buttons: 0 })
+
+    await new Promise((resolve) => setTimeout(resolve, 50))
+    expect(onDismiss).toHaveBeenCalledOnce()
+  })
+
+  it('dismisses once per swipe down', async () => {
+    const onDismiss = vi.fn()
+    render(
+      <BottomSheet open onDismiss={onDismiss} header={<div>header</div>}>
+        {content}
+      </BottomSheet>
+    )
+    await waitFor(() => expect(sheetState()).toBe('open'), { timeout: 4000 })
+
+    const header = document.querySelector('[data-rsbs-header]')!
+    const pointer = { pointerId: 1, buttons: 1, clientX: 10 }
+    fireEvent.pointerDown(header, { ...pointer, clientY: 0 })
+    fireEvent.pointerMove(header, { ...pointer, clientY: 150 })
+    fireEvent.pointerMove(header, { ...pointer, clientY: 400 })
+    fireEvent.pointerUp(header, { ...pointer, buttons: 0, clientY: 400 })
+
+    await new Promise((resolve) => setTimeout(resolve, 50))
     expect(onDismiss).toHaveBeenCalledOnce()
   })
 
