@@ -1,3 +1,9 @@
+## [3.10.2](https://github.com/Guiw5/react-spring-bottom-sheet/compare/v3.10.1...v3.10.2) (2026-10-11)
+
+### Bug Fixes
+
+- call onDismiss once per backdrop tap or swipe ([d702d31](https://github.com/Guiw5/react-spring-bottom-sheet/commit/d702d3176f78b846e96043be8d6799035adbc212))
+
 ## [3.10.1](https://github.com/Guiw5/react-spring-bottom-sheet/compare/v3.10.0...v3.10.1) (2026-09-09)
 
 ### Bug Fixes
