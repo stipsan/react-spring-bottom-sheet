@@ -1,3 +1,8 @@
+import type React from 'react'
+
+/** A ref whose current value can be written to, works with both the React 18 and React 19 typings */
+export type MutableRef<T> = { current: T }
+
 export type SnapPointProps = {
   /**
    * The height of the sticky header, if there's one
@@ -42,6 +47,26 @@ export type SpringEvent =
   | { type: 'RESIZE'; source: ResizeSource }
   | { type: 'SNAP'; source: 'dragging' | 'custom' | string }
 
+/**
+ * Properties that can be used to customize the animation.
+ *
+ * Setting `duration` runs a tween and makes react-spring ignore `mass`, `tension`,
+ * `friction` and `velocity`; only `easing` still applies. Set `duration` to `undefined`
+ * to get spring physics instead. See the `presets` export for ready made values.
+ * @see https://react-spring.dev/docs/advanced/config
+ */
+export type SpringConfig = {
+  mass: number
+  tension: number
+  friction: number
+  velocity: number
+  duration: number | undefined
+  /** Shapes a tween's progress curve. Ignored unless `duration` is set. Defaults to linear. */
+  easing: (t: number) => number
+  /** Stops a spring from overshooting its target. Ignored when `duration` is set. */
+  clamp: boolean
+}
+
 export type Props = {
   /**
    * Ensure that whatever you put in here have at least 1px height, or else the bottom sheet won't open
@@ -56,10 +81,20 @@ export type Props = {
   sibling?: React.ReactNode
 
   /**
+   * Pass the spring configurations (to change animation) in this format: { mass, tension, friction, duration }.
+   */
+  springConfig?: Partial<SpringConfig>
+
+  /**
+   * Scroller target
+   */
+  scrollerRef?: React.RefObject<HTMLDivElement | null>
+
+  /**
    * Start a transition from closed to open, open to closed, or snap to snap.
    * Return a promise or async to delay the start of the transition, just remember it can be cancelled.
    */
-  onSpringStart?: (event: SpringEvent) => void
+  onSpringStart?: (event: SpringEvent) => void | Promise<void>
   /**
    * A running transition didn't finish or got stopped, this event isn't awaited on and might happen
    * after the sheet is unmounted (if it were in the middle of something).
@@ -70,7 +105,7 @@ export type Props = {
    * the sheet without interrupting the closing animation.
    * Return a promise or async to delay the start of the transition, just remember it can be cancelled.
    */
-  onSpringEnd?: (event: SpringEvent) => void
+  onSpringEnd?: (event: SpringEvent) => void | Promise<void>
 
   /** Whether the bottom sheet is open or not. */
   open: boolean
@@ -95,7 +130,7 @@ export type Props = {
    * A reference to the element that should be focused. By default it'll be the first interactive element.
    * Set to false to disable keyboard focus when opening.
    */
-  initialFocusRef?: React.RefObject<HTMLElement> | false
+  initialFocusRef?: React.RefObject<HTMLElement | null> | false
 
   /**
    * Handler that is called when the user presses *esc*, clicks outside the dialog or drags the sheet to the bottom of the display.
@@ -143,14 +178,20 @@ export type Props = {
   /**
    * Open immediatly instead of initially animating from a closed => open state, useful if the bottom sheet is visible by default and the animation would be distracting
    */
-  skipInitialTransition?: boolean,
+  skipInitialTransition?: boolean
 
   /**
    * Expand the bottom sheet on the content dragging. By default user can expand the bottom sheet only by dragging the header or overlay. This option enables expanding on dragging the content.
    * @default expandOnContentDrag === false
    */
-  expandOnContentDrag?: boolean,
-} & Omit<React.PropsWithoutRef<JSX.IntrinsicElements['div']>, 'children'>
+  expandOnContentDrag?: boolean
+
+  /**
+   * Whether the bottom sheet should be mounted when it's closed.
+   * @default false
+   */
+  keepMounted?: boolean
+} & Omit<React.ComponentPropsWithoutRef<'div'>, 'children'>
 
 export interface RefHandles {
   /**
@@ -171,4 +212,6 @@ export interface RefHandles {
    * It's update lifecycle with events are onSpringStart and onSpringCancel will give you the old value, while onSpringEnd will give you the current one.
    */
   height: number
+
+  scrollElement: HTMLDivElement | null
 }

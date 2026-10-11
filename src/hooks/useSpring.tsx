@@ -1,7 +1,6 @@
-import { useSpring as useReactSpring } from 'react-spring'
+import { useSpring as useReactSpring } from '@react-spring/web'
 
 // Behold, the engine of it all!
-// Put in this file befause it makes it easier to type and I'm lazy! :D
 
 export function useSpring() {
   return useReactSpring(() => ({
@@ -14,4 +13,4 @@ export function useSpring() {
 }
 
 export type Spring = ReturnType<typeof useSpring>[0]
-export type SpringSet = ReturnType<typeof useSpring>[1]
+export type SpringApi = ReturnType<typeof useSpring>[1]

@@ -4,7 +4,7 @@ import styles from './Code.module.css'
 
 type Props = {
   children: React.ReactNode
-} & Omit<React.PropsWithoutRef<JSX.IntrinsicElements['code']>, 'children'>
+} & Omit<React.PropsWithoutRef<React.JSX.IntrinsicElements['code']>, 'children'>
 
 const Code = forwardRef<HTMLElement, Props>(({ className, ...props }, ref) => (
   <code

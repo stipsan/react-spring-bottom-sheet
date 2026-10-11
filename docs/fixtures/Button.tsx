@@ -6,7 +6,7 @@ type Props = {
   className?: Parameters<typeof cx>[0]
   children: React.ReactNode
 } & Omit<
-  React.PropsWithoutRef<JSX.IntrinsicElements['button']>,
+  React.PropsWithoutRef<React.JSX.IntrinsicElements['button']>,
   'children' | 'className'
 >
 

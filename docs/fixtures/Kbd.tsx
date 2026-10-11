@@ -4,7 +4,7 @@ import styles from './Code.module.css'
 
 type Props = {
   children: React.ReactNode
-} & Omit<React.PropsWithoutRef<JSX.IntrinsicElements['kbd']>, 'children'>
+} & Omit<React.PropsWithoutRef<React.JSX.IntrinsicElements['kbd']>, 'children'>
 
 // @TODO style properly
 

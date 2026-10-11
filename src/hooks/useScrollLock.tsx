@@ -17,7 +17,7 @@ export function useScrollLock({
   enabled,
   reserveScrollBarGap,
 }: {
-  targetRef: React.RefObject<Element>
+  targetRef: React.RefObject<Element | null>
   enabled: boolean
   reserveScrollBarGap: boolean
 }) {

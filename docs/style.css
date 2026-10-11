@@ -1,6 +1,9 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import 'tailwindcss';
+@import './theme.css';
+@plugin '@tailwindcss/forms';
+
+@source '../docs';
+@source '../pages';
 
 @layer base {
   html,
@@ -20,7 +23,7 @@
   --rsbs-max-w: 640px;
   --rsbs-ml: auto;
   --rsbs-mr: auto;
-  @screen sm {
+  @media (width >= 40rem) {
     & [data-rsbs-overlay] {
       --rsbs-overlay-rounded: 16px;
     }

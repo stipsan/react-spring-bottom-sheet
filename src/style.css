@@ -60,16 +60,28 @@
 [data-rsbs-header] {
   flex-shrink: 0;
   cursor: ns-resize;
+  touch-action: none;
   padding: 16px;
 }
 [data-rsbs-header] {
+  position: relative;
   text-align: center;
   user-select: none;
-  box-shadow: 0 1px 0
-    rgba(46, 59, 66, calc(var(--rsbs-content-opacity) * 0.125));
   z-index: 1;
   padding-top: calc(20px + env(safe-area-inset-top));
   padding-bottom: 8px;
+}
+[data-rsbs-header]:after {
+  position: absolute;
+  content: '';
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 1px;
+  pointer-events: none;
+  background-color: rgba(46, 59, 66, 0.125);
+  opacity: var(--rsbs-content-opacity);
+  will-change: opacity;
 }
 [data-rsbs-header]:before {
   position: absolute;
@@ -89,8 +101,10 @@
   }
 }
 [data-rsbs-has-header='false'] [data-rsbs-header] {
-  box-shadow: none;
   padding-top: calc(12px + env(safe-area-inset-top));
+}
+[data-rsbs-has-header='false'] [data-rsbs-header]:after {
+  display: none;
 }
 [data-rsbs-scroll] {
   flex-shrink: 1;
@@ -115,16 +129,28 @@
   overflow: hidden;
 }
 [data-rsbs-footer] {
-  box-shadow: 0 -1px 0 rgba(46, 59, 66, calc(var(--rsbs-content-opacity) * 0.125)),
-    0 2px 0 var(--rsbs-bg);
+  position: relative;
+  box-shadow: 0 2px 0 var(--rsbs-bg);
   overflow: hidden;
   z-index: 1;
   padding-bottom: calc(16px + env(safe-area-inset-bottom));
 }
+[data-rsbs-footer]:before {
+  position: absolute;
+  content: '';
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 1px;
+  pointer-events: none;
+  background-color: rgba(46, 59, 66, 0.125);
+  opacity: var(--rsbs-content-opacity);
+  will-change: opacity;
+}
 
 [data-rsbs-is-dismissable='true'],
-[data-rsbs-is-dismissable='false']:matches([data-rsbs-state='opening'], [data-rsbs-state='closing']) {
-  & :matches([data-rsbs-header], [data-rsbs-scroll], [data-rsbs-footer]) > * {
+[data-rsbs-is-dismissable='false']:is([data-rsbs-state='opening'], [data-rsbs-state='closing']) {
+  & :is([data-rsbs-header], [data-rsbs-scroll], [data-rsbs-footer]) > * {
     opacity: var(--rsbs-content-opacity);
   }
   & [data-rsbs-backdrop] {
@@ -136,4 +162,8 @@
 [data-rsbs-state='closing'] {
   /* Allows interactions on the rest of the page before the close transition is finished */
   pointer-events: none;
+}
+[data-rsbs-state='closed'] {
+  /* Keeps a closed but still mounted sheet out of the tab order and the accessibility tree */
+  visibility: hidden;
 }

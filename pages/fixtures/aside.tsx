@@ -18,7 +18,7 @@ const AsideFixturePage: NextPage<GetStaticProps> = ({
   name,
 }) => {
   const [open, setOpen] = useState(true)
-  const focusRef = useRef<HTMLButtonElement>()
+  const focusRef = useRef<HTMLButtonElement>(null)
 
   useEffect(() => {
     // Setting focus is to aid keyboard and screen reader nav when activating this iframe
